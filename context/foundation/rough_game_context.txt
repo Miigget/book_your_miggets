@@ -1,0 +1,107 @@
+# Book Your Miggets — Domain Context
+
+## TeeWorlds
+
+TeeWorlds to darmowa, dwuwymiarowa gra multiplayer typu platformer, w której gracze sterują niewielką postacią nazywaną **Tee**. Gra posiada wiele tworzonych przez społeczność trybów rozgrywki, z których jednym jest **King of Gores (KoG)**.
+
+---
+
+## King of Gores (KoG)
+
+King of Gores to kooperacyjny tryb gry, którego celem jest przeprowadzenie całej drużyny od **Start** do **Finish** na specjalnie zaprojektowanej mapie.
+
+W przeciwieństwie do klasycznych platformówek, sukces zależy przede wszystkim od współpracy pomiędzy graczami. 
+
+---
+
+## Mechanika rozgrywki
+
+Każdy gracz steruje pojedynczym **Tee** znajdującym się w centrum ekranu.
+
+Podstawowe możliwości ruchu obejmują:
+
+* poruszanie się w lewo i prawo,
+* skok,
+* używanie **hooka**,
+* używanie **hammera**.
+
+Najważniejszym elementem rozgrywki jest **hook** — lina z hakiem, która pozwala przyciągać się do ścian oraz do innych graczy. To właśnie hook odpowiada za większość przemieszczania się po mapach i jest podstawą praktycznie wszystkich zaawansowanych technik.
+
+Drugim istotnym narzędziem jest **hammer**, który poza odpychaniem innych graczy pozwala również ratować ich z zamrożenia.
+
+---
+
+## Freeze
+
+Większość powierzchni na mapach można zaczepiać hookiem, jednak są one jednocześnie pokryte tzw. **freeze tiles**.
+
+Jeżeli Tee dotknie freeza, zostaje natychmiast zamrożony i traci możliwość wykonywania jakichkolwiek ruchów.
+
+Zamrożony gracz nie jest jednak wyeliminowany z rozgrywki — pozostali członkowie drużyny mogą go uratować:
+
+* przyciągając go hookiem,
+* uderzając hammerem, co natychmiast go odmraża.
+
+Mechanika ta sprawia, że współpraca pomiędzy graczami jest obowiązkowa, a nie jedynie opcjonalna.
+
+---
+
+## Run
+
+Społeczność KoG używa określenia **run** na pojedynczą próbę ukończenia konkretnej mapy.
+
+Run oznacza więc umówione podejście określonej grupy graczy do przejścia wybranej mapy.
+
+Ponieważ trudniejsze mapy wymagają bardzo dobrych i doświadczonych graczy, znalezienie odpowiedniego zespołu często stanowi większe wyzwanie niż sama rozgrywka.
+
+---
+
+## Problem społeczności
+
+TeeWorlds od wielu lat nie jest aktywnie rozwijany, a jego klient oferuje bardzo ograniczone możliwości organizowania wspólnej gry.
+
+Obecnie gracze organizują runy głównie poprzez:
+
+* Discord,
+* prywatne wiadomości,
+* rozmowy na serwerach gry.
+
+Nie istnieje dedykowane narzędzie pozwalające:
+
+* tworzyć ogłoszenia o planowanych runach,
+* umawiać się na konkretną godzinę,
+* wyszukiwać runy dla wybranej mapy,
+* kompletować drużynę spełniającą określone wymagania.
+
+To właśnie tę lukę ma wypełnić aplikacja **Book Your Miggets**.
+
+---
+
+## Migget
+
+**Migget** to mój wieloletni nickname używany w społeczności KoG.
+
+Jest rozpoznawalny przez znaczną część aktywnych graczy i z czasem stał się czymś więcej niż tylko nazwą użytkownika. W społeczności funkcjonuje również jako żartobliwe określenie osoby, która wnosi do runów dużo energii, chaosu i dobrej atmosfery.
+
+Przykładowe określenia używane przez innych graczy:
+
+* *"Migget" — a beloved term in the KoG community for players who bring chaos and enthusiasm to every run.*
+* *Grandpa Migget*
+* *Papa Migget*
+* *Uncle Migget*
+* *Gores Professor*
+* *Dziadek*
+* MiggAim - słabe, wręcz tragiczne umiejętności celowania
+* MiggSave - troll save, ratowanie innych graczy w taki sposób, że nie sa w stanie nawet zareagować i znowu lądują we freezie (albo jest bardzo ciężko zareagować)
+
+Choć wiele z tych określeń ma humorystyczny charakter, wszystkie odnoszą się do mojej wieloletniej obecności w społeczności oraz rozpoznawalności wśród graczy.
+
+---
+
+## Pochodzenie nazwy "Book Your Miggets"
+
+Nazwa aplikacji jest celową grą słów.
+
+Dosłownie nawiązuje do idei "zarezerwowania" swojej drużyny na wspólny run (*Book Your Team*), jednocześnie wykorzystując rozpoznawalny w społeczności pseudonim **Migget**.
+
+Dla osób spoza społeczności nazwa brzmi jak charakterystyczna marka aplikacji, natomiast dla graczy KoG stanowi wewnętrzny żart (inside joke), który jest łatwy do zrozumienia i zapamiętania.

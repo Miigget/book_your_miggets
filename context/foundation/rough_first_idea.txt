@@ -1,0 +1,40 @@
+# Book Your Miggets — MVP
+
+## Główny problem
+
+Społeczność trybu **King of Gores (KoG)** w grze **TeeWorlds** jest stosunkowo niewielka, a klient gry nie oferuje narzędzi do organizowania wspólnych runów. Znalezienie odpowiednich graczy, ustalenie terminu oraz skompletowanie drużyny do przejścia trudniejszych map odbywa się głównie przez in-game chat + "przeskakiwanie" po serwerach w grze, Discord i prywatne wiadomości, co jest niewygodne, czasochłonne i często kończy się niepowodzeniem.
+
+## Cel aplikacji
+
+Stworzenie webowej aplikacji umożliwiającej graczom organizowanie, planowanie oraz wyszukiwanie runów w trybie King of Gores. Aplikacja ma pełnić rolę prostego Team Findera / Run Schedulera, ułatwiającego kompletowanie drużyn i planowanie wspólnej gry z wyprzedzeniem.
+
+## Najmniejszy zestaw funkcjonalności
+
+* Rejestracja i logowanie użytkowników.
+* Tworzenie ogłoszeń (runów).
+* Wybór mapy podczas tworzenia runa (z listy lub poprzez wyszukiwarkę).
+* Ustawienie daty i godziny rozpoczęcia runa.
+* Określenie maksymalnej liczby uczestników.
+* Możliwość ustawienia minimalnej wymaganej liczby punktów jako próg wejścia dla graczy zapisujących się na run.
+* Zapisywanie się do istniejących runów.
+* Przeglądanie listy aktywnych runów.
+* Wyszukiwanie i filtrowanie runów (np. po mapie, dacie lub wymaganiach).
+* Wyświetlanie listy zapisanych uczestników dla każdego runa.
+
+## Co NIE wchodzi w zakres MVP
+
+* Integracja z klientem gry TeeWorlds.
+* Automatyczne pobieranie statystyk graczy z gry.
+* Powiadomienia w grze.
+* Zaawansowany system rankingów.
+* System znajomych i prywatnych wiadomości.
+* Komunikacja głosowa lub tekstowa wewnątrz aplikacji.
+* Aplikacje mobilne.
+* Rozbudowany system turniejów lub wydarzeń.
+
+## Kryteria sukcesu
+
+* Gracze są w stanie organizować i planować runy z wyprzedzeniem.
+* Tworzenie nowego runa zajmuje mniej niż minutę.
+* Użytkownicy bez problemu odnajdują interesujące ich runy dzięki filtrom i wyszukiwarce.
+* Aplikacja ułatwia kompletowanie drużyn do najtrudniejszych map poprzez planowanie runów z wyprzedzeniem.
