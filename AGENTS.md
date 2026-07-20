@@ -1,54 +1,45 @@
-# Rules for AI
+# Repository Guidelines
 
-This file provides guidance to AI Agent when working with code in this repository.
+Book Your Miggets is a Team Finder / Run Scheduler for TeeWorlds gores. Stack: Astro 6 SSR (`output: "server"` in `@astro.config.mjs`), React 19 islands, Tailwind 4, Supabase auth, shadcn/ui, Cloudflare Workers. Product scope: `@context/foundation/prd.md`. Starter reference: `@README_astro_starter.md`.
+
+## Hard Rules
+
+- Prefer Astro for layout/static UI; use React only for interactive islands. Never add Next.js directives (`"use client"`, etc.).
+- Merge Tailwind classes with `cn()` from `@/lib/utils` — do not concatenate class strings.
+- API routes export uppercase `GET` / `POST` under `src/pages/api/` (see `@src/pages/api/auth/signin.ts`).
+- Gate private pages via `PROTECTED_ROUTES` in `@src/middleware.ts` (currently `/dashboard`).
+- Secrets are `SUPABASE_URL` and `SUPABASE_KEY` (`@.env.example`). Use `.env` for Node or `.dev.vars` for Cloudflare local — both gitignored; never commit them.
+- When adding Postgres tables, place SQL in `supabase/migrations/` as `YYYYMMDDHHmmss_short_description.sql` and enable RLS with per-operation, per-role policies.
+
+## Project Structure
+
+- `src/pages/` — pages and API routes; auth screens in `src/pages/auth/`
+- `src/components/` — Astro/React UI; shadcn primitives in `src/components/ui/` (style `"new-york"` in `@components.json`)
+- `src/lib/` — Supabase client (`@src/lib/supabase.ts`), helpers (`utils.ts`, `config-status.ts`)
+- `src/layouts/`, `src/styles/` — document shell and global CSS
+- Add `src/types.ts` for shared DTOs when needed; put hooks in `src/components/hooks/` and extracted logic in `src/lib/services/`
 
 ## Commands
 
-- `npm run dev` — start dev server (Cloudflare workerd runtime)
-- `npm run build` — production build (SSR via `@astrojs/cloudflare`)
-- `npm run preview` — preview production build
-- `npm run lint` — ESLint with type-checked rules
-- `npm run lint:fix` — auto-fix lint issues
-- `npm run format` — Prettier (includes prettier-plugin-astro + prettier-plugin-tailwindcss)
+- `npm run dev` — local server (Cloudflare workerd)
+- `npm run build` / `npm run preview` — production build and preview
+- `npm run lint` / `npm run lint:fix` — ESLint with type-checked rules
+- `npm run format` — Prettier (Astro + Tailwind plugins)
+- Use Node `22.14.0` (`@.nvmrc`). Pre-commit (husky + lint-staged in `@package.json`): `eslint --fix` on `*.{ts,tsx,astro}`; Prettier on `*.{json,css,md}`.
 
-Pre-commit hooks: husky + lint-staged runs `eslint --fix` on `*.{ts,tsx,astro}` and `prettier --write` on `*.{json,css,md}`.
+## Coding Style
 
-## Architecture
+- TypeScript, 2-space indent, Prettier via `@.prettierrc.json` (printWidth 120, double quotes, trailing commas).
+- Path alias `@/*` → `./src/*` (`@tsconfig.json`).
+- Add shadcn components with `npx shadcn@latest add <name>` into `src/components/ui/`.
 
-**Astro 6 SSR app** with React 19 islands, Tailwind 4, Supabase auth, and shadcn/ui components. Deployed to Cloudflare Workers.
+## Commits & CI
 
-### Rendering mode
+- Commit style is not established yet (history is scaffold-only); prefer short imperative subjects.
+- CI (`@.github/workflows/ci.yml`) runs `astro sync`, `npm run lint`, and `npm run build` on push/PR to `main`. Build requires repository secrets `SUPABASE_URL` and `SUPABASE_KEY`.
+- No test runner or `test` script in `@package.json` — do not assume Vitest/Jest until both config and a script exist.
 
-Full server-side rendering (`output: "server"` in astro.config.mjs). All pages are server-rendered by default. API routes must export `const prerender = false`.
+## Auth & Deploy
 
-### Auth flow
-
-- `src/lib/supabase.ts` — creates a Supabase SSR client using `@supabase/ssr` with cookie-based sessions. Uses `astro:env/server` for `SUPABASE_URL` and `SUPABASE_KEY` (server-only secrets declared in astro.config.mjs `env.schema`).
-- `src/middleware.ts` — runs on every request, resolves the current user, attaches to `context.locals.user`. Redirects unauthenticated users away from routes listed in `PROTECTED_ROUTES`.
-- API endpoints: `src/pages/api/auth/{signin,signup,signout}.ts`
-- Auth pages: `src/pages/auth/{signin,signup,confirm-email}.astro`
-- Protected page example: `src/pages/dashboard.astro`
-
-### Key conventions
-
-- **Path alias**: `@/*` maps to `./src/*` (tsconfig paths).
-- **Astro components** for static content/layout; **React components** only when interactivity is needed.
-- **Tailwind class merging**: use the `cn()` helper from `@/lib/utils` (clsx + tailwind-merge) for conditional/merged class names. Do not concatenate class strings manually.
-- **shadcn/ui**: components live in `src/components/ui/`, "new-york" style variant. Install new ones with `npx shadcn@latest add [name]`.
-- **API routes**: use uppercase `GET`, `POST` exports; validate input with zod.
-- **Supabase migrations**: `supabase/migrations/` using naming format `YYYYMMDDHHmmss_short_description.sql`. Always enable RLS on new tables with granular per-operation, per-role policies.
-- **React**: no Next.js directives ("use client" etc.). Extract hooks to `src/components/hooks/`.
-- **Services/helpers** go in `src/lib/` (or `src/lib/services/` for extracted business logic).
-- **Shared types** (entities, DTOs) go in `src/types.ts`.
-
-### Environment
-
-- Node.js v22.14.0 (see `.nvmrc`)
-- Env vars: `SUPABASE_URL`, `SUPABASE_KEY` (copy `.env.example` to `.env` for Node, or `.dev.vars` for Cloudflare local dev)
-- Local Supabase: `npx supabase start` (requires Docker)
-- Cloudflare local dev: secrets go in `.dev.vars` (gitignored)
-- Deploy: `npx wrangler deploy` (requires Cloudflare account + `wrangler` auth)
-
-## CI
-
-GitHub Actions workflow (`.github/workflows/ci.yml`) runs lint + build on every push and PR to main. Requires `SUPABASE_URL` and `SUPABASE_KEY` repository secrets for the build step.
+- Cookie-session Supabase SSR client: `@src/lib/supabase.ts` (server env fields in `@astro.config.mjs`).
+- Local Supabase: `npx supabase start` (Docker). Deploy: `npx wrangler deploy` (`@wrangler.jsonc`).
