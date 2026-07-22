@@ -6,8 +6,8 @@ runner_up: Vercel
 context_type: mvp
 tech_stack:
   language: TypeScript
-  framework: Astro 6 (SSR) + React 19 islands
-  runtime: Cloudflare Workers (workerd) via @astrojs/cloudflare ^13.5.0 + wrangler ^4.90.0
+  framework: Astro 7 (SSR) + React 19 islands
+  runtime: Cloudflare Workers (workerd) via @astrojs/cloudflare ^14.1.4 + wrangler ^4.113.0
 interview:
   persistent_connections: unknown
   cost_vs_dx: roughly_equal
@@ -22,7 +22,7 @@ interview:
 
 The repo is already wired for this path: `output: "server"`, `@astrojs/cloudflare`, `wrangler.jsonc` with `nodejs_compat`, and `npx wrangler deploy` as the production path. At MVP traffic (10k–100k monthly requests) the Workers Free plan covers request volume (~100k/day), with a clear $5/mo Paid upgrade if CPU limits or Cron/Queues headroom matter. External Supabase stays the data/auth layer (interview: co-location not required). Single-region users do not need multi-region complexity; Workers still give simple global CDN for static assets at no extra ops cost.
 
-> Note: `tech-stack.md` hints `deployment_target: cloudflare-pages`, but current `@astrojs/cloudflare` (Astro 6) **no longer supports Cloudflare Pages** as a deploy target. Use **Workers**, not Pages.
+> Note: Current `@astrojs/cloudflare` (Astro 7) **does not support Cloudflare Pages** as a deploy target. Use **Workers**, not Pages.
 
 ## Platform Comparison
 
@@ -69,9 +69,9 @@ Credible third option with GA MCP and Astro adapter. Credit economics and lack o
 
 1. **CPU time limits** — Free plan caps ~10 ms CPU per invocation; Paid raises limits substantially ($5/mo). Heavy SSR + CPU-bound work can fail even when DB wait time is fine.
 2. **No always-on OS process** — Unlike AWS EC2 / Fly Machines, Workers do not keep a long-lived Node process. Timed archival needs Cron Triggers, Queues, or read-time derived status.
-3. **workerd ≠ full Node** — `nodejs_compat` helps, but some Node-native packages fail only on Workers. Local fidelity is good in Astro 6, but not identical to AWS Lambda/EC2 habits.
+3. **workerd ≠ full Node** — `nodejs_compat` helps, but some Node-native packages fail only on Workers. Local fidelity is good in Astro 7, but not identical to AWS Lambda/EC2 habits.
 4. **Secrets do not roll back with code** — `wrangler rollback` restores a prior Worker version; current secret values remain. Mismatched `SUPABASE_KEY` after rollback can break auth.
-5. **Pages vs Workers confusion** — Older docs and the tech-stack hint say Pages; shipping to Pages against current `@astrojs/cloudflare` is a dead end.
+5. **Pages vs Workers confusion** — Older docs and tutorials may say Pages; shipping to Pages against current `@astrojs/cloudflare` is a dead end.
 
 ### Pre-Mortem — How This Could Fail
 
@@ -79,9 +79,9 @@ The team shipped Astro SSR on Cloudflare because the starter did. Early traffic 
 
 ### Unknown Unknowns
 
-- Astro 6 + `@astrojs/cloudflare` v13+: `astro dev` / `astro preview` already use the Cloudflare Vite plugin and **workerd** — do not treat legacy `wrangler pages dev` as the daily loop.
+- Astro 7 + `@astrojs/cloudflare` v14: `astro dev` / `astro preview` use the Cloudflare Vite plugin and **workerd** — do not treat legacy `wrangler pages dev` as the daily loop.
 - Adapter **dropped Cloudflare Pages** support — deploy target is **Workers** (`wrangler deploy` after `astro build`).
-- Project pins `@astrojs/cloudflare` ^13.5.0 while newer public docs may describe v14 APIs — verify commands against the locked version before copying blog snippets.
+- Project pins `@astrojs/cloudflare` ^14.1.4 (requires Vite 8 via package.json overrides) — verify commands against the locked version before copying blog snippets.
 - Supabase remains external — two operational surfaces (Workers secrets + Supabase project).
 - AWS experience does not map 1:1 (no VPC/security groups); model is functions + bindings (KV/R2/Cron/Queues).
 
@@ -103,14 +103,14 @@ The team shipped Astro SSR on Cloudflare because the starter did. Early traffic 
 | Rollback leaves newer secrets → auth outage | Devil's advocate | L | H | Document secret+code coupling; after rollback, verify Supabase auth; avoid rotating secrets in the same change as risky deploys |
 | Accidental Pages-targeted tutorials / CI | Unknown unknowns / Research | M | M | Standardize on Workers + `wrangler deploy`; update AGENTS/tech-stack language away from Pages |
 | Dual-vendor ops (Cloudflare + Supabase) confuse beginners | Unknown unknowns | M | L | One checklist: wrangler secrets ↔ Supabase URL/key; separate staging Supabase project when possible |
-| Doc lag (entrypoint paths, Astro 6 “beta” notes in older CF guides) | Research finding | M | L | Prefer locked package versions + Astro adapter docs over third-party copy-paste |
+| Doc lag (entrypoint paths, outdated Astro/CF guides) | Research finding | M | L | Prefer locked package versions + Astro adapter docs over third-party copy-paste |
 
 ## Getting Started
 
-Commands match this repo’s pinned stack (Astro ^6.3.1, `@astrojs/cloudflare` ^13.5.0, wrangler ^4.90.0, Node 22.14.0 per `.nvmrc`):
+Commands match this repo’s pinned stack (Astro ^7.1.3, `@astrojs/cloudflare` ^14.1.4, wrangler ^4.113.0, Node 22.14.0 per `.nvmrc`):
 
 1. **Use the existing Node version** — `nvm use` (or install Node `22.14.0`). Dependencies already include the Cloudflare adapter and wrangler.
-2. **Local secrets** — copy `.env.example` patterns into gitignored `.dev.vars` with `SUPABASE_URL` and `SUPABASE_KEY` for `astro dev` (workerd-backed in Astro 6 — no separate Pages-oriented wrangler loop required for day-to-day UI work).
+2. **Local secrets** — copy `.env.example` patterns into gitignored `.dev.vars` with `SUPABASE_URL` and `SUPABASE_KEY` for `astro dev` (workerd-backed in Astro 7 — no separate Pages-oriented wrangler loop required for day-to-day UI work).
 3. **Build & deploy** — `npm run build` then `npx wrangler deploy`. First-time: `npx wrangler login`. Confirm `wrangler.jsonc` `main` stays `@astrojs/cloudflare/entrypoints/server`.
 4. **Production secrets** — `npx wrangler secret put SUPABASE_URL` and `npx wrangler secret put SUPABASE_KEY` (do not commit secrets).
 5. **Verify ops loop** — hit the Worker URL; on failure run `npx wrangler tail --status error`; to undo a bad release run `npx wrangler rollback`.

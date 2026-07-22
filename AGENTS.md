@@ -1,6 +1,6 @@
 # Repository Guidelines
 
-Book Your Miggets is a Team Finder / Run Scheduler for TeeWorlds gores. Stack: Astro 6 SSR (`output: "server"` in `@astro.config.mjs`), React 19 islands, Tailwind 4, Supabase auth, shadcn/ui, Cloudflare Workers. Product scope: `@context/foundation/prd.md`. Starter reference: `@README_astro_starter.md`.
+Book Your Miggets is a Team Finder / Run Scheduler for TeeWorlds gores. Stack: Astro 7 SSR (`output: "server"` in `@astro.config.mjs`), React 19 islands, Tailwind 4, Supabase auth, shadcn/ui, Cloudflare Workers. Product scope: `@context/foundation/prd.md`. Starter reference: `@README_astro_starter.md`.
 
 ## Hard Rules
 

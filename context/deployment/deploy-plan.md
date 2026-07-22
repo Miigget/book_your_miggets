@@ -2,7 +2,7 @@
 
 **Projekt:** Book Your Miggets  
 **Data planu:** 2026-07-22  
-**Źródła:** `context/foundation/infrastructure.md`, `context/foundation/tech-stack.md`, docs Astro 6 / `@astrojs/cloudflare` v13+, Cloudflare Workers, Supabase Auth  
+**Źródła:** `context/foundation/infrastructure.md`, `context/foundation/tech-stack.md`, docs Astro 7 / `@astrojs/cloudflare` v14+, Cloudflare Workers, Supabase Auth  
 **Cel docelowy:** produkcyjna aplikacja SSR na **Cloudflare Workers** (nie Pages), z auth/DB w **Supabase** i automatycznym deployem z **GitHub**.
 
 ---
@@ -12,16 +12,16 @@
 
 | Element                                                      | Stan                                                   |
 | ------------------------------------------------------------ | ------------------------------------------------------ |
-| Astro 6 SSR (`output: "server"`)                             | ✅                                                      |
-| Adapter `@astrojs/cloudflare` ^13.5.0                        | ✅                                                      |
+| Astro 7 SSR (`output: "server"`)                             | ✅                                                      |
+| Adapter `@astrojs/cloudflare` ^14.1.4                        | ✅                                                      |
 | `wrangler.jsonc` + `nodejs_compat` + observability           | ✅                                                      |
 | Sekrety `SUPABASE_URL` / `SUPABASE_KEY` w `astro.config.mjs` | ✅                                                      |
 | CI: lint + build na `main` (bez deployu)                     | ✅ częściowo                                            |
 | Nazwa Workera w `wrangler.jsonc`                             | ⚠️ nadal `10x-astro-starter` — zmienić przed produkcją |
-| Hint w `tech-stack.md`: `cloudflare-pages`                   | ⚠️ **nieaktualny** — deployujemy na **Workers**        |
+| Hint w `tech-stack.md`: `cloudflare-workers`                 | ✅                                                      |
 
 
-> **Ważne:** Astro 6 + `@astrojs/cloudflare` v13+ **nie wspiera Cloudflare Pages**. Wszystkie poradniki „Deploy to Pages” pomijamy. Poprawna ścieżka: `npm run build` → `npx wrangler deploy`.
+> **Ważne:** Astro 7 + `@astrojs/cloudflare` v14+ **nie wspiera Cloudflare Pages**. Wszystkie poradniki „Deploy to Pages” pomijamy. Poprawna ścieżka: `npm run build` → `npx wrangler deploy`.
 
 ---
 
@@ -227,7 +227,7 @@ Cel: złapać błędy workerd **zanim** pójdą na Cloudflare.
 - [ ] `npm run lint`
 - [ ] `npm run build` (musi przejść z ustawionymi `SUPABASE_*`)
 - [ ] `npm run preview` — krótki smoke test UI / logowania
-- [ ] `npm run dev` — codzienna praca; w Astro 6 to już runtime Cloudflare (`workerd`), nie „zwykły Node”
+- [ ] `npm run dev` — codzienna praca; w Astro 7 to już runtime Cloudflare (`workerd`), nie „zwykły Node”
 
 **(EDGE) Pakiet npm działa lokalnie „na Node”, a pada na Workers**  
 → Testuj zawsze przez `astro dev` / `astro preview`. Unikaj natywnych addonów Node. Flaga `nodejs_compat` już jest włączona.
@@ -361,8 +361,8 @@ Sekrety Workera (`SUPABASE_*`) ustaw raz przez `wrangler secret put` (Faza 4) **
 - [ ] Nazwa Workera w dashboardzie **=** `name` w `wrangler.jsonc` (inaczej build padnie)
 - [ ] Preview URL chronione, jeśli wskazują na prod Supabase (osobny projekt Supabase lub Cloudflare Access)
 
-**(EDGE) Astro 6 environments**  
-Nie polegaj na samym `wrangler deploy --env staging` po buildzie. Od Astro 6 środowisko ustala się przy buildzie:
+**(EDGE) Astro 7 environments**  
+Nie polegaj na samym `wrangler deploy --env staging` po buildzie. Od Astro 7 środowisko ustala się przy buildzie:
 
 ```bash
 CLOUDFLARE_ENV=staging npm run build && npx wrangler deploy
