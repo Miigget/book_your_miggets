@@ -16,8 +16,13 @@
 | Adapter `@astrojs/cloudflare` ^14.1.4                        | ✅                                                      |
 | `wrangler.jsonc` + `nodejs_compat` + observability           | ✅                                                      |
 | Sekrety `SUPABASE_URL` / `SUPABASE_KEY` w `astro.config.mjs` | ✅                                                      |
-| CI: lint + build na `main` (bez deployu)                     | ✅ częściowo                                            |
-| Nazwa Workera w `wrangler.jsonc`                             | ⚠️ nadal `10x-astro-starter` — zmienić przed produkcją |
+| CI: lint + build na `main` (bez deployu)                     | ✅ gałąź `main` + sekrety `SUPABASE_*`; bez auto-deploy |
+| Nazwa Workera w `wrangler.jsonc`                             | ✅ `book-your-miggets`                                  |
+| Lokalne `.dev.vars` + lint/build przed deployem              | ✅                                                      |
+| Sekrety GitHub `SUPABASE_URL` / `SUPABASE_KEY`               | ✅                                                      |
+| Pierwszy deploy Workers + sekrety Workera                    | ✅ `https://book-your-miggets.bookyourmiggets.workers.dev` |
+| Auth e2e na produkcji (signup → confirm → dashboard)         | ✅                                                      |
+| Workflow auto-deploy (`.github/workflows/deploy.yml`)        | ✅ kod + wszystkie 4 sekrety GitHub                     |
 | Hint w `tech-stack.md`: `cloudflare-workers`                 | ✅                                                      |
 
 
@@ -120,36 +125,46 @@ Cel: nazwa Workera i lokalne sekrety zgodne z produkcją (bez wrzucania tajemnic
 
 Obecna nazwa w `wrangler.jsonc` to `10x-astro-starter`. Cloudflare wymaga spójności nazwy w dashboardzie i w pliku.
 
-- [ ] Zmień `"name"` w `wrangler.jsonc` na np. `book-your-miggets`
-- [ ] (Opcjonalnie) zsynchronizuj `"name"` w `package.json`
-- [ ] Upewnij się, że `"main"` to nadal `@astrojs/cloudflare/entrypoints/server`
-- [ ] Upewnij się, że jest `compatibility_flags: ["nodejs_compat"]`
+- [x] Zmień `"name"` w `wrangler.jsonc` na np. `book-your-miggets`
+- [x] (Opcjonalnie) zsynchronizuj `"name"` w `package.json`
+- [x] Upewnij się, że `"main"` to nadal `@astrojs/cloudflare/entrypoints/server`
+- [x] Upewnij się, że jest `compatibility_flags: ["nodejs_compat"]`
 
 
 
 ### 1.2 Lokalne sekrety pod cloud Supabase **(RĘCZNE + pliki lokalne)**
 
-**Skąd wziąć klucze (panel Supabase):**
+Supabase rozdzielił „adres projektu” i „klucze” na różne ekrany. Klucze `anon` / `service_role` są oznaczone jako **Legacy** — na nowych projektach używaj **publishable** (zamiast anon).
 
-1. Otwórz swój projekt w Supabase
-2. Lewy pasek → **Project Settings** (ikona koła zębatego)
-3. Zakładka **API**
-4. Skopiuj:
-  - **Project URL** → to będzie `SUPABASE_URL` (wygląda jak `https://xxxxx.supabase.co`)
-  - **anon public** key → to będzie `SUPABASE_KEY`  
-    > Używaj klucza **anon** (publicznego). **Nie** używaj `service_role` w aplikacji — omija zabezpieczenia RLS.
+**Skąd wziąć Project URL (adres projektu):**
+
+Najprościej: w górze dashboardu projektu przycisk **Connect** — tam jest URL + gotowe wartości do wklejenia.
+
+Albo ręcznie:
+1. W ustawieniach projektu (koło zębate) → w lewej kolumnie **INTEGRATIONS** → **Data API**
+2. Skopiuj **Project URL** (wygląda jak `https://xxxxx.supabase.co`)
+
+**Skąd wziąć klucz (to, co masz na ekranie API Keys):**
+
+1. **CONFIGURATION** → **API Keys**
+2. Zostań na zakładce **Publishable and secret API keys** (nie Legacy)
+3. Skopiuj **Publishable key** (`sb_publishable_...`) → to będzie `SUPABASE_KEY`
+  - To zamiennik starego **anon** — bezpieczny do aplikacji przy włączonym RLS
+  - **Nie** używaj **Secret key** (`sb_secret_...`) w tej aplikacji — to odpowiednik starego `service_role` (pełny dostęp, omija RLS)
+
+*(Opcja awaryjna: zakładka **Legacy anon, service_role** → klucz `anon` też zadziała, ale publishable jest zalecanym wyborem.)*
 
 **Co zrobić lokalnie:**
 
-- [ ] Skopiuj wzorzec: `cp .env.example .dev.vars`
-- [ ] Wpisz do `.dev.vars` (oraz opcjonalnie `.env`) wartości z panelu:
+- [x] Skopiuj wzorzec: `cp .env.example .dev.vars` (jeśli plik już istnieje — tylko uzupełnij wartości)
+- [x] Wpisz do `.dev.vars` (oraz opcjonalnie `.env`) wartości z panelu:
 
 ```text
 SUPABASE_URL=https://TWOJ-PROJECT-REF.supabase.co
-SUPABASE_KEY=twoj-anon-key
+SUPABASE_KEY=sb_publishable_...
 ```
 
-- [ ] Sprawdź, że `.dev.vars` i `.env` **nie** są commitowane (są w `.gitignore`)
+- [x] Sprawdź, że `.dev.vars` i `.env` **nie** są commitowane (są w `.gitignore`)
 
 
 
@@ -186,8 +201,10 @@ W panelu Supabase:
   - `https://book-your-miggets.TWOJA-SUBDOMENA.workers.dev/**`
   - docelową domenę `https://twoja-domena.pl/**` (gdy będzie)
 
-- [ ] Site URL = produkcja (nie localhost)
-- [ ] Redirect URLs zawierają lokal + produkcję (+ preview, jeśli używasz)
+- [x] Site URL = produkcja (nie localhost) → `https://book-your-miggets.bookyourmiggets.workers.dev`
+- [x] Redirect URLs zawierają lokal + produkcję (+ preview, jeśli używasz)
+  - `http://localhost:4321/**`
+  - `https://book-your-miggets.bookyourmiggets.workers.dev/**`
 - [ ] Po zmianie domeny **zaktualizuj** te pola ponownie
 
 **(EDGE) Link z e-maila wraca na localhost**  
@@ -198,19 +215,19 @@ W panelu Supabase:
 
 ### 2.2 Potwierdzanie e-maila **(RĘCZNE)**
 
-- [ ] Decyzja produktowa: czy w MVP wymagacie potwierdzenia e-maila?
-  - **Tak (bezpieczniej):** zostaw włączone; użytkownik zobaczy `/auth/confirm-email`
+- [x] Decyzja produktowa: czy w MVP wymagacie potwierdzenia e-maila?
+  - **Tak (bezpieczniej):** zostaw włączone; użytkownik zobaczy `/auth/confirm-email` ← wybrane (`mailer_autoconfirm: false`)
   - **Nie (szybsze testy):** Authentication → Providers → Email → wyłącz „Confirm email”
-- [ ] Sprawdź skrzynkę **Spam** przy pierwszym signupie (domyślne maile Supabase bywają filtrowane)
+- [x] Sprawdź skrzynkę **Spam** przy pierwszym signupie (domyślne maile Supabase bywają filtrowane)
 - [ ] (Później, przed szerszym launchiem) rozważ własny SMTP w Supabase → Settings → Auth → SMTP
 
 
 
 ### 2.3 Checklist „Auth działa end-to-end”
 
-- [ ] Rejestracja nowego użytkownika
-- [ ] Potwierdzenie e-maila (jeśli włączone) → powrót na produkcyjny URL
-- [ ] Logowanie → dostęp do `/dashboard`
+- [x] Rejestracja nowego użytkownika
+- [x] Potwierdzenie e-maila (jeśli włączone) → powrót na produkcyjny URL
+- [x] Logowanie → dostęp do `/dashboard`
 - [ ] Wylogowanie
 
 ---
@@ -221,11 +238,11 @@ W panelu Supabase:
 
 Cel: złapać błędy workerd **zanim** pójdą na Cloudflare.
 
-- [ ] `nvm use` (Node 22.14.0)
-- [ ] `npm install`
-- [ ] `.dev.vars` wypełnione
-- [ ] `npm run lint`
-- [ ] `npm run build` (musi przejść z ustawionymi `SUPABASE_*`)
+- [x] `nvm use` (Node 22.14.0)
+- [x] `npm install`
+- [x] `.dev.vars` wypełnione
+- [x] `npm run lint`
+- [x] `npm run build` (musi przejść z ustawionymi `SUPABASE_*`)
 - [ ] `npm run preview` — krótki smoke test UI / logowania
 - [ ] `npm run dev` — codzienna praca; w Astro 7 to już runtime Cloudflare (`workerd`), nie „zwykły Node”
 
@@ -234,6 +251,9 @@ Cel: złapać błędy workerd **zanim** pójdą na Cloudflare.
 
 **(EDGE) Build w CI pada na brak sekretów**  
 → W GitHub → Settings → Secrets and variables → Actions dodaj `SUPABASE_URL` i `SUPABASE_KEY` (te same anon wartości co lokalnie). Workflow `.github/workflows/ci.yml` już ich używa przy `npm run build`.
+
+- [x] Sekrety GitHub `SUPABASE_URL` + `SUPABASE_KEY` dodane (te same wartości co w `.dev.vars`)
+- [x] Workflow CI nasłuchuje gałąź `main` (nie `master`)
 
 ---
 
@@ -245,17 +265,18 @@ Cel: jeden działający URL `*.workers.dev` bez CI.
 
 ### 4.1 Logowanie Wrangler do Cloudflare **(RĘCZNE + CLI)**
 
-- [ ] W katalogu projektu: `npx wrangler login`
-- [ ] Otworzy się przeglądarka — zatwierdź dostęp
-- [ ] Sprawdź: `npx wrangler whoami` (powinno pokazać konto)
+- [x] W katalogu projektu: `npx wrangler login`
+- [x] Otworzy się przeglądarka — zatwierdź dostęp
+- [x] Sprawdź: `npx wrangler whoami` (powinno pokazać konto)
 
 
 
 ### 4.2 Build i deploy **(CLI / AGENT OK)**
 
-- [ ] `npm run build`
-- [ ] `npx wrangler deploy`
-- [ ] Zapisz wyświetlony URL Workera (np. `https://book-your-miggets.<subdomain>.workers.dev`)
+- [x] `npm run build`
+- [x] Zarejestrowano account subdomain `workers.dev`: `bookyourmiggets` (API Cloudflare)
+- [x] `npx wrangler deploy`
+- [x] Zapisz wyświetlony URL Workera: `https://book-your-miggets.bookyourmiggets.workers.dev`
 
 > Nie używaj `wrangler pages deploy` ani UI „Pages project”.
 
@@ -265,20 +286,20 @@ Cel: jeden działający URL `*.workers.dev` bez CI.
 
 Lokalne `.dev.vars` **nie** trafiają automatycznie na produkcję.
 
-- [ ] `npx wrangler secret put SUPABASE_URL`  
+- [x] `npx wrangler secret put SUPABASE_URL`  
   → wklej Project URL z Supabase i Enter
-- [ ] `npx wrangler secret put SUPABASE_KEY`  
+- [x] `npx wrangler secret put SUPABASE_KEY`  
   → wklej **anon** key i Enter
-- [ ] Sprawdź listę nazw (bez wartości): `npx wrangler secret list`
+- [x] Sprawdź listę nazw (bez wartości): `npx wrangler secret list`
 
 **(EDGE) Strona działa, ale logowanie mówi „Supabase is not configured”**  
 → Sekrety nie są ustawione albo mają złe nazwy. Ponów `secret put`. Potem odśwież stronę (czasem potrzeba chwili na propagację).
 
 ### 4.4 Smoke test na URL Workera
 
-- [ ] Strona główna się ładuje
-- [ ] Signup / signin działa
-- [ ] `/dashboard` bez sesji → przekierowanie na `/auth/signin`
+- [x] Strona główna się ładuje
+- [x] Signup / signin działa
+- [x] `/dashboard` bez sesji → przekierowanie na `/auth/signin`
 - [ ] Przy błędzie: `npx wrangler tail --status error`
 
 ---
@@ -287,8 +308,8 @@ Lokalne `.dev.vars` **nie** trafiają automatycznie na produkcję.
 
 ## Faza 5 — Domknięcie Supabase pod adres Workera
 
-- [ ] Uzupełnij **Site URL** i **Redirect URLs** adresem z Fazy 4 (patrz Faza 2)
-- [ ] Powtórz test rejestracji z prawdziwym mailem na produkcji
+- [x] Uzupełnij **Site URL** i **Redirect URLs** adresem z Fazy 4 (patrz Faza 2)
+- [x] Powtórz test rejestracji z prawdziwym mailem na produkcji
 - [ ] (Opcjonalnie) osobny projekt Supabase na staging / preview, żeby preview nie psuł danych prod
 
 ---
@@ -311,6 +332,9 @@ Obecne CI tylko buduje — poniżej dwie ścieżki (wybierz jedną na start).
 3. Skopiuj token **raz** (potem go nie zobaczysz) → zapisz w menedżerze haseł
 4. Account ID znajdziesz w Cloudflare Dashboard → prawy pasek / Overview konta (ciąg hex)
 
+- [x] Token API utworzony programowo (`POST /user/tokens`, nazwa: `book-your-miggets-github-actions`) — uprawnienia: Workers Scripts Write, Workers KV Storage Write, Account Settings Read
+- [x] Account ID: `563e04070fe593dcd94fbf3a76c63ab3`
+
 
 
 #### 6.A.2 Sekrety w GitHub **(RĘCZNE)**
@@ -326,17 +350,21 @@ Repo → **Settings** → **Secrets and variables** → **Actions** → **New re
 | `SUPABASE_KEY`          | anon key                |
 
 
-- [ ] Wszystkie 4 sekrety dodane
-- [ ] Fork PR **nie** powinny dostawać sekretów produkcyjnych (domyślne zachowanie GitHub dla secrets — nie zmieniaj lekkomyślnie)
+- [x] `SUPABASE_URL` dodany
+- [x] `SUPABASE_KEY` dodany
+- [x] `CLOUDFLARE_API_TOKEN` dodany (token `book-your-miggets-github-actions`, utworzony przez API)
+- [x] `CLOUDFLARE_ACCOUNT_ID` dodany
+- [x] Fork PR **nie** powinny dostawać sekretów produkcyjnych (domyślne zachowanie GitHub dla secrets — nie zmieniaj lekkomyślnie)
 
 
 
 #### 6.A.3 Workflow deploy **(KOD)**
 
-- [ ] Rozszerz CI albo dodaj workflow deploy na push do `master`/`main` po udanym buildzie
-- [ ] Użyj `cloudflare/wrangler-action@v3` z `apiToken` + `accountId`
-- [ ] Deploy dopiero po merge do głównej gałęzi (nie z każdego PR na prod)
-- [ ] Node w CI: **22** (jak w istniejącym workflow)
+- [x] CI uruchamia się na push/PR do `main` (lint + build; bez deployu — to dopiero poniżej)
+- [x] Rozszerz CI albo dodaj workflow deploy na push do `main` po udanym buildzie → `.github/workflows/deploy.yml`
+- [x] Użyj `cloudflare/wrangler-action@v3` z `apiToken` + `accountId`
+- [x] Deploy dopiero po merge do głównej gałęzi (nie z każdego PR na prod)
+- [x] Node w CI: **22** (jak w istniejącym workflow)
 
 Przykładowy szkielet (do dopasowania do gałęzi `master`/`main`):
 
@@ -406,7 +434,7 @@ CLOUDFLARE_ENV=staging npm run build && npx wrangler deploy
 
 ### 8.1 Logi i obserwowalność
 
-- [ ] W `wrangler.jsonc` jest `"observability": { "enabled": true }` — OK
+- [x] W `wrangler.jsonc` jest `"observability": { "enabled": true }` — OK
 - [ ] Incydent: `npx wrangler tail --status error`
 - [ ] Równolegle: Supabase → Logs (Auth / Postgres), gdy pada logowanie lub zapytania
 
@@ -471,13 +499,13 @@ PRD wymaga: 1 h po starcie → status in-progress, potem archiwum.
 
 ## Faza 10 — Definition of Done (checklista launch)
 
-- [ ] Worker o docelowej nazwie wdrożony na Cloudflare
-- [ ] `SUPABASE_URL` + `SUPABASE_KEY` (anon) ustawione jako sekrety Workera
-- [ ] Signup / signin / dashboard działa na URL produkcji
-- [ ] Supabase Site URL + Redirect URLs wskazują produkcję (+ localhost do dev)
-- [ ] CI zielone na głównej gałęzi; deploy automatyczny **albo** udokumentowany ręczny `wrangler deploy`
-- [ ] Wiadomo, jak zrobić rollback i gdzie oglądać logi
-- [ ] Zespół wie: **Workers ≠ Pages**; nie kopiujemy starych tutoriali Pages
+- [x] Worker o docelowej nazwie wdrożony na Cloudflare
+- [x] `SUPABASE_URL` + `SUPABASE_KEY` (anon) ustawione jako sekrety Workera
+- [x] Signup / signin / dashboard działa na URL produkcji
+- [x] Supabase Site URL + Redirect URLs wskazują produkcję (+ localhost do dev)
+- [ ] CI zielone na głównej gałęzi; deploy automatyczny **albo** udokumentowany ręczny `wrangler deploy` — sekrety + workflow w tym commicie; weryfikacja po pushu na `main`
+- [x] Wiadomo, jak zrobić rollback i gdzie oglądać logi (`wrangler rollback` / `wrangler tail`; Supabase Logs)
+- [x] Zespół wie: **Workers ≠ Pages**; nie kopiujemy starych tutoriali Pages
 - [ ] (Opcjonalnie) własna domena + zaktualizowane URL Auth
 - [ ] (Opcjonalnie) plan Paid, jeśli Free zaczyna limituwać
 
