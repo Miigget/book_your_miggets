@@ -503,7 +503,7 @@ PRD wymaga: 1 h po starcie → status in-progress, potem archiwum.
 - [x] `SUPABASE_URL` + `SUPABASE_KEY` (anon) ustawione jako sekrety Workera
 - [x] Signup / signin / dashboard działa na URL produkcji
 - [x] Supabase Site URL + Redirect URLs wskazują produkcję (+ localhost do dev)
-- [ ] CI zielone na głównej gałęzi; deploy automatyczny **albo** udokumentowany ręczny `wrangler deploy` — sekrety + workflow w tym commicie; weryfikacja po pushu na `main`
+- [x] CI zielone na głównej gałęzi; deploy automatyczny **albo** udokumentowany ręczny `wrangler deploy`
 - [x] Wiadomo, jak zrobić rollback i gdzie oglądać logi (`wrangler rollback` / `wrangler tail`; Supabase Logs)
 - [x] Zespół wie: **Workers ≠ Pages**; nie kopiujemy starych tutoriali Pages
 - [ ] (Opcjonalnie) własna domena + zaktualizowane URL Auth
