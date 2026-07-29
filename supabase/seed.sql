@@ -1,0 +1,3 @@
+-- Seed stub for local `supabase db reset`.
+-- Map catalog / default admin seeding intentionally deferred (S-01 / S-06).
+-- No credentials or product data here.

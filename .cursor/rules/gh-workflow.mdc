@@ -1,11 +1,11 @@
 ---
-description: Route implement/push/release/roadmap-sync through gh-* skills (survives 10x skill updates)
+description: Route implement/push/release/roadmap-sync/change-sync through gh-* skills (survives 10x skill updates)
 alwaysApply: true
 ---
 
 # GitHub agent workflow
 
-Config: `.github/agent-workflow.yml`. Skills: `~/.cursor/skills/gh-{issues,ship,release,roadmap-sync}/`.
+Config: `.github/agent-workflow.yml`. Skills: `~/.cursor/skills/gh-{issues,ship,release,roadmap-sync,change-sync}/`.
 
 **Do not edit** `.cursor/skills/10x-*` for GitHub/Kanban hooks — `10x get` overwrites those. Put durable behavior here and in `gh-*` skills instead.
 
@@ -17,6 +17,7 @@ Config: `.github/agent-workflow.yml`. Skills: `~/.cursor/skills/gh-{issues,ship,
 | Push / PR / merge **without** production deploy | **`gh-ship`** |
 | Deploy / release / tag from any branch | **`gh-release` once** (embeds ship → tag → CD → close) |
 | Sync roadmap → board / `/gh-roadmap-sync` | **`gh-roadmap-sync`** |
+| `/10x-new` / plan / plan-review / implement / archive milestones | **`gh-change-sync`** (issue + Kanban from change folder) |
 
 Production from a feature branch: **`/gh-release`** only (no separate `/gh-ship`).
 
@@ -30,12 +31,27 @@ When `context/foundation/roadmap.md` was just generated or regenerated in this s
 
 This ask lives here on purpose so 10x updates to `10x-roadmap` cannot remove it.
 
+## After 10x change skills (mandatory sync)
+
+Do **not** patch 10x skills. After each milestone below, read and run **`gh-change-sync`** (unless user opted out of issues):
+
+| Milestone | Sync |
+|-----------|------|
+| `/10x-new` created `change.md` | `--event new` (+ ask `--parent` if change-id ∉ roadmap Change IDs) |
+| `/10x-plan` wrote plan + brief | `--event planned` |
+| `/10x-plan-review` saved report | `--event plan_reviewed` |
+| `/10x-implement` set `implementing` | `--event implementing` |
+| All phases done → `implemented` | `--event implemented` |
+| `/10x-archive` finished | `--event archived` |
+
+Hybrid: same change-id as roadmap → link existing F-*/S-* card + label `change`. Otherwise create `change` issue; sub-issue only with explicit parent.
+
 ## Hard gates
 
 - No commit / push / PR / merge / tag unless the user asked.
 - Never merge while CI is pending or failing (`gh pr checks`).
-- Issues: English; one type label (`bug`|`enhancement`|`documentation`); add `foundation`|`slice`|`north-star` when roadmap-mapped.
-- Kanban only via `~/.cursor/skills/gh-issues/scripts/kanban-*.sh` (or `gh-roadmap-sync` script).
+- Issues: English; one type label (`bug`|`enhancement`|`documentation`); add `foundation`|`slice`|`north-star` when roadmap-mapped; add `change` for 10x change folders.
+- Kanban only via `~/.cursor/skills/gh-issues/scripts/kanban-*.sh` (or `gh-roadmap-sync` / `gh-change-sync` scripts).
 - `cd_trigger: tag` — merge to `main` ≠ deploy; production = `/gh-release`.
 - After implementation: English comment **and** Kanban **In review** same turn.
 
