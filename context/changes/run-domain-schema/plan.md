@@ -303,10 +303,10 @@ Run in SQL Editor after identifying the user id. Default remains `member` for al
 
 #### Automated
 
-- [x] 3.1 `npx supabase db push` exits 0 (or equivalent successful apply)
-- [x] 3.2 Remote schema lists `profiles`, `runs`, `run_participants`
+- [x] 3.1 `npx supabase db push` exits 0 (or equivalent successful apply) — 8aef512
+- [x] 3.2 Remote schema lists `profiles`, `runs`, `run_participants` — 8aef512
 
 #### Manual
 
-- [x] 3.3 Promote-admin SQL works on one real account in the target project
-- [x] 3.4 App still boots against remote Auth (signup/signin) with no regression
+- [x] 3.3 Promote-admin SQL works on one real account in the target project — 8aef512
+- [x] 3.4 App still boots against remote Auth (signup/signin) with no regression — 8aef512
