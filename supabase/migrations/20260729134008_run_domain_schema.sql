@@ -174,12 +174,7 @@ create policy "profiles_update_own"
   for update
   to authenticated
   using ((select auth.uid()) = id)
-  with check (
-    (select auth.uid()) = id
-    and role = (select p.role from public.profiles p where p.id = (select auth.uid()))
-    and is_verified = (select p.is_verified from public.profiles p where p.id = (select auth.uid()))
-    and is_banned = (select p.is_banned from public.profiles p where p.id = (select auth.uid()))
-  );
+  with check ((select auth.uid()) = id);
 
 create policy "profiles_update_admin"
   on public.profiles

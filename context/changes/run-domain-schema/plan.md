@@ -276,28 +276,28 @@ Run in SQL Editor after identifying the user id. Default remains `member` for al
 
 #### Automated
 
-- [x] 1.1 Migration file exists under `supabase/migrations/` with AGENTS naming
-- [x] 1.2 `supabase/seed.sql` exists
-- [x] 1.3 SQL is ready for Phase 2 `db reset`
+- [x] 1.1 Migration file exists under `supabase/migrations/` with AGENTS naming — 6a93171
+- [x] 1.2 `supabase/seed.sql` exists — 6a93171
+- [x] 1.3 SQL is ready for Phase 2 `db reset` — 6a93171
 
 #### Manual
 
-- [x] 1.4 Policy matrix in the migration matches the Contract (SQL review)
-- [x] 1.5 No map catalog, cron, or service_role usage in the migration
+- [x] 1.4 Policy matrix in the migration matches the Contract (SQL review) — 6a93171
+- [x] 1.5 No map catalog, cron, or service_role usage in the migration — 6a93171
 
 ### Phase 2: Local verify + typed client
 
 #### Automated
 
-- [ ] 2.1 `npx supabase db reset` exits 0
-- [ ] 2.2 `src/types/database.ts` exists and includes `profiles`, `runs`, `run_participants`
-- [ ] 2.3 `npm run lint` passes
-- [ ] 2.4 `npm run build` passes
+- [x] 2.1 `npx supabase db reset` exits 0
+- [x] 2.2 `src/types/database.ts` exists and includes `profiles`, `runs`, `run_participants`
+- [x] 2.3 `npm run lint` passes
+- [x] 2.4 `npm run build` passes
 
 #### Manual
 
-- [ ] 2.5 Anon / member / admin RLS smoke checks behave as expected
-- [ ] 2.6 New local signup creates a `profiles` row with `role = member`
+- [x] 2.5 Anon / member / admin RLS smoke checks behave as expected
+- [x] 2.6 New local signup creates a `profiles` row with `role = member`
 
 ### Phase 3: Remote push + admin runbook
 
