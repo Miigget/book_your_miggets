@@ -38,8 +38,10 @@ Book Your Miggets is a Team Finder / Run Scheduler for TeeWorlds gores. Stack: A
 - Commit style is not established yet (history is scaffold-only); prefer short imperative subjects.
 - CI (`@.github/workflows/ci.yml`) runs `astro sync`, `npm run lint`, and `npm run build` on push/PR to `main`. Build requires repository secrets `SUPABASE_URL` and `SUPABASE_KEY`.
 - No test runner or `test` script in `@package.json` — do not assume Vitest/Jest until both config and a script exist.
+- Agent git/issues/release: rule `@.cursor/rules/gh-workflow.mdc` + personal skills `gh-issues` / `gh-ship` / `gh-release` / `gh-roadmap-sync`; board IDs in `@.github/agent-workflow.yml`. Issues in English; type + 10x roadmap labels. After `/10x-roadmap`, ask before syncing to Kanban (`/gh-roadmap-sync`). Production: `/gh-release` (tag `v*`). Do not patch `.cursor/skills/10x-*` for this — `10x get` overwrites them.
 
 ## Auth & Deploy
 
 - Cookie-session Supabase SSR client: `@src/lib/supabase.ts` (server env fields in `@astro.config.mjs`).
-- Local Supabase: `npx supabase start` (Docker). Deploy: `npx wrangler deploy` (`@wrangler.jsonc`).
+- Local Supabase: `npx supabase start` (Docker). Manual deploy: `npx wrangler deploy` (`@wrangler.jsonc`).
+- Production CD (`@.github/workflows/deploy.yml`) runs on tag `v*` only — create GitHub Release notes via `/release` (`gh-release` skill) before/with the tag so notes exist when the version is live.

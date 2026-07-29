@@ -1,0 +1,44 @@
+---
+description: Route implement/push/release/roadmap-sync through gh-* skills (survives 10x skill updates)
+alwaysApply: true
+---
+
+# GitHub agent workflow
+
+Config: `.github/agent-workflow.yml`. Skills: `~/.cursor/skills/gh-{issues,ship,release,roadmap-sync}/`.
+
+**Do not edit** `.cursor/skills/10x-*` for GitHub/Kanban hooks — `10x get` overwrites those. Put durable behavior here and in `gh-*` skills instead.
+
+## Route by intent
+
+| User intent | Skill |
+|-------------|--------|
+| Implement / fix / refactor / enhance | **`gh-issues`** before coding (English issues + labels) |
+| Push / PR / merge **without** production deploy | **`gh-ship`** |
+| Deploy / release / tag from any branch | **`gh-release` once** (embeds ship → tag → CD → close) |
+| Sync roadmap → board / `/gh-roadmap-sync` | **`gh-roadmap-sync`** |
+
+Production from a feature branch: **`/gh-release`** only (no separate `/gh-ship`).
+
+## After `/10x-roadmap` (mandatory ask)
+
+When `context/foundation/roadmap.md` was just generated or regenerated in this session, **after** the roadmap handoff summary, ask (do not auto-run):
+
+> Map roadmap items to the Kanban board now?
+> - Yes → read and run **`gh-roadmap-sync`**
+> - No → skip; user can run `/gh-roadmap-sync` later
+
+This ask lives here on purpose so 10x updates to `10x-roadmap` cannot remove it.
+
+## Hard gates
+
+- No commit / push / PR / merge / tag unless the user asked.
+- Never merge while CI is pending or failing (`gh pr checks`).
+- Issues: English; one type label (`bug`|`enhancement`|`documentation`); add `foundation`|`slice`|`north-star` when roadmap-mapped.
+- Kanban only via `~/.cursor/skills/gh-issues/scripts/kanban-*.sh` (or `gh-roadmap-sync` script).
+- `cd_trigger: tag` — merge to `main` ≠ deploy; production = `/gh-release`.
+- After implementation: English comment **and** Kanban **In review** same turn.
+
+## Branching (trunk)
+
+`fix/*` or `feature/*` from up-to-date `main`; PR target `main`.
