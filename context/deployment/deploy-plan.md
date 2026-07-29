@@ -1,29 +1,32 @@
 # Plan wdrożenia: Cloudflare Workers + integracje zewnętrzne
 
 **Projekt:** Book Your Miggets  
-**Data planu:** 2026-07-22  
+**Data planu:** 2026-07-22 · **Aktualizacja CD:** 2026-07-29 (deploy na tag `v*`, nie na merge do `main`)  
 **Źródła:** `context/foundation/infrastructure.md`, `context/foundation/tech-stack.md`, docs Astro 7 / `@astrojs/cloudflare` v14+, Cloudflare Workers, Supabase Auth  
-**Cel docelowy:** produkcyjna aplikacja SSR na **Cloudflare Workers** (nie Pages), z auth/DB w **Supabase** i automatycznym deployem z **GitHub**.
+**Cel docelowy:** produkcyjna aplikacja SSR na **Cloudflare Workers** (nie Pages), z auth/DB w **Supabase** i deployem z **GitHub** (tag `v*` + Release notes).
+
+**Production URL:** [https://book-your-miggets.bookyourmiggets.workers.dev](https://book-your-miggets.bookyourmiggets.workers.dev)
 
 ---
 
 ## Co już jest gotowe w repozytorium
 
 
-| Element                                                      | Stan                                                   |
-| ------------------------------------------------------------ | ------------------------------------------------------ |
-| Astro 7 SSR (`output: "server"`)                             | ✅                                                      |
-| Adapter `@astrojs/cloudflare` ^14.1.4                        | ✅                                                      |
-| `wrangler.jsonc` + `nodejs_compat` + observability           | ✅                                                      |
-| Sekrety `SUPABASE_URL` / `SUPABASE_KEY` w `astro.config.mjs` | ✅                                                      |
-| CI: lint + build na `main` (bez deployu)                     | ✅ gałąź `main` + sekrety `SUPABASE_*`; bez auto-deploy |
-| Nazwa Workera w `wrangler.jsonc`                             | ✅ `book-your-miggets`                                  |
-| Lokalne `.dev.vars` + lint/build przed deployem              | ✅                                                      |
-| Sekrety GitHub `SUPABASE_URL` / `SUPABASE_KEY`               | ✅                                                      |
-| Pierwszy deploy Workers + sekrety Workera                    | ✅ `https://book-your-miggets.bookyourmiggets.workers.dev` |
-| Auth e2e na produkcji (signup → confirm → dashboard)         | ✅                                                      |
-| Workflow auto-deploy (`.github/workflows/deploy.yml`)        | ✅ kod + wszystkie 4 sekrety GitHub                     |
-| Hint w `tech-stack.md`: `cloudflare-workers`                 | ✅                                                      |
+| Element                                                      | Stan                                                                 |
+| ------------------------------------------------------------ | -------------------------------------------------------------------- |
+| Astro 7 SSR (`output: "server"`)                             | ✅                                                                   |
+| Adapter `@astrojs/cloudflare` ^14.1.4                        | ✅                                                                   |
+| `wrangler.jsonc` + `nodejs_compat` + observability           | ✅                                                                   |
+| Sekrety `SUPABASE_URL` / `SUPABASE_KEY` w `astro.config.mjs` | ✅                                                                   |
+| CI: lint + build na `main` / PR (bez deployu)                | ✅ `.github/workflows/ci.yml`                                        |
+| Nazwa Workera w `wrangler.jsonc`                             | ✅ `book-your-miggets`                                               |
+| Lokalne `.dev.vars` + lint/build przed deployem              | ✅                                                                   |
+| Sekrety GitHub `SUPABASE_URL` / `SUPABASE_KEY`               | ✅                                                                   |
+| Pierwszy deploy Workers + sekrety Workera                    | ✅ [production URL](https://book-your-miggets.bookyourmiggets.workers.dev) |
+| Auth e2e na produkcji (signup → confirm → dashboard)         | ✅                                                                   |
+| Workflow Deploy (`.github/workflows/deploy.yml`)             | ✅ trigger: tag `v*` (nie push do `main`); 4 sekrety GitHub          |
+| Agent release path                                           | ✅ `/gh-release` → GitHub Release + tag → CD; config w `agent-workflow.yml` |
+| Hint w `tech-stack.md`: `cloudflare-workers`                 | ✅                                                                   |
 
 
 > **Ważne:** Astro 7 + `@astrojs/cloudflare` v14+ **nie wspiera Cloudflare Pages**. Wszystkie poradniki „Deploy to Pages” pomijamy. Poprawna ścieżka: `npm run build` → `npx wrangler deploy`.
@@ -53,7 +56,7 @@
 | ------------------------ | ------------------------------------ | ------------------------------------------------------------------------------- |
 | **Cloudflare**           | Hosting aplikacji (Worker + assets)  | Konto, logowanie Wrangler, sekrety Workera, opcjonalnie domena i Workers Builds |
 | **Supabase**             | Logowanie (email/hasło) + baza       | Projekt cloud, klucze API, Site URL / Redirect URLs, e-maile potwierdzające     |
-| **GitHub**               | Kod + CI (+ opcjonalnie auto-deploy) | Repo, sekrety Actions (`SUPABASE_`*,* `CLOUDFLARE_`)                            |
+| **GitHub**               | Kod + CI; Deploy na tag `v*`         | Repo, sekrety Actions (`SUPABASE_*`, `CLOUDFLARE_*`); `/gh-release`             |
 | **Domena (opcjonalnie)** | Własny adres zamiast `*.workers.dev` | Zakup domeny + DNS u Cloudflare lub u rejestratora                              |
 
 
@@ -201,7 +204,7 @@ W panelu Supabase:
   - `https://book-your-miggets.TWOJA-SUBDOMENA.workers.dev/**`
   - docelową domenę `https://twoja-domena.pl/**` (gdy będzie)
 
-- [x] Site URL = produkcja (nie localhost) → `https://book-your-miggets.bookyourmiggets.workers.dev`
+- [x] Site URL = produkcja (nie localhost) → [https://book-your-miggets.bookyourmiggets.workers.dev](https://book-your-miggets.bookyourmiggets.workers.dev)
 - [x] Redirect URLs zawierają lokal + produkcję (+ preview, jeśli używasz)
   - `http://localhost:4321/**`
   - `https://book-your-miggets.bookyourmiggets.workers.dev/**`
@@ -276,7 +279,7 @@ Cel: jeden działający URL `*.workers.dev` bez CI.
 - [x] `npm run build`
 - [x] Zarejestrowano account subdomain `workers.dev`: `bookyourmiggets` (API Cloudflare)
 - [x] `npx wrangler deploy`
-- [x] Zapisz wyświetlony URL Workera: `https://book-your-miggets.bookyourmiggets.workers.dev`
+- [x] Zapisz wyświetlony URL Workera: [https://book-your-miggets.bookyourmiggets.workers.dev](https://book-your-miggets.bookyourmiggets.workers.dev)
 
 > Nie używaj `wrangler pages deploy` ani UI „Pages project”.
 
@@ -316,12 +319,13 @@ Lokalne `.dev.vars` **nie** trafiają automatycznie na produkcję.
 
 
 
-## Faza 6 — CI/CD: automatyczny deploy
+## Faza 6 — CI/CD: deploy na tag `v*`
 
-Cel zgodny z `tech-stack.md`: **auto-deploy po merge** do głównej gałęzi.  
-Obecne CI tylko buduje — poniżej dwie ścieżki (wybierz jedną na start).
+Cel: **CI na każdym PR / push do `main`**, produkcyjny **Deploy tylko po tagu `v*`** (żeby GitHub Release notes istniały w momencie wdrożenia). Merge do `main` **nie** deployuje.
 
-### Opcja A — GitHub Actions + `wrangler-action` (zalecana przy kontroli w repo)
+Źródło prawdy dla agentów: `.github/agent-workflow.yml` (`cd_trigger: tag`, `cd_workflow: deploy.yml`) + skill `/gh-release`.
+
+### Opcja A — GitHub Actions + `wrangler-action` (zalecana)
 
 
 
@@ -360,16 +364,24 @@ Repo → **Settings** → **Secrets and variables** → **Actions** → **New re
 
 #### 6.A.3 Workflow deploy **(KOD)**
 
-- [x] CI uruchamia się na push/PR do `main` (lint + build; bez deployu — to dopiero poniżej)
-- [x] Rozszerz CI albo dodaj workflow deploy na push do `main` po udanym buildzie → `.github/workflows/deploy.yml`
-- [x] Użyj `cloudflare/wrangler-action@v3` z `apiToken` + `accountId`
-- [x] Deploy dopiero po merge do głównej gałęzi (nie z każdego PR na prod)
+- [x] CI uruchamia się na push/PR do `main` (lint + build; **bez** deployu) → `.github/workflows/ci.yml`
+- [x] Deploy workflow → `.github/workflows/deploy.yml`, trigger: **`push` tags `v*`** (nie `branches: [main]`)
+- [x] `cloudflare/wrangler-action@v3` z `apiToken` + `accountId`
+- [x] Produkcja: agent `/gh-release` tworzy GitHub Release (notes) + tag → CD; `/gh-ship` tylko merge do `main`
 - [x] Node w CI: **22** (jak w istniejącym workflow)
 
-Przykładowy szkielet (do dopasowania do gałęzi `master`/`main`):
+Trigger w `deploy.yml`:
 
 ```yaml
-# fragment — Deploy po udanym CI
+on:
+  push:
+    tags:
+      - "v*"
+```
+
+Fragment kroku deploy:
+
+```yaml
 - uses: cloudflare/wrangler-action@v3
   with:
     apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
@@ -385,6 +397,8 @@ Sekrety Workera (`SUPABASE_*`) ustaw raz przez `wrangler secret put` (Faza 4) **
 2. **Settings** → **Builds** → **Connect** → GitHub → wybierz repo
 3. Build: Node 22+, komenda build `npm run build`, deploy `npx wrangler deploy`
 4. Dodaj zmienne/sekrety builda (`SUPABASE_*`) w ustawieniach Builds
+
+> Jeśli używasz Opcji B **oraz** GitHub Actions na tagi, wyłącz jedną ścieżkę — inaczej podwójne deploje.
 
 - [ ] Nazwa Workera w dashboardzie **=** `name` w `wrangler.jsonc` (inaczej build padnie)
 - [ ] Preview URL chronione, jeśli wskazują na prod Supabase (osobny projekt Supabase lub Cloudflare Access)
@@ -501,9 +515,9 @@ PRD wymaga: 1 h po starcie → status in-progress, potem archiwum.
 
 - [x] Worker o docelowej nazwie wdrożony na Cloudflare
 - [x] `SUPABASE_URL` + `SUPABASE_KEY` (anon) ustawione jako sekrety Workera
-- [x] Signup / signin / dashboard działa na URL produkcji
+- [x] Signup / signin / dashboard działa na [URL produkcji](https://book-your-miggets.bookyourmiggets.workers.dev)
 - [x] Supabase Site URL + Redirect URLs wskazują produkcję (+ localhost do dev)
-- [x] CI zielone na głównej gałęzi; deploy automatyczny **albo** udokumentowany ręczny `wrangler deploy`
+- [x] CI zielone na PR/`main`; produkcyjny deploy na tag `v*` (`.github/workflows/deploy.yml`) **albo** udokumentowany ręczny `wrangler deploy`
 - [x] Wiadomo, jak zrobić rollback i gdzie oglądać logi (`wrangler rollback` / `wrangler tail`; Supabase Logs)
 - [x] Zespół wie: **Workers ≠ Pages**; nie kopiujemy starych tutoriali Pages
 - [ ] (Opcjonalnie) własna domena + zaktualizowane URL Auth
@@ -517,13 +531,13 @@ PRD wymaga: 1 h po starcie → status in-progress, potem archiwum.
 
 Zrób w tej kolejności, nic nie pomijając:
 
-1. **Załóż Cloudflare** → dash.cloudflare.com
+1. **Załóż Cloudflare** → [dash.cloudflare.com](https://dash.cloudflare.com/sign-up)
 2. **Załóż Supabase** → nowy projekt → skopiuj URL i anon key
 3. Poproś developera / agenta o wpisanie kluczy lokalnie i **pierwszy** `wrangler login` + `wrangler deploy`
 4. Wklej sekrety na Cloudflare (`wrangler secret put` — developer)
-5. W Supabase ustaw **Site URL** na adres z Cloudflare
+5. W Supabase ustaw **Site URL** na adres z Cloudflare (np. [production URL](https://book-your-miggets.bookyourmiggets.workers.dev))
 6. Przetestuj rejestrację na telefonie / drugim komputerze
-7. Dodaj sekrety w GitHub (Cloudflare token + Supabase), włącz auto-deploy
+7. Dodaj sekrety w GitHub (Cloudflare token + Supabase); produkcyjny deploy = tag `v*` (`/gh-release`), nie sam merge do `main`
 8. (Później) podłącz własną domenę i znów popraw Site URL w Supabase
 
 Jeśli coś nie działa: **najpierw** sprawdź sekrety Workera i Site URL w Supabase, **potem** logi (`wrangler tail` + Supabase Logs).

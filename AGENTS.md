@@ -44,4 +44,5 @@ Book Your Miggets is a Team Finder / Run Scheduler for TeeWorlds gores. Stack: A
 
 - Cookie-session Supabase SSR client: `@src/lib/supabase.ts` (server env fields in `@astro.config.mjs`).
 - Local Supabase: `npx supabase start` (Docker). Manual deploy: `npx wrangler deploy` (`@wrangler.jsonc`).
-- Production CD (`@.github/workflows/deploy.yml`) runs on tag `v*` only — create GitHub Release notes via `/release` (`gh-release` skill) before/with the tag so notes exist when the version is live.
+- Production CD (`@.github/workflows/deploy.yml`) runs on tag `v*` only — create GitHub Release notes via `/gh-release` before/with the tag so notes exist when the version is live.
+- Production URL: [https://book-your-miggets.bookyourmiggets.workers.dev](https://book-your-miggets.bookyourmiggets.workers.dev)
