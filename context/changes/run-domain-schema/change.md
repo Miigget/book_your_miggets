@@ -11,7 +11,15 @@ archived_at: null
 
 Run-domain schema and RLS baseline from @context/foundation/roadmap.md
 
-First admin (manual): `update public.profiles set role = 'admin' where id = '<auth-user-uuid>';`
+First admin (manual promote runbook): after signup, find the user id in Auth → Users (or `select id, email from auth.users;`), then run in SQL Editor:
+
+```sql
+update public.profiles
+set role = 'admin'
+where id = '<auth-user-uuid>';
+```
+
+Default remains `member` for all signup-created profiles. Do not seed admin credentials in git.
 
 ### Profile backfill (pre-trigger Auth users)
 

@@ -289,24 +289,24 @@ Run in SQL Editor after identifying the user id. Default remains `member` for al
 
 #### Automated
 
-- [x] 2.1 `npx supabase db reset` exits 0
-- [x] 2.2 `src/types/database.ts` exists and includes `profiles`, `runs`, `run_participants`
-- [x] 2.3 `npm run lint` passes
-- [x] 2.4 `npm run build` passes
+- [x] 2.1 `npx supabase db reset` exits 0 — 0bb3ac2
+- [x] 2.2 `src/types/database.ts` exists and includes `profiles`, `runs`, `run_participants` — 0bb3ac2
+- [x] 2.3 `npm run lint` passes — 0bb3ac2
+- [x] 2.4 `npm run build` passes — 0bb3ac2
 
 #### Manual
 
-- [x] 2.5 Anon / member / admin RLS smoke checks behave as expected
-- [x] 2.6 New local signup creates a `profiles` row with `role = member`
+- [x] 2.5 Anon / member / admin RLS smoke checks behave as expected — 0bb3ac2
+- [x] 2.6 New local signup creates a `profiles` row with `role = member` — 0bb3ac2
 
 ### Phase 3: Remote push + admin runbook
 
 #### Automated
 
-- [ ] 3.1 `npx supabase db push` exits 0 (or equivalent successful apply)
-- [ ] 3.2 Remote schema lists `profiles`, `runs`, `run_participants`
+- [x] 3.1 `npx supabase db push` exits 0 (or equivalent successful apply)
+- [x] 3.2 Remote schema lists `profiles`, `runs`, `run_participants`
 
 #### Manual
 
-- [ ] 3.3 Promote-admin SQL works on one real account in the target project
-- [ ] 3.4 App still boots against remote Auth (signup/signin) with no regression
+- [x] 3.3 Promote-admin SQL works on one real account in the target project
+- [x] 3.4 App still boots against remote Auth (signup/signin) with no regression
