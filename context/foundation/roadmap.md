@@ -61,7 +61,7 @@ Foundations below assume these are present and do NOT re-scaffold them.
 - **Backend / API:** partial — SSR on Cloudflare Workers; only auth endpoints (`src/pages/api/auth/`) and route-gating middleware (`src/middleware.ts`); no product endpoints.
 - **Data:** partial — Supabase clients wired (`src/lib/supabase.ts`) but `supabase/migrations/` contains no SQL; no schema, seeds, or generated DB types.
 - **Auth:** present — Supabase email/password end-to-end: signup/signin/signout routes, cookie sessions, protected-route middleware, auth pages. FR-001 and FR-002 are satisfied by this baseline; S-02 exercises them inside the participation flow rather than re-building them.
-- **Deploy / infra:** present — Cloudflare Workers via wrangler; CI (lint/build) plus auto-deploy-on-merge (`.github/workflows/{ci,deploy}.yml`).
+- **Deploy / infra:** present — Cloudflare Workers via wrangler; CI (lint/build on PR/`main`); production Deploy on tag `v*` (`.github/workflows/deploy.yml`); live at [https://book-your-miggets.bookyourmiggets.workers.dev](https://book-your-miggets.bookyourmiggets.workers.dev).
 - **Observability:** partial — Workers observability enabled in `wrangler.jsonc`; no app-level logging or error tracking. No NFR gates launch on this, so no foundation is opened for it.
 
 ## Foundations
