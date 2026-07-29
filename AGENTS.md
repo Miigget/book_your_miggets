@@ -38,7 +38,7 @@ Book Your Miggets is a Team Finder / Run Scheduler for TeeWorlds gores. Stack: A
 - Commit style is not established yet (history is scaffold-only); prefer short imperative subjects.
 - CI (`@.github/workflows/ci.yml`) runs `astro sync`, `npm run lint`, and `npm run build` on push/PR to `main`. Build requires repository secrets `SUPABASE_URL` and `SUPABASE_KEY`.
 - No test runner or `test` script in `@package.json` — do not assume Vitest/Jest until both config and a script exist.
-- Agent git/issues/release: rule `@.cursor/rules/gh-workflow.mdc` + personal skills `gh-issues` / `gh-ship` / `gh-release` / `gh-roadmap-sync`; board IDs in `@.github/agent-workflow.yml`. Issues in English; type + 10x roadmap labels. After `/10x-roadmap`, ask before syncing to Kanban (`/gh-roadmap-sync`). Production: `/gh-release` (tag `v*`). Do not patch `.cursor/skills/10x-*` for this — `10x get` overwrites them.
+- Agent git/issues/release: rule `@.cursor/rules/gh-workflow.mdc` + personal skills `gh-issues` / `gh-ship` / `gh-release` / `gh-roadmap-sync` / `gh-change-sync`; board IDs in `@.github/agent-workflow.yml`. Issues in English; type + 10x roadmap labels; `change` label for `context/changes/<id>` (sync via `/gh-change-sync`). After `/10x-roadmap`, ask before syncing to Kanban (`/gh-roadmap-sync`). After `/10x-new` / plan / implement / archive milestones, run `gh-change-sync`. Production: `/gh-release` (tag `v*`). Do not patch `.cursor/skills/10x-*` for this — `10x get` overwrites them.
 
 ## Auth & Deploy
 

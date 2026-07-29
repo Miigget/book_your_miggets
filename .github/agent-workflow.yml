@@ -46,7 +46,7 @@ project:
 # Issues + comments: always English (see gh-issues skill).
 issue_language: en
 
-# Type labels (exactly one) + optional 10x roadmap labels — see gh-issues.
+# Type labels (exactly one) + optional 10x roadmap / change labels — see gh-issues + gh-change-sync.
 labels:
   type:
     - bug
@@ -56,6 +56,8 @@ labels:
     - foundation # F-* cross-cutting enabler
     - slice # S-* vertical user-visible slice
     - north-star # validation milestone (usually with slice)
+  change:
+    - change # 10x context/changes/<id> unit of work (standalone or sub-issue of F-*/S-*)
 
 release_notes:
   # EN now; add pl later when the product gains i18n user-facing changelog.
