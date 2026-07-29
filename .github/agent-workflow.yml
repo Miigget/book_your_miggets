@@ -1,0 +1,63 @@
+# Agent git / issues / release config — read by ~/.cursor/skills/gh-* and project rule gh-workflow.mdc
+# Do not invent IDs; refresh via: gh project field-list <number> --owner <owner> --format json
+#
+# Durable vs 10x: this file + .cursor/rules/gh-workflow.mdc + ~/.cursor/skills/gh-* are OURS.
+# Do NOT patch .cursor/skills/10x-* — `10x get` overwrites those on lesson re-apply.
+
+repo: Miigget/book_your_miggets
+base_branch: main
+production_branch: main
+branching: trunk # trunk: feature/*|fix/* → main | gitflow: via develop (see other repos)
+
+# Production deploy fires on tag push (v*). Merge to main alone does NOT deploy.
+# /gh-release creates GitHub Release notes first, then tag → CD; notes exist when the new version is live.
+cd_trigger: tag
+cd_workflow: deploy.yml # Cloudflare Workers
+
+project:
+  owner: Miigget
+  number: 12
+  id: PVT_kwHOBii7Dc4BelwF
+  status_field_id: PVTSSF_lAHOBii7Dc4BelwFzhY-yuI
+  columns:
+    to_triage: f971fb55
+    backlog: f75ad846
+    in_progress: 47fc9ee4
+    blocked: 856cdede
+    in_review: 5ef0dc97
+    done: 98236657
+  # Custom fields used by gh-roadmap-sync
+  fields:
+    roadmap_id: PVTF_lAHOBii7Dc4BelwFzhY-zB4
+    change_id: PVTF_lAHOBii7Dc4BelwFzhY-zC0
+    stream: PVTSSF_lAHOBii7Dc4BelwFzhY-zCw
+    priority: PVTSSF_lAHOBii7Dc4BelwFzhY-yu0
+  stream_options:
+    A: d5108053 # A · Core loop
+    B: b6a465c0 # B · Discovery
+    C: 612ac3a7 # C · Lifecycle
+    D: 769ccee1 # D · Moderation
+    E: 71e7f768 # E · Organizer
+  priority_options:
+    P0: "79628723"
+    P1: "0a877460"
+    P2: "da944a9c"
+
+# Issues + comments: always English (see gh-issues skill).
+issue_language: en
+
+# Type labels (exactly one) + optional 10x roadmap labels — see gh-issues.
+labels:
+  type:
+    - bug
+    - enhancement
+    - documentation
+  roadmap:
+    - foundation # F-* cross-cutting enabler
+    - slice # S-* vertical user-visible slice
+    - north-star # validation milestone (usually with slice)
+
+release_notes:
+  # EN now; add pl later when the product gains i18n user-facing changelog.
+  languages: [en]
+  # Body must include ## For users (EN). Optional ## For developers for audit.

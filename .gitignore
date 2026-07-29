@@ -27,4 +27,7 @@ pnpm-debug.log*
 # jetbrains setting folder
 .idea/
 
-.cursor/
+# Cursor local state (keep durable workflow rule tracked)
+.cursor/*
+!.cursor/rules/
+!.cursor/rules/gh-workflow.mdc
