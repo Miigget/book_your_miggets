@@ -7,7 +7,7 @@ Book Your Miggets is a Team Finder / Run Scheduler for TeeWorlds gores. Stack: A
 - Prefer Astro for layout/static UI; use React only for interactive islands. Never add Next.js directives (`"use client"`, etc.).
 - Merge Tailwind classes with `cn()` from `@/lib/utils` — do not concatenate class strings.
 - API routes export uppercase `GET` / `POST` under `src/pages/api/` (see `@src/pages/api/auth/signin.ts`).
-- Gate private pages via `PROTECTED_ROUTES` in `@src/middleware.ts` (currently `/dashboard`).
+- Gate private pages via `PROTECTED_ROUTES` in `@src/middleware.ts` (currently `/dashboard`, `/runs/new`).
 - Secrets are `SUPABASE_URL` and `SUPABASE_KEY` (`@.env.example`). Use `.env` for Node or `.dev.vars` for Cloudflare local — both gitignored; never commit them.
 - When adding Postgres tables, place SQL in `supabase/migrations/` as `YYYYMMDDHHmmss_short_description.sql` and enable RLS with per-operation, per-role policies.
 
@@ -44,5 +44,5 @@ Book Your Miggets is a Team Finder / Run Scheduler for TeeWorlds gores. Stack: A
 
 - Cookie-session Supabase SSR client: `@src/lib/supabase.ts` (server env fields in `@astro.config.mjs`).
 - Local Supabase: `npx supabase start` (Docker). Manual deploy: `npx wrangler deploy` (`@wrangler.jsonc`).
-- Production CD (`@.github/workflows/deploy.yml`) runs on tag `v*` only — create GitHub Release notes via `/gh-release` before/with the tag so notes exist when the version is live.
+- Production CD (`@.github/workflows/deploy.yml`) runs on tag `v*` only: pushes Supabase migrations, seeds `supabase/seed-data/kog-maps.sql` only when that file changed since the previous tag, then builds and deploys the Worker. Needs Actions secrets `SUPABASE_ACCESS_TOKEN`, `SUPABASE_PROJECT_ID` (optional `SUPABASE_DB_PASSWORD`), plus existing Cloudflare/`SUPABASE_URL`/`SUPABASE_KEY`. Create GitHub Release notes via `/gh-release` before/with the tag so notes exist when the version is live.
 - Production URL: [https://book-your-miggets.bookyourmiggets.workers.dev](https://book-your-miggets.bookyourmiggets.workers.dev)
