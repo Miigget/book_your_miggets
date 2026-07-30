@@ -34,12 +34,52 @@ export type Database = {
   }
   public: {
     Tables: {
+      maps: {
+        Row: {
+          created_at: string
+          creator: string
+          difficulty: string
+          id: string
+          length: string | null
+          name: string
+          points: number
+          released_on: string | null
+          stars: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          creator: string
+          difficulty: string
+          id?: string
+          length?: string | null
+          name: string
+          points: number
+          released_on?: string | null
+          stars: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          creator?: string
+          difficulty?: string
+          id?: string
+          length?: string | null
+          name?: string
+          points?: number
+          released_on?: string | null
+          stars?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           created_at: string
           id: string
           is_banned: boolean
           is_verified: boolean
+          nickname: string | null
           role: Database["public"]["Enums"]["user_role"]
           updated_at: string
         }
@@ -48,6 +88,7 @@ export type Database = {
           id: string
           is_banned?: boolean
           is_verified?: boolean
+          nickname?: string | null
           role?: Database["public"]["Enums"]["user_role"]
           updated_at?: string
         }
@@ -56,6 +97,7 @@ export type Database = {
           id?: string
           is_banned?: boolean
           is_verified?: boolean
+          nickname?: string | null
           role?: Database["public"]["Enums"]["user_role"]
           updated_at?: string
         }
@@ -101,6 +143,13 @@ export type Database = {
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "run_participants_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "public_profiles"
+            referencedColumns: ["id"]
+          },
         ]
       }
       runs: {
@@ -109,11 +158,12 @@ export type Database = {
           created_at: string
           id: string
           join_mode: Database["public"]["Enums"]["join_mode"]
-          map: string
+          map_id: string | null
           max_participants: number
           min_points: number
           organizer_id: string
           starts_at: string
+          title: string | null
           updated_at: string
         }
         Insert: {
@@ -121,11 +171,12 @@ export type Database = {
           created_at?: string
           id?: string
           join_mode?: Database["public"]["Enums"]["join_mode"]
-          map: string
+          map_id?: string | null
           max_participants: number
           min_points?: number
           organizer_id: string
           starts_at: string
+          title?: string | null
           updated_at?: string
         }
         Update: {
@@ -133,14 +184,22 @@ export type Database = {
           created_at?: string
           id?: string
           join_mode?: Database["public"]["Enums"]["join_mode"]
-          map?: string
+          map_id?: string | null
           max_participants?: number
           min_points?: number
           organizer_id?: string
           starts_at?: string
+          title?: string | null
           updated_at?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "runs_map_id_fkey"
+            columns: ["map_id"]
+            isOneToOne: false
+            referencedRelation: "maps"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "runs_organizer_id_fkey"
             columns: ["organizer_id"]
@@ -148,11 +207,32 @@ export type Database = {
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "runs_organizer_id_fkey"
+            columns: ["organizer_id"]
+            isOneToOne: false
+            referencedRelation: "public_profiles"
+            referencedColumns: ["id"]
+          },
         ]
       }
     }
     Views: {
-      [_ in never]: never
+      public_profiles: {
+        Row: {
+          id: string | null
+          nickname: string | null
+        }
+        Insert: {
+          id?: string | null
+          nickname?: string | null
+        }
+        Update: {
+          id?: string | null
+          nickname?: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       is_admin: { Args: never; Returns: boolean }

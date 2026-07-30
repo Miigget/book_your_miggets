@@ -10,6 +10,12 @@ const { user } = Astro.locals;
       <>
         <span class="text-blue-100/70">{user.email}</span>
         <div class="flex items-center gap-3">
+          <a href="/runs" class="text-purple-300 transition-colors hover:text-purple-100 hover:underline">
+            Runs
+          </a>
+          <a href="/runs/new" class="text-purple-300 transition-colors hover:text-purple-100 hover:underline">
+            New run
+          </a>
           <a href="/dashboard" class="text-purple-300 transition-colors hover:text-purple-100 hover:underline">
             Dashboard
           </a>
@@ -24,6 +30,9 @@ const { user } = Astro.locals;
       <>
         <span class="text-blue-100/70">Not signed in</span>
         <div class="flex gap-3">
+          <a href="/runs" class="text-purple-300 transition-colors hover:text-purple-100 hover:underline">
+            Runs
+          </a>
           <a href="/auth/signin" class="text-purple-300 transition-colors hover:text-purple-100 hover:underline">
             Sign in
           </a>

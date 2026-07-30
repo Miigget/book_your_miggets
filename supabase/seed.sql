@@ -1,3 +1,7 @@
 -- Seed stub for local `supabase db reset`.
--- Map catalog / default admin seeding intentionally deferred (S-01 / S-06).
--- No credentials or product data here.
+-- Maps catalog is loaded via [db.seed] sql_paths → ./seed-data/kog-maps.sql
+-- Re-vendor + regenerate SQL:
+--   curl -fsSL https://raw.githubusercontent.com/Gamer12120/KoGmaps/main/mapinfo.txt \
+--     -o supabase/seed-data/kog-mapinfo.txt
+--   npm run db:import-kog-maps
+-- Remote: after `db push`, run supabase/seed-data/kog-maps.sql explicitly if seed is not applied.

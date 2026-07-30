@@ -15,3 +15,10 @@
 - **Problem**: Leaving known-outdated docs in place forces later agents to rediscover the same mismatch, wasting tokens and time and spreading wrong defaults.
 - **Rule**: When documentation is found to be outdated, update the source of truth in the same turn instead of only noting the discrepancy.
 - **Applies to**: all
+
+## Link local URLs and start servers at the manual-verification gate
+
+- **Context**: When `/10x-implement` (or any similar flow) reaches the manual-verification gate
+- **Problem**: The developer has to find local URLs and restart servers/Docker by hand before they can verify, which wastes time and slows the feedback loop.
+- **Rule**: At the manual-verification gate, include clickable links to the local site and any other URLs or tools needed for the checks, and make sure the local app server and Docker services (e.g. Supabase) are already running (restart them if needed) so verification can start immediately.
+- **Applies to**: implement, and any other skill or step that asks the user to perform manual verification

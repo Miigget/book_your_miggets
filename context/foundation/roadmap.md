@@ -30,7 +30,7 @@ The King of Gores (KoG) community in TeeWorlds has no tool for organizing shared
 | ID | Change ID | Outcome (user can …) | Prerequisites | PRD refs | Status |
 |---|---|---|---|---|---|
 | F-01 | run-domain-schema | (foundation) minimal run-domain schema + RLS baseline landed | — | Access Control, Business Logic, FR-012 | ready |
-| S-01 | create-and-list-runs | create a run; any guest sees it on the public active-runs list | F-01, seeded map catalog | FR-003, FR-006, US-01 | proposed |
+| S-01 | create-and-list-runs | create a run; any guest sees it on the public active-runs list | F-01, seeded map catalog | FR-003, FR-006, US-01 | planned |
 | S-02 | apply-and-approve-participants | register, apply to a run, get accepted/denied; roster shows confirmed players | S-01 | FR-001, FR-002, FR-004, FR-008, FR-009, US-01 | proposed |
 | S-03 | search-filter-runs | search and filter active runs by map, date, or requirements | S-01 | FR-007 | proposed |
 | S-04 | run-archival-lifecycle | see runs marked in-progress during the 1-hour grace, then archived off the active list | S-01 | FR-013, US-01 | proposed |
@@ -91,7 +91,7 @@ Foundations below assume these are present and do NOT re-scaffold them.
 - **Blockers:** —
 - **Unknowns:** —
 - **Risk:** first user-visible proof; the map-selection UX carries the "run creation under 1 minute" guardrail, so a poor catalog makes the core action feel slow.
-- **Status:** proposed
+- **Status:** planned
 
 ### S-02: Apply to join and organizer approval
 
@@ -195,7 +195,7 @@ Foundations below assume these are present and do NOT re-scaffold them.
 | Roadmap ID | Change ID | Suggested issue title | Ready for `/10x-plan` | Notes |
 |---|---|---|---|---|
 | F-01 | run-domain-schema | Establish run-domain schema and RLS baseline | yes | Run `/10x-plan run-domain-schema` |
-| S-01 | create-and-list-runs | Run creation + public active-runs list | no | Waiting on F-01; seed map catalog alongside |
+| S-01 | create-and-list-runs | Run creation + public active-runs list | yes | F-01 landed; plan at `context/changes/create-and-list-runs/` |
 | S-02 | apply-and-approve-participants | Apply to join + organizer approval + roster | no | Waiting on S-01; north star |
 | S-03 | search-filter-runs | Search and filter active runs | no | Waiting on S-01; parallel candidate |
 | S-04 | run-archival-lifecycle | Run lifecycle: in-progress grace + archival | no | Waiting on S-01; parallel candidate |
@@ -207,7 +207,7 @@ Foundations below assume these are present and do NOT re-scaffold them.
 
 ## Open Roadmap Questions
 
-1. **Where does the KoG map catalog come from — a manually seeded static list, or imported from existing KoG map data?** — Owner: user. Block: none (S-01 can ship with a manual seed; revisit before S-03's search UX so map names are consistent).
+1. **Where does the KoG map catalog come from — a manually seeded static list, or imported from existing KoG map data?** — **Resolved (S-01 planning):** import from [KoGmaps `mapinfo.txt`](https://github.com/Gamer12120/KoGmaps/blob/main/mapinfo.txt); vendor a snapshot + offline loader for seed; automate GitHub re-pulls later. Unparseable DATE strings stored as null.
 2. **What is the minimum slice set before announcing to the KoG community?** — Owner: user. Block: none (suggested floor for market feedback: S-02 + S-04 + S-06 — loop works, list stays clean, moderation exists — but this is the user's call).
 
 ## Parked

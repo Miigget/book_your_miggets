@@ -31,3 +31,9 @@ pnpm-debug.log*
 .cursor/*
 !.cursor/rules/
 !.cursor/rules/gh-workflow.mdc
+
+# Local Wrangler/Astro secrets (incl. backups)
+.dev.vars.*
+
+# Supabase Studio local SQL scratch files
+supabase/snippets/
