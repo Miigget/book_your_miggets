@@ -1,0 +1,67 @@
+---
+import Layout from "@/layouts/Layout.astro";
+import Topbar from "@/components/Topbar.astro";
+import CreateRunForm from "@/components/runs/CreateRunForm";
+import { createClient } from "@/lib/supabase";
+import { getOwnNickname, listMapsForPicker, type MapPickerItem } from "@/lib/services/runs";
+
+const supabase = createClient(Astro.request.headers, Astro.cookies);
+const { user } = Astro.locals;
+const error = Astro.url.searchParams.get("error");
+
+let maps: MapPickerItem[] = [];
+let nickname: string | null = null;
+let loadError: string | null = null;
+
+if (!supabase || !user) {
+  loadError = "Supabase is not configured.";
+} else {
+  try {
+    [maps, nickname] = await Promise.all([listMapsForPicker(supabase), getOwnNickname(supabase, user.id)]);
+  } catch (err) {
+    loadError = err instanceof Error ? err.message : "Failed to load create form.";
+  }
+}
+---
+
+<Layout title="Create a run — Book Your Miggets">
+  <div class="bg-cosmic relative min-h-screen w-full overflow-hidden">
+    <div
+      class="pointer-events-none absolute top-1/4 -left-24 h-[350px] w-[350px] rounded-full bg-purple-500/20 blur-[120px]"
+    >
+    </div>
+    <div
+      class="pointer-events-none absolute top-2/3 -right-16 h-[250px] w-[250px] rounded-full bg-blue-500/15 blur-[100px]"
+    >
+    </div>
+
+    <div class="relative z-10 mx-auto max-w-xl p-4 sm:p-8">
+      <Topbar />
+
+      <p class="mb-6">
+        <a href="/runs" class="text-sm text-purple-300 transition-colors hover:text-purple-100 hover:underline">
+          ← Active runs
+        </a>
+      </p>
+
+      <header class="mb-8">
+        <h1
+          class="bg-gradient-to-r from-blue-200 to-purple-200 bg-clip-text text-3xl font-bold text-transparent sm:text-4xl"
+        >
+          Create a run
+        </h1>
+        <p class="mt-2 text-sm text-blue-100/60">Pick a map (or skip it), set capacity and start time, publish.</p>
+      </header>
+
+      {
+        loadError ? (
+          <p class="rounded-lg border border-red-400/30 bg-red-500/10 px-4 py-3 text-sm text-red-100">{loadError}</p>
+        ) : (
+          <div class="rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur-xl">
+            <CreateRunForm maps={maps} nickname={nickname} serverError={error} client:load />
+          </div>
+        )
+      }
+    </div>
+  </div>
+</Layout>

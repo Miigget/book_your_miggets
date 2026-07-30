@@ -144,3 +144,42 @@ export async function getActiveRunById(supabase: AppSupabaseClient, id: string):
   if (!data) return null;
   return mapRunRow(data);
 }
+
+export type MapPickerItem = Pick<Tables<"maps">, "id" | "name" | "difficulty" | "points" | "stars">;
+
+export async function listMapsForPicker(supabase: AppSupabaseClient): Promise<MapPickerItem[]> {
+  const { data, error } = await supabase
+    .from("maps")
+    .select("id, name, difficulty, points, stars")
+    .order("name", { ascending: true });
+
+  if (error) {
+    throw new Error(`Failed to list maps: ${error.message}`);
+  }
+
+  return data;
+}
+
+export async function getOwnNickname(supabase: AppSupabaseClient, userId: string): Promise<string | null> {
+  const { data, error } = await supabase.from("profiles").select("nickname").eq("id", userId).maybeSingle();
+
+  if (error) {
+    throw new Error(`Failed to load profile: ${error.message}`);
+  }
+
+  const nickname = data?.nickname?.trim();
+  if (!nickname) return null;
+  return nickname;
+}
+
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+export function isUuid(value: string): boolean {
+  return UUID_RE.test(value);
+}
+
+export const JOIN_MODES = ["approval_required", "auto_join"] as const satisfies readonly Enums<"join_mode">[];
+
+export function isJoinMode(value: string): value is Enums<"join_mode"> {
+  return (JOIN_MODES as readonly string[]).includes(value);
+}
