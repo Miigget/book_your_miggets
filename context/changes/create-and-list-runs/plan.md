@@ -302,13 +302,13 @@ Auth-gated create experience with map search/filters, nickname onboarding, serve
 
 #### Automated
 
-- [x] 3.1 `PROTECTED_ROUTES` covers `/runs/new`
-- [x] 3.2 `npm run lint` and `npm run build` pass
+- [x] 3.1 `PROTECTED_ROUTES` covers `/runs/new` — 9cf1117
+- [x] 3.2 `npm run lint` and `npm run build` pass — 9cf1117
 
 #### Manual
 
-- [x] 3.3 Create with map → visible on public list/detail with map fields
-- [x] 3.4 Create title-only and nickname-only fallback titles resolve correctly
-- [x] 3.5 Guest sees new runs without logging in
-- [x] 3.6 Past `starts_at` rejected; high `min_points` (e.g. 20000) accepted
-- [x] 3.7 Known-map create comfortably under ~1 minute
+- [x] 3.3 Create with map → visible on public list/detail with map fields — 9cf1117
+- [x] 3.4 Create title-only and nickname-only fallback titles resolve correctly — 9cf1117
+- [x] 3.5 Guest sees new runs without logging in — 9cf1117
+- [x] 3.6 Past `starts_at` rejected; high `min_points` (e.g. 20000) accepted — 9cf1117
+- [x] 3.7 Known-map create comfortably under ~1 minute — 9cf1117
