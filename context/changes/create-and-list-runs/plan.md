@@ -276,27 +276,27 @@ Auth-gated create experience with map search/filters, nickname onboarding, serve
 
 #### Automated
 
-- [x] 1.1 Migration file exists with AGENTS naming; `npx supabase db reset` exits 0
-- [x] 1.2 `maps` row count ≈ mapinfo data rows; sample prose-date map has `released_on IS NULL`
-- [x] 1.3 `src/types/database.ts` includes `maps`, `runs.map_id`, `runs.title`, `profiles.nickname`
-- [x] 1.4 `npm run lint` and `npm run build` pass
+- [x] 1.1 Migration file exists with AGENTS naming; `npx supabase db reset` exits 0 — 689045c
+- [x] 1.2 `maps` row count ≈ mapinfo data rows; sample prose-date map has `released_on IS NULL` — 689045c
+- [x] 1.3 `src/types/database.ts` includes `maps`, `runs.map_id`, `runs.title`, `profiles.nickname` — 689045c
+- [x] 1.4 `npm run lint` and `npm run build` pass — 689045c
 
 #### Manual
 
-- [x] 1.5 Spot-check Studio: map fields populated; `runs` no longer has `map` text column
-- [x] 1.6 Anon can SELECT maps; cannot INSERT maps
+- [x] 1.5 Spot-check Studio: map fields populated; `runs` no longer has `map` text column — 689045c
+- [x] 1.6 Anon can SELECT maps; cannot INSERT maps — 689045c
 
 ### Phase 2: Public list + run detail (read)
 
 #### Automated
 
-- [ ] 2.1 Routes exist: `/runs`, `/runs/[id]`
-- [ ] 2.2 `npm run lint` and `npm run build` pass
+- [x] 2.1 Routes exist: `/runs`, `/runs/[id]`
+- [x] 2.2 `npm run lint` and `npm run build` pass
 
 #### Manual
 
-- [ ] 2.3 Guest can open `/runs` and an active run detail URL
-- [ ] 2.4 Detail shows map metadata when linked; empty participants section; no apply mutation
+- [x] 2.3 Guest can open `/runs` and an active run detail URL
+- [x] 2.4 Detail shows map metadata when linked; empty participants section; no apply mutation
 
 ### Phase 3: Create run flow
 
