@@ -54,14 +54,14 @@ Navigation aid — groups items that share a Prerequisites chain. Canonical orde
 
 ## Baseline
 
-What's already in place in the codebase as of `2026-07-30` (updated after F-01 + S-01 shipped in `v0.1.1`).
+What's already in place in the codebase as of `2026-07-30` (updated after F-01 + S-01 in `v0.1.1`, plus create-run/profile + Deploy DB sync in `v0.1.2`).
 Foundations below assume these are present and do NOT re-scaffold them.
 
 - **Frontend:** partial — Astro SSR + React islands + Tailwind/shadcn; auth/dashboard plus public run list/detail and auth-gated create form (`/runs`, `/runs/[id]`, `/runs/new`). No apply/approve UI yet (S-02).
-- **Backend / API:** partial — SSR on Cloudflare Workers; auth endpoints plus `POST /api/runs` and `POST /api/profile/nickname`; middleware gates `/dashboard` and `/runs/new`.
-- **Data:** present for F-01/S-01 — migrations for `profiles`, `runs`, `run_participants`, `maps`; KoGmaps seed/import; generated `src/types/database.ts`. Remote schema/maps seed must stay in sync when new environments are linked.
+- **Backend / API:** partial — SSR on Cloudflare Workers; auth endpoints plus `POST /api/runs` and `POST /api/profile/nickname` (both call `ensure_own_profile` before writes); middleware gates `/dashboard` and `/runs/new`.
+- **Data:** present for F-01/S-01 — migrations for `profiles`, `runs`, `run_participants`, `maps`; `ensure_own_profile` RPC; KoGmaps seed/import; generated `src/types/database.ts`.
 - **Auth:** present — Supabase email/password end-to-end: signup/signin/signout routes, cookie sessions, protected-route middleware, auth pages. FR-001 and FR-002 are satisfied by this baseline; S-02 exercises them inside the participation flow rather than re-building them.
-- **Deploy / infra:** present — Cloudflare Workers via wrangler; CI (lint/build on PR/`main`); production Deploy on tag `v*` (`.github/workflows/deploy.yml`); live at [https://book-your-miggets.bookyourmiggets.workers.dev](https://book-your-miggets.bookyourmiggets.workers.dev) (`v0.1.1`).
+- **Deploy / infra:** present — Cloudflare Workers via wrangler; CI (lint/build on PR/`main`); production Deploy on tag `v*` runs Supabase `db push`, seeds `kog-maps.sql` only when that file changed since the previous tag, then deploys the Worker (`.github/workflows/deploy.yml`); live at [https://book-your-miggets.bookyourmiggets.workers.dev](https://book-your-miggets.bookyourmiggets.workers.dev) (`v0.1.2`).
 - **Observability:** partial — Workers observability enabled in `wrangler.jsonc`; no app-level logging or error tracking. No NFR gates launch on this, so no foundation is opened for it.
 
 ## Foundations
@@ -195,7 +195,7 @@ Foundations below assume these are present and do NOT re-scaffold them.
 | Roadmap ID | Change ID | Suggested issue title | Ready for `/10x-plan` | Notes |
 |---|---|---|---|---|
 | F-01 | run-domain-schema | Establish run-domain schema and RLS baseline | — | Done (shipped); folder still under `context/changes/` until `/10x-archive` |
-| S-01 | create-and-list-runs | Run creation + public active-runs list | — | Done in `v0.1.1`; folder still under `context/changes/` until `/10x-archive` |
+| S-01 | create-and-list-runs | Run creation + public active-runs list | — | Done in `v0.1.1` (+ `v0.1.2` profile/RLS + Deploy DB sync); folder still under `context/changes/` until `/10x-archive` |
 | S-02 | apply-and-approve-participants | Apply to join + organizer approval + roster | yes | North star — next core-loop slice |
 | S-03 | search-filter-runs | Search and filter active runs | yes | Parallel candidate off S-01 |
 | S-04 | run-archival-lifecycle | Run lifecycle: in-progress grace + archival | yes | Parallel candidate off S-01 |
@@ -224,5 +224,5 @@ Foundations below assume these are present and do NOT re-scaffold them.
 
 | Roadmap ID | Change ID | Shipped | Notes |
 |---|---|---|---|
-| F-01 | run-domain-schema | schema on local + remote (pre-`v0.1.1`) | Status flipped here after S-01 release sync; `/10x-archive` still pending for the change folder |
-| S-01 | create-and-list-runs | `v0.1.1` | Create + public list/detail + KoGmaps catalog; `/10x-archive` still pending for the change folder |
+| F-01 | run-domain-schema | schema on local + remote (pre-`v0.1.1`) | Status flipped after S-01 release sync; `/10x-archive` still pending for the change folder |
+| S-01 | create-and-list-runs | `v0.1.1` (+ hardening `v0.1.2`) | Create + public list/detail + KoGmaps catalog; `v0.1.2` added `ensure_own_profile` and automated remote `db push` / gated map seed on Deploy; `/10x-archive` still pending |
