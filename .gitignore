@@ -34,3 +34,6 @@ pnpm-debug.log*
 
 # Local Wrangler/Astro secrets (incl. backups)
 .dev.vars.*
+
+# Supabase Studio local SQL scratch files
+supabase/snippets/
