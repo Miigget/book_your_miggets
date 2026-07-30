@@ -290,13 +290,13 @@ Auth-gated create experience with map search/filters, nickname onboarding, serve
 
 #### Automated
 
-- [x] 2.1 Routes exist: `/runs`, `/runs/[id]`
-- [x] 2.2 `npm run lint` and `npm run build` pass
+- [x] 2.1 Routes exist: `/runs`, `/runs/[id]` — 5a0a28a
+- [x] 2.2 `npm run lint` and `npm run build` pass — 5a0a28a
 
 #### Manual
 
-- [x] 2.3 Guest can open `/runs` and an active run detail URL
-- [x] 2.4 Detail shows map metadata when linked; empty participants section; no apply mutation
+- [x] 2.3 Guest can open `/runs` and an active run detail URL — 5a0a28a
+- [x] 2.4 Detail shows map metadata when linked; empty participants section; no apply mutation — 5a0a28a
 
 ### Phase 3: Create run flow
 
