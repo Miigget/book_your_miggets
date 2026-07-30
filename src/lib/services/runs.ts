@@ -160,6 +160,13 @@ export async function listMapsForPicker(supabase: AppSupabaseClient): Promise<Ma
   return data;
 }
 
+export async function ensureOwnProfile(supabase: AppSupabaseClient): Promise<void> {
+  const { error } = await supabase.rpc("ensure_own_profile");
+  if (error) {
+    throw new Error(`Failed to ensure profile: ${error.message}`);
+  }
+}
+
 export async function getOwnNickname(supabase: AppSupabaseClient, userId: string): Promise<string | null> {
   const { data, error } = await supabase.from("profiles").select("nickname").eq("id", userId).maybeSingle();
 

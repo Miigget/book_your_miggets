@@ -3,7 +3,7 @@ project: "Book Your Miggets"
 version: 1
 status: draft
 created: 2026-07-27
-updated: 2026-07-27
+updated: 2026-07-30
 prd_version: 1
 main_goal: market-feedback
 top_blocker: capacity
@@ -29,8 +29,8 @@ The King of Gores (KoG) community in TeeWorlds has no tool for organizing shared
 
 | ID | Change ID | Outcome (user can …) | Prerequisites | PRD refs | Status |
 |---|---|---|---|---|---|
-| F-01 | run-domain-schema | (foundation) minimal run-domain schema + RLS baseline landed | — | Access Control, Business Logic, FR-012 | ready |
-| S-01 | create-and-list-runs | create a run; any guest sees it on the public active-runs list | F-01, seeded map catalog | FR-003, FR-006, US-01 | planned |
+| F-01 | run-domain-schema | (foundation) minimal run-domain schema + RLS baseline landed | — | Access Control, Business Logic, FR-012 | done |
+| S-01 | create-and-list-runs | create a run; any guest sees it on the public active-runs list | F-01, seeded map catalog | FR-003, FR-006, US-01 | done |
 | S-02 | apply-and-approve-participants | register, apply to a run, get accepted/denied; roster shows confirmed players | S-01 | FR-001, FR-002, FR-004, FR-008, FR-009, US-01 | proposed |
 | S-03 | search-filter-runs | search and filter active runs by map, date, or requirements | S-01 | FR-007 | proposed |
 | S-04 | run-archival-lifecycle | see runs marked in-progress during the 1-hour grace, then archived off the active list | S-01 | FR-013, US-01 | proposed |
@@ -54,14 +54,14 @@ Navigation aid — groups items that share a Prerequisites chain. Canonical orde
 
 ## Baseline
 
-What's already in place in the codebase as of `2026-07-27` (auto-researched + user-confirmed).
+What's already in place in the codebase as of `2026-07-30` (updated after F-01 + S-01 shipped in `v0.1.1`).
 Foundations below assume these are present and do NOT re-scaffold them.
 
-- **Frontend:** partial — Astro SSR + React islands + Tailwind/shadcn scaffold (`astro.config.mjs`, `components.json`); auth and dashboard pages exist, no product UI for runs yet.
-- **Backend / API:** partial — SSR on Cloudflare Workers; only auth endpoints (`src/pages/api/auth/`) and route-gating middleware (`src/middleware.ts`); no product endpoints.
-- **Data:** partial — Supabase clients wired (`src/lib/supabase.ts`) but `supabase/migrations/` contains no SQL; no schema, seeds, or generated DB types.
+- **Frontend:** partial — Astro SSR + React islands + Tailwind/shadcn; auth/dashboard plus public run list/detail and auth-gated create form (`/runs`, `/runs/[id]`, `/runs/new`). No apply/approve UI yet (S-02).
+- **Backend / API:** partial — SSR on Cloudflare Workers; auth endpoints plus `POST /api/runs` and `POST /api/profile/nickname`; middleware gates `/dashboard` and `/runs/new`.
+- **Data:** present for F-01/S-01 — migrations for `profiles`, `runs`, `run_participants`, `maps`; KoGmaps seed/import; generated `src/types/database.ts`. Remote schema/maps seed must stay in sync when new environments are linked.
 - **Auth:** present — Supabase email/password end-to-end: signup/signin/signout routes, cookie sessions, protected-route middleware, auth pages. FR-001 and FR-002 are satisfied by this baseline; S-02 exercises them inside the participation flow rather than re-building them.
-- **Deploy / infra:** present — Cloudflare Workers via wrangler; CI (lint/build on PR/`main`); production Deploy on tag `v*` (`.github/workflows/deploy.yml`); live at [https://book-your-miggets.bookyourmiggets.workers.dev](https://book-your-miggets.bookyourmiggets.workers.dev).
+- **Deploy / infra:** present — Cloudflare Workers via wrangler; CI (lint/build on PR/`main`); production Deploy on tag `v*` (`.github/workflows/deploy.yml`); live at [https://book-your-miggets.bookyourmiggets.workers.dev](https://book-your-miggets.bookyourmiggets.workers.dev) (`v0.1.1`).
 - **Observability:** partial — Workers observability enabled in `wrangler.jsonc`; no app-level logging or error tracking. No NFR gates launch on this, so no foundation is opened for it.
 
 ## Foundations
@@ -77,7 +77,7 @@ Foundations below assume these are present and do NOT re-scaffold them.
 - **Blockers:** —
 - **Unknowns:** —
 - **Risk:** sequenced first because every slice reads or writes these entities; the failure mode is over-modeling ahead of real flows — keep it to the minimal contract and let each slice add what it needs via new migrations.
-- **Status:** ready
+- **Status:** done
 
 ## Slices
 
@@ -91,7 +91,7 @@ Foundations below assume these are present and do NOT re-scaffold them.
 - **Blockers:** —
 - **Unknowns:** —
 - **Risk:** first user-visible proof; the map-selection UX carries the "run creation under 1 minute" guardrail, so a poor catalog makes the core action feel slow.
-- **Status:** planned
+- **Status:** done
 
 ### S-02: Apply to join and organizer approval
 
@@ -194,15 +194,15 @@ Foundations below assume these are present and do NOT re-scaffold them.
 
 | Roadmap ID | Change ID | Suggested issue title | Ready for `/10x-plan` | Notes |
 |---|---|---|---|---|
-| F-01 | run-domain-schema | Establish run-domain schema and RLS baseline | yes | Run `/10x-plan run-domain-schema` |
-| S-01 | create-and-list-runs | Run creation + public active-runs list | yes | F-01 landed; plan at `context/changes/create-and-list-runs/` |
-| S-02 | apply-and-approve-participants | Apply to join + organizer approval + roster | no | Waiting on S-01; north star |
-| S-03 | search-filter-runs | Search and filter active runs | no | Waiting on S-01; parallel candidate |
-| S-04 | run-archival-lifecycle | Run lifecycle: in-progress grace + archival | no | Waiting on S-01; parallel candidate |
+| F-01 | run-domain-schema | Establish run-domain schema and RLS baseline | — | Done (shipped); folder still under `context/changes/` until `/10x-archive` |
+| S-01 | create-and-list-runs | Run creation + public active-runs list | — | Done in `v0.1.1`; folder still under `context/changes/` until `/10x-archive` |
+| S-02 | apply-and-approve-participants | Apply to join + organizer approval + roster | yes | North star — next core-loop slice |
+| S-03 | search-filter-runs | Search and filter active runs | yes | Parallel candidate off S-01 |
+| S-04 | run-archival-lifecycle | Run lifecycle: in-progress grace + archival | yes | Parallel candidate off S-01 |
 | S-05 | auto-join-mode | Auto-join mode | no | Waiting on S-02 |
-| S-06 | admin-moderation-tools | Admin moderation: delete runs, ban, verify | no | Waiting on S-01; parallel candidate |
+| S-06 | admin-moderation-tools | Admin moderation: delete runs, ban, verify | yes | Parallel candidate off S-01 |
 | S-07 | participant-archive-history | Participant archive history | no | Waiting on S-02 + S-04 |
-| S-08 | my-runs-dashboard | My-runs dashboard | no | Waiting on S-01; cuttable nice-to-have |
+| S-08 | my-runs-dashboard | My-runs dashboard | yes | Cuttable nice-to-have off S-01 |
 | S-09 | admin-player-archive-view | Admin view of player archived run history | no | Waiting on S-04 + S-06 |
 
 ## Open Roadmap Questions
@@ -222,4 +222,7 @@ Foundations below assume these are present and do NOT re-scaffold them.
 
 ## Done
 
-(Empty on first generation. `/10x-archive` appends an entry here — and flips that item's `Status` to `done` — when a change whose `Change ID` matches the item is archived.)
+| Roadmap ID | Change ID | Shipped | Notes |
+|---|---|---|---|
+| F-01 | run-domain-schema | schema on local + remote (pre-`v0.1.1`) | Status flipped here after S-01 release sync; `/10x-archive` still pending for the change folder |
+| S-01 | create-and-list-runs | `v0.1.1` | Create + public list/detail + KoGmaps catalog; `/10x-archive` still pending for the change folder |

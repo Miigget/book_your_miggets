@@ -175,9 +175,9 @@ SUPABASE_KEY=sb_publishable_...
 
 Starter na start używa głównie Auth. Gdy dodacie tabele MVP (runy, uczestnicy…):
 
-- [ ] Pliki SQL w `supabase/migrations/` w formacie `YYYYMMDDHHmmss_opis.sql`
-- [ ] Włącz RLS i polityki per operacja / rola
-- [ ] Na produkcji: `npx supabase db push` (po `npx supabase link`) **albo** wklejenie migracji w SQL Editor w dashboardzie
+- [x] Pliki SQL w `supabase/migrations/` w formacie `YYYYMMDDHHmmss_opis.sql` (F-01 + S-01 maps catalog)
+- [x] Włącz RLS i polityki per operacja / rola
+- [x] Na produkcji: `npx supabase db push` (po `npx supabase link`) **albo** wklejenie migracji w SQL Editor w dashboardzie — schema pushed with F-01/S-01; re-run map seed/import on remote when linking new envs (`npm run db:import-kog-maps` / `supabase/seed-data/kog-maps.sql`)
 
 **(EDGE)** Jeśli Auth działa, ale tworzenie runów pada z błędem uprawnień — najpierw sprawdź RLS w Supabase, nie Cloudflare.
 
@@ -256,6 +256,7 @@ Cel: złapać błędy workerd **zanim** pójdą na Cloudflare.
 → W GitHub → Settings → Secrets and variables → Actions dodaj `SUPABASE_URL` i `SUPABASE_KEY` (te same anon wartości co lokalnie). Workflow `.github/workflows/ci.yml` już ich używa przy `npm run build`.
 
 - [x] Sekrety GitHub `SUPABASE_URL` + `SUPABASE_KEY` dodane (te same wartości co w `.dev.vars`)
+- [x] Sekrety GitHub pod Deploy (`v*` → `deploy.yml`): `SUPABASE_ACCESS_TOKEN`, `SUPABASE_PROJECT_ID` — wymagane do `db push` + opcjonalnego seedu map; `SUPABASE_DB_PASSWORD` opcjonalny (CLI może użyć tymczasowej roli login przez access token)
 - [x] Workflow CI nasłuchuje gałąź `main` (nie `master`)
 
 ---

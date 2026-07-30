@@ -1,6 +1,6 @@
 import type { APIRoute } from "astro";
 import { createClient } from "@/lib/supabase";
-import { getOwnNickname, isJoinMode, isUuid } from "@/lib/services/runs";
+import { ensureOwnProfile, getOwnNickname, isJoinMode, isUuid } from "@/lib/services/runs";
 
 function formString(form: FormData, key: string, fallback = ""): string {
   return ((form.get(key) as string | null) ?? fallback).trim();
@@ -29,6 +29,12 @@ export const POST: APIRoute = async (context) => {
 
   if (!user) {
     return context.redirect("/auth/signin");
+  }
+
+  try {
+    await ensureOwnProfile(supabase);
+  } catch (err) {
+    return fail(err instanceof Error ? err.message : "Could not prepare your profile");
   }
 
   const existingNickname = await getOwnNickname(supabase, user.id);

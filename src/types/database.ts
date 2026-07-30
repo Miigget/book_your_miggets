@@ -235,6 +235,7 @@ export type Database = {
       }
     }
     Functions: {
+      ensure_own_profile: { Args: never; Returns: Database["public"]["Tables"]["profiles"]["Row"] }
       is_admin: { Args: never; Returns: boolean }
       is_not_banned: { Args: never; Returns: boolean }
     }
