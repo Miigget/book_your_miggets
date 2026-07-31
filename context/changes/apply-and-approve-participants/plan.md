@@ -277,16 +277,16 @@ Roster sizes are bounded by `max_participants` (small). Prefer a single detail q
 
 #### Automated
 
-- [x] 1.1 Migration applies cleanly on local Supabase
-- [x] 1.2 Types regenerate without error; lint clean on committed generated output
-- [x] 1.3 npm run build succeeds after types update
+- [x] 1.1 Migration applies cleanly on local Supabase — a3b311e
+- [x] 1.2 Types regenerate without error; lint clean on committed generated output — a3b311e
+- [x] 1.3 npm run build succeeds after types update — a3b311e
 
 #### Manual
 
-- [x] 1.4 New run seats organizer as confirmed participant
-- [x] 1.5 Backfill seats organizer on existing run missing a row
-- [x] 1.6 Authenticated user can delete own pending; cannot delete denied
-- [x] 1.7 Organizer can delete own confirmed seat; run still has organizer_id
+- [x] 1.4 New run seats organizer as confirmed participant — a3b311e
+- [x] 1.5 Backfill seats organizer on existing run missing a row — a3b311e
+- [x] 1.6 Authenticated user can delete own pending; cannot delete denied — a3b311e
+- [x] 1.7 Organizer can delete own confirmed seat; run still has organizer_id — a3b311e
 
 ### Phase 2: Participants service + API
 
