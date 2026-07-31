@@ -292,16 +292,16 @@ Roster sizes are bounded by `max_participants` (small). Prefer a single detail q
 
 #### Automated
 
-- [ ] 2.1 npm run lint passes
-- [ ] 2.2 npm run build passes
-- [ ] 2.3 New API modules export uppercase POST only
+- [x] 2.1 npm run lint passes
+- [x] 2.2 npm run build passes
+- [x] 2.3 New API modules export uppercase POST only
 
 #### Manual
 
-- [ ] 2.4 Apply → pending; Withdraw → gone; re-Apply works
-- [ ] 2.5 Accept/Deny/later Accept on denied; second Apply from denied fails clearly
-- [ ] 2.6 Leave-team works; Accept beyond capacity succeeds at API
-- [ ] 2.7 Auto-join Apply refused with clear error
+- [x] 2.4 Apply → pending; Withdraw → gone; re-Apply works
+- [x] 2.5 Accept/Deny/later Accept on denied; second Apply from denied fails clearly
+- [x] 2.6 Leave-team works; Accept beyond capacity succeeds at API
+- [x] 2.7 Auto-join Apply refused with clear error
 
 ### Phase 3: Run detail (and list) UI
 
