@@ -1,15 +1,29 @@
 ---
 import Layout from "@/layouts/Layout.astro";
 import Topbar from "@/components/Topbar.astro";
+import RunParticipantActions from "@/components/runs/RunParticipantActions";
 import { createClient } from "@/lib/supabase";
-import { formatJoinMode, getActiveRunById, type RunDetail } from "@/lib/services/runs";
+import {
+  getOwnParticipation,
+  listConfirmedParticipants,
+  listPendingParticipants,
+  type ConfirmedParticipant,
+  type OwnParticipation,
+  type PendingParticipant,
+} from "@/lib/services/participants";
+import { formatJoinMode, getActiveRunById, getOwnNickname, type RunDetail } from "@/lib/services/runs";
 
 const { id } = Astro.params;
 const supabase = createClient(Astro.request.headers, Astro.cookies);
 const { user } = Astro.locals;
+const serverError = Astro.url.searchParams.get("error");
 
 let run: RunDetail | null = null;
 let pageError: "missing" | "config" | "load" | null = null;
+let confirmed: ConfirmedParticipant[] = [];
+let pending: PendingParticipant[] = [];
+let own: OwnParticipation | null = null;
+let nickname: string | null = null;
 
 if (!id) {
   pageError = "missing";
@@ -18,7 +32,21 @@ if (!id) {
 } else {
   try {
     run = await getActiveRunById(supabase, id);
-    if (!run) pageError = "missing";
+    if (!run) {
+      pageError = "missing";
+    } else {
+      confirmed = await listConfirmedParticipants(supabase, run.id);
+      if (user) {
+        const isOrganizer = user.id === run.organizerId;
+        [own, nickname] = await Promise.all([
+          getOwnParticipation(supabase, run.id, user.id),
+          getOwnNickname(supabase, user.id),
+        ]);
+        if (isOrganizer) {
+          pending = await listPendingParticipants(supabase, run.id);
+        }
+      }
+    }
   } catch {
     pageError = "load";
   }
@@ -31,6 +59,8 @@ if (pageError === "missing") {
 }
 
 const pageTitle = run ? `${run.displayTitle} — Book Your Miggets` : "Run — Book Your Miggets";
+const isOrganizer = Boolean(user?.id && user.id === run?.organizerId);
+const organizerSeated = isOrganizer && confirmed.some((p) => p.userId === user?.id);
 
 function formatStart(iso: string): string {
   return new Date(iso).toLocaleString(undefined, {
@@ -103,7 +133,9 @@ function formatReleasedOn(value: string | null): string {
                   </div>
                   <div>
                     <dt class="text-blue-100/50">Capacity</dt>
-                    <dd class="mt-0.5 text-white">{run.maxParticipants}</dd>
+                    <dd class="mt-0.5 text-white">
+                      {run.confirmedCount}/{run.maxParticipants}
+                    </dd>
                   </div>
                   <div>
                     <dt class="text-blue-100/50">Min points</dt>
@@ -153,20 +185,39 @@ function formatReleasedOn(value: string | null): string {
               )}
 
               <section class="mb-8 rounded-xl border border-white/10 bg-white/5 px-5 py-5 backdrop-blur-xl">
-                <h2 class="mb-2 text-sm font-semibold tracking-wide text-white/80 uppercase">Participants (0)</h2>
-                <p class="text-sm text-blue-100/60">No one has joined yet. Applying to runs is not available yet.</p>
-                <p class="mt-4 text-sm text-blue-100/50">
-                  {user ? (
-                    <>Apply will open in a later update. For now you can browse runs only.</>
-                  ) : (
-                    <>
-                      <a href="/auth/signin" class="text-purple-300 hover:underline">
-                        Sign in
-                      </a>{" "}
-                      later to apply — that flow is not available yet.
-                    </>
-                  )}
-                </p>
+                <h2 class="mb-4 text-sm font-semibold tracking-wide text-white/80 uppercase">
+                  Participants ({run.confirmedCount}/{run.maxParticipants})
+                </h2>
+
+                {confirmed.length === 0 ? (
+                  <p class="mb-5 text-sm text-blue-100/60">No confirmed players yet.</p>
+                ) : (
+                  <ul class="mb-5 space-y-2">
+                    {confirmed.map((participant) => (
+                      <li class="text-sm text-white">
+                        {participant.nickname ?? "Unknown player"}
+                        {run.organizerId === participant.userId && (
+                          <span class="ml-2 text-xs text-blue-100/50">(organizer)</span>
+                        )}
+                      </li>
+                    ))}
+                  </ul>
+                )}
+
+                <RunParticipantActions
+                  client:load
+                  runId={run.id}
+                  joinMode={run.joinMode}
+                  maxParticipants={run.maxParticipants}
+                  confirmedCount={run.confirmedCount}
+                  isGuest={!user}
+                  isOrganizer={isOrganizer}
+                  nickname={nickname}
+                  ownStatus={own?.status ?? null}
+                  organizerSeated={organizerSeated}
+                  pending={pending.map((p) => ({ id: p.id, nickname: p.nickname }))}
+                  serverError={serverError}
+                />
               </section>
             </>
           )

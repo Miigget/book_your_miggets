@@ -292,29 +292,29 @@ Roster sizes are bounded by `max_participants` (small). Prefer a single detail q
 
 #### Automated
 
-- [x] 2.1 npm run lint passes
-- [x] 2.2 npm run build passes
-- [x] 2.3 New API modules export uppercase POST only
+- [x] 2.1 npm run lint passes — c8301e1
+- [x] 2.2 npm run build passes — c8301e1
+- [x] 2.3 New API modules export uppercase POST only — c8301e1
 
 #### Manual
 
-- [x] 2.4 Apply → pending; Withdraw → gone; re-Apply works
-- [x] 2.5 Accept/Deny/later Accept on denied; second Apply from denied fails clearly
-- [x] 2.6 Leave-team works; Accept beyond capacity succeeds at API
-- [x] 2.7 Auto-join Apply refused with clear error
+- [x] 2.4 Apply → pending; Withdraw → gone; re-Apply works — c8301e1
+- [x] 2.5 Accept/Deny/later Accept on denied; second Apply from denied fails clearly — c8301e1
+- [x] 2.6 Leave-team works; Accept beyond capacity succeeds at API — c8301e1
+- [x] 2.7 Auto-join Apply refused with clear error — c8301e1
 
 ### Phase 3: Run detail (and list) UI
 
 #### Automated
 
-- [ ] 3.1 npm run lint passes
-- [ ] 3.2 npm run build passes
+- [x] 3.1 npm run lint passes
+- [x] 3.2 npm run build passes
 
 #### Manual
 
-- [ ] 3.3 Guest → auth return → nickname → Apply under ~30s
-- [ ] 3.4 Organizer pending UI + soft capacity warn; overfill allowed
-- [ ] 3.5 Organizer Leave team; still shown as organizer
-- [ ] 3.6 Auto-join coming-soon UI; no apply control
-- [ ] 3.7 Withdraw pending from UI
-- [ ] 3.8 Denied cannot Apply again; organizer can later Accept
+- [x] 3.3 Guest → auth return → nickname → Apply under ~30s
+- [x] 3.4 Organizer pending UI + soft capacity warn; overfill allowed
+- [x] 3.5 Organizer Leave team; still shown as organizer
+- [x] 3.6 Auto-join coming-soon UI; no apply control
+- [x] 3.7 Withdraw pending from UI
+- [x] 3.8 Denied cannot Apply again; organizer can later Accept

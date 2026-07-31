@@ -9,9 +9,10 @@ const MIN_PASSWORD_LENGTH = 6;
 
 interface Props {
   serverError?: string | null;
+  returnTo?: string | null;
 }
 
-export default function SignUpForm({ serverError }: Props) {
+export default function SignUpForm({ serverError, returnTo }: Props) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -64,6 +65,7 @@ export default function SignUpForm({ serverError }: Props) {
 
   return (
     <form method="POST" action="/api/auth/signup" className="space-y-4" onSubmit={handleSubmit} noValidate>
+      {returnTo ? <input type="hidden" name="returnTo" value={returnTo} /> : null}
       <FormField
         id="email"
         type="email"
