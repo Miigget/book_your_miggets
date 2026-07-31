@@ -17,7 +17,9 @@ export interface RunListItem {
   joinMode: Enums<"join_mode">;
   displayTitle: string;
   map: RunMap | null;
+  organizerId: string;
   organizerNickname: string | null;
+  confirmedCount: number;
 }
 
 export type RunDetail = RunListItem & {
@@ -32,6 +34,7 @@ const RUN_SELECT = `
   min_points,
   join_mode,
   created_at,
+  organizer_id,
   map:maps (
     id,
     name,
@@ -55,6 +58,7 @@ interface RunRow {
   min_points: number;
   join_mode: Enums<"join_mode">;
   created_at: string;
+  organizer_id: string;
   map: RunMap | null;
   organizer: { nickname: string | null } | null;
 }
@@ -93,7 +97,7 @@ export function formatJoinMode(mode: Enums<"join_mode">): string {
   }
 }
 
-function mapRunRow(row: RunRow): RunDetail {
+function mapRunRow(row: RunRow, confirmedCount = 0): RunDetail {
   const map = row.map;
   const organizerNickname = row.organizer?.nickname ?? null;
 
@@ -106,13 +110,40 @@ function mapRunRow(row: RunRow): RunDetail {
     joinMode: row.join_mode,
     createdAt: row.created_at,
     map,
+    organizerId: row.organizer_id,
     organizerNickname,
+    confirmedCount,
     displayTitle: resolveRunTitle({
       title: row.title,
       mapName: map?.name,
       nickname: organizerNickname,
     }),
   };
+}
+
+async function confirmedCountsForRuns(supabase: AppSupabaseClient, runIds: string[]): Promise<Map<string, number>> {
+  const counts = new Map<string, number>();
+  for (const id of runIds) {
+    counts.set(id, 0);
+  }
+
+  if (runIds.length === 0) return counts;
+
+  const { data, error } = await supabase
+    .from("run_participants")
+    .select("run_id")
+    .in("run_id", runIds)
+    .eq("status", "confirmed");
+
+  if (error) {
+    throw new Error(`Failed to count confirmed participants: ${error.message}`);
+  }
+
+  for (const row of data) {
+    counts.set(row.run_id, (counts.get(row.run_id) ?? 0) + 1);
+  }
+
+  return counts;
 }
 
 export async function listActiveRuns(supabase: AppSupabaseClient): Promise<RunListItem[]> {
@@ -126,7 +157,13 @@ export async function listActiveRuns(supabase: AppSupabaseClient): Promise<RunLi
     throw new Error(`Failed to list active runs: ${error.message}`);
   }
 
-  return (data as unknown as RunRow[]).map(mapRunRow);
+  const rows = data as unknown as RunRow[];
+  const counts = await confirmedCountsForRuns(
+    supabase,
+    rows.map((row) => row.id),
+  );
+
+  return rows.map((row) => mapRunRow(row, counts.get(row.id) ?? 0));
 }
 
 export async function getActiveRunById(supabase: AppSupabaseClient, id: string): Promise<RunDetail | null> {
@@ -142,7 +179,10 @@ export async function getActiveRunById(supabase: AppSupabaseClient, id: string):
   }
 
   if (!data) return null;
-  return mapRunRow(data);
+
+  const row = data as unknown as RunRow;
+  const counts = await confirmedCountsForRuns(supabase, [row.id]);
+  return mapRunRow(row, counts.get(row.id) ?? 0);
 }
 
 export type MapPickerItem = Pick<Tables<"maps">, "id" | "name" | "difficulty" | "points" | "stars">;

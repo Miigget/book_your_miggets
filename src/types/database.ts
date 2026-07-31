@@ -235,7 +235,24 @@ export type Database = {
       }
     }
     Functions: {
-      ensure_own_profile: { Args: never; Returns: Database["public"]["Tables"]["profiles"]["Row"] }
+      ensure_own_profile: {
+        Args: never
+        Returns: {
+          created_at: string
+          id: string
+          is_banned: boolean
+          is_verified: boolean
+          nickname: string | null
+          role: Database["public"]["Enums"]["user_role"]
+          updated_at: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "profiles"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       is_admin: { Args: never; Returns: boolean }
       is_not_banned: { Args: never; Returns: boolean }
     }
