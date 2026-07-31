@@ -183,7 +183,7 @@ export async function getActiveRunById(supabase: AppSupabaseClient, id: string):
   if (!data) return null;
 
   // Detail pages load the confirmed roster separately; avoid a duplicate count fetch here.
-  return mapRunRow(data as unknown as RunRow, 0);
+  return mapRunRow(data, 0);
 }
 
 export type MapPickerItem = Pick<Tables<"maps">, "id" | "name" | "difficulty" | "points" | "stars">;
