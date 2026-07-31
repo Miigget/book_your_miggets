@@ -129,19 +129,21 @@ async function confirmedCountsForRuns(supabase: AppSupabaseClient, runIds: strin
 
   if (runIds.length === 0) return counts;
 
-  const { data, error } = await supabase
-    .from("run_participants")
-    .select("run_id")
-    .in("run_id", runIds)
-    .eq("status", "confirmed");
+  await Promise.all(
+    runIds.map(async (id) => {
+      const { count, error } = await supabase
+        .from("run_participants")
+        .select("id", { count: "exact", head: true })
+        .eq("run_id", id)
+        .eq("status", "confirmed");
 
-  if (error) {
-    throw new Error(`Failed to count confirmed participants: ${error.message}`);
-  }
+      if (error) {
+        throw new Error(`Failed to count confirmed participants: ${error.message}`);
+      }
 
-  for (const row of data) {
-    counts.set(row.run_id, (counts.get(row.run_id) ?? 0) + 1);
-  }
+      counts.set(id, count ?? 0);
+    }),
+  );
 
   return counts;
 }
@@ -180,9 +182,8 @@ export async function getActiveRunById(supabase: AppSupabaseClient, id: string):
 
   if (!data) return null;
 
-  const row = data as unknown as RunRow;
-  const counts = await confirmedCountsForRuns(supabase, [row.id]);
-  return mapRunRow(row, counts.get(row.id) ?? 0);
+  // Detail pages load the confirmed roster separately; avoid a duplicate count fetch here.
+  return mapRunRow(data, 0);
 }
 
 export type MapPickerItem = Pick<Tables<"maps">, "id" | "name" | "difficulty" | "points" | "stars">;

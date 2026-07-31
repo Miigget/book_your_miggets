@@ -6,6 +6,7 @@ import { createClient } from "@/lib/supabase";
 import {
   getOwnParticipation,
   listConfirmedParticipants,
+  listDeniedParticipants,
   listPendingParticipants,
   type ConfirmedParticipant,
   type OwnParticipation,
@@ -22,6 +23,7 @@ let run: RunDetail | null = null;
 let pageError: "missing" | "config" | "load" | null = null;
 let confirmed: ConfirmedParticipant[] = [];
 let pending: PendingParticipant[] = [];
+let denied: PendingParticipant[] = [];
 let own: OwnParticipation | null = null;
 let nickname: string | null = null;
 
@@ -43,7 +45,10 @@ if (!id) {
           getOwnNickname(supabase, user.id),
         ]);
         if (isOrganizer) {
-          pending = await listPendingParticipants(supabase, run.id);
+          [pending, denied] = await Promise.all([
+            listPendingParticipants(supabase, run.id),
+            listDeniedParticipants(supabase, run.id),
+          ]);
         }
       }
     }
@@ -61,6 +66,7 @@ if (pageError === "missing") {
 const pageTitle = run ? `${run.displayTitle} — Book Your Miggets` : "Run — Book Your Miggets";
 const isOrganizer = Boolean(user?.id && user.id === run?.organizerId);
 const organizerSeated = isOrganizer && confirmed.some((p) => p.userId === user?.id);
+const confirmedCount = confirmed.length;
 
 function formatStart(iso: string): string {
   return new Date(iso).toLocaleString(undefined, {
@@ -134,7 +140,7 @@ function formatReleasedOn(value: string | null): string {
                   <div>
                     <dt class="text-blue-100/50">Capacity</dt>
                     <dd class="mt-0.5 text-white">
-                      {run.confirmedCount}/{run.maxParticipants}
+                      {confirmedCount}/{run.maxParticipants}
                     </dd>
                   </div>
                   <div>
@@ -186,7 +192,7 @@ function formatReleasedOn(value: string | null): string {
 
               <section class="mb-8 rounded-xl border border-white/10 bg-white/5 px-5 py-5 backdrop-blur-xl">
                 <h2 class="mb-4 text-sm font-semibold tracking-wide text-white/80 uppercase">
-                  Participants ({run.confirmedCount}/{run.maxParticipants})
+                  Participants ({confirmedCount}/{run.maxParticipants})
                 </h2>
 
                 {confirmed.length === 0 ? (
@@ -209,13 +215,14 @@ function formatReleasedOn(value: string | null): string {
                   runId={run.id}
                   joinMode={run.joinMode}
                   maxParticipants={run.maxParticipants}
-                  confirmedCount={run.confirmedCount}
+                  confirmedCount={confirmedCount}
                   isGuest={!user}
                   isOrganizer={isOrganizer}
                   nickname={nickname}
                   ownStatus={own?.status ?? null}
                   organizerSeated={organizerSeated}
                   pending={pending.map((p) => ({ id: p.id, nickname: p.nickname }))}
+                  denied={denied.map((p) => ({ id: p.id, nickname: p.nickname }))}
                   serverError={serverError}
                 />
               </section>

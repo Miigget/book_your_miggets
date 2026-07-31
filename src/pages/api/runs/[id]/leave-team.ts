@@ -31,7 +31,8 @@ export const POST: APIRoute = async (context) => {
     if (err instanceof ParticipantError) {
       return fail(err.message);
     }
-    return fail(err instanceof Error ? err.message : "Could not leave the team");
+    console.error("leaveTeamAsOrganizer failed", err);
+    return fail("Could not leave the team");
   }
 
   return context.redirect(`/runs/${runId}`);

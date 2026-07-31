@@ -1,12 +1,12 @@
 import type { APIRoute } from "astro";
 import { createClient } from "@/lib/supabase";
+import { safeRunReturnTo } from "@/lib/safe-return-to";
 import { ensureOwnProfile } from "@/lib/services/runs";
 
 export const POST: APIRoute = async (context) => {
   const form = await context.request.formData();
   const nickname = ((form.get("nickname") as string | null) ?? "").trim();
-  const redirectRaw = (form.get("redirect") as string | null) ?? "/runs/new";
-  const redirectTo = redirectRaw.startsWith("/") && !redirectRaw.startsWith("//") ? redirectRaw : "/runs/new";
+  const redirectTo = safeRunReturnTo((form.get("redirect") as string | null) ?? undefined) ?? "/runs";
 
   const fail = (message: string) => context.redirect(`${redirectTo}?error=${encodeURIComponent(message)}`);
 

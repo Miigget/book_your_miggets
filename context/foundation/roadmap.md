@@ -3,7 +3,7 @@ project: "Book Your Miggets"
 version: 1
 status: draft
 created: 2026-07-27
-updated: 2026-07-30
+updated: 2026-07-31
 prd_version: 1
 main_goal: market-feedback
 top_blocker: capacity
@@ -21,7 +21,7 @@ The King of Gores (KoG) community in TeeWorlds has no tool for organizing shared
 
 ## North star
 
-**S-02: user can register, apply to join a run, and be accepted or denied by the organizer — confirmed players appear on the roster** — this completes the US-01 approval loop, and with `main_goal: market-feedback` it is the earliest point at which real KoG users can tell us whether the app beats chat-based coordination.
+**S-02: user can register, apply to join a run, and be accepted or denied by the organizer — confirmed players appear on the roster** — shipped in `v0.1.3`. This completes the US-01 approval loop, and with `main_goal: market-feedback` it is the earliest point at which real KoG users can tell us whether the app beats chat-based coordination.
 
 > "North star" here means: the smallest end-to-end slice whose successful delivery would prove the core product hypothesis — placed as early as its Prerequisites allow, because everything else only matters if this works.
 
@@ -31,7 +31,7 @@ The King of Gores (KoG) community in TeeWorlds has no tool for organizing shared
 |---|---|---|---|---|---|
 | F-01 | run-domain-schema | (foundation) minimal run-domain schema + RLS baseline landed | — | Access Control, Business Logic, FR-012 | done |
 | S-01 | create-and-list-runs | create a run; any guest sees it on the public active-runs list | F-01, seeded map catalog | FR-003, FR-006, US-01 | done |
-| S-02 | apply-and-approve-participants | register, apply to a run, get accepted/denied; roster shows confirmed players | S-01 | FR-001, FR-002, FR-004, FR-008, FR-009, US-01 | proposed |
+| S-02 | apply-and-approve-participants | register, apply to a run, get accepted/denied; roster shows confirmed players | S-01 | FR-001, FR-002, FR-004, FR-008, FR-009, US-01 | done |
 | S-03 | search-filter-runs | search and filter active runs by map, date, or requirements | S-01 | FR-007 | proposed |
 | S-04 | run-archival-lifecycle | see runs marked in-progress during the 1-hour grace, then archived off the active list | S-01 | FR-013, US-01 | proposed |
 | S-05 | auto-join-mode | join an auto-join run and be confirmed instantly if capacity allows | S-02 | FR-014, US-02 | proposed |
@@ -54,14 +54,14 @@ Navigation aid — groups items that share a Prerequisites chain. Canonical orde
 
 ## Baseline
 
-What's already in place in the codebase as of `2026-07-30` (updated after F-01 + S-01 in `v0.1.1`, plus create-run/profile + Deploy DB sync in `v0.1.2`).
+What's already in place in the codebase as of `2026-07-31` (updated after north-star S-02 in `v0.1.3`; earlier: F-01 + S-01 in `v0.1.1`, create-run/profile + Deploy DB sync in `v0.1.2`).
 Foundations below assume these are present and do NOT re-scaffold them.
 
-- **Frontend:** partial — Astro SSR + React islands + Tailwind/shadcn; auth/dashboard plus public run list/detail and auth-gated create form (`/runs`, `/runs/[id]`, `/runs/new`). No apply/approve UI yet (S-02).
-- **Backend / API:** partial — SSR on Cloudflare Workers; auth endpoints plus `POST /api/runs` and `POST /api/profile/nickname` (both call `ensure_own_profile` before writes); middleware gates `/dashboard` and `/runs/new`.
-- **Data:** present for F-01/S-01 — migrations for `profiles`, `runs`, `run_participants`, `maps`; `ensure_own_profile` RPC; KoGmaps seed/import; generated `src/types/database.ts`.
-- **Auth:** present — Supabase email/password end-to-end: signup/signin/signout routes, cookie sessions, protected-route middleware, auth pages. FR-001 and FR-002 are satisfied by this baseline; S-02 exercises them inside the participation flow rather than re-building them.
-- **Deploy / infra:** present — Cloudflare Workers via wrangler; CI (lint/build on PR/`main`); production Deploy on tag `v*` runs Supabase `db push`, seeds `kog-maps.sql` only when that file changed since the previous tag, then deploys the Worker (`.github/workflows/deploy.yml`); live at [https://book-your-miggets.bookyourmiggets.workers.dev](https://book-your-miggets.bookyourmiggets.workers.dev) (`v0.1.2`).
+- **Frontend:** partial — Astro SSR + React islands + Tailwind/shadcn; auth/dashboard; public run list/detail with filled/capacity and apply/approve/leave-team actions; auth-gated create form (`/runs`, `/runs/[id]`, `/runs/new`). Auto-join apply UI stays “coming soon” until S-05.
+- **Backend / API:** partial — SSR on Cloudflare Workers; auth endpoints; `POST /api/runs`, `POST /api/profile/nickname`, plus participant mutations (`apply` / `withdraw` / `leave-team` / `decide`); middleware gates `/dashboard` and `/runs/new`.
+- **Data:** present for F-01/S-01/S-02 — migrations for `profiles`, `runs`, `run_participants`, `maps`; organizer auto-seat trigger + DELETE withdraw/leave policies; `ensure_own_profile` RPC; KoGmaps seed/import; generated `src/types/database.ts`.
+- **Auth:** present — Supabase email/password end-to-end: signup/signin/signout routes, cookie sessions, protected-route middleware, auth pages, safe `returnTo` back to `/runs/{uuid}` for the guest→apply path. FR-001/FR-002 are exercised inside the participation flow.
+- **Deploy / infra:** present — Cloudflare Workers via wrangler; CI (lint/build on PR/`main`); production Deploy on tag `v*` runs Supabase `db push`, seeds `kog-maps.sql` only when that file changed since the previous tag, then deploys the Worker (`.github/workflows/deploy.yml`); live at [https://book-your-miggets.bookyourmiggets.workers.dev](https://book-your-miggets.bookyourmiggets.workers.dev) (`v0.1.3`).
 - **Observability:** partial — Workers observability enabled in `wrangler.jsonc`; no app-level logging or error tracking. No NFR gates launch on this, so no foundation is opened for it.
 
 ## Foundations
@@ -103,7 +103,7 @@ Foundations below assume these are present and do NOT re-scaffold them.
 - **Blockers:** —
 - **Unknowns:** —
 - **Risk:** this is the north star — the pending/confirmed state machine is the product's core rule (Business Logic §), and the apply action carries the under-30-seconds guardrail; getting the states wrong here poisons every downstream slice.
-- **Status:** proposed
+- **Status:** done
 
 ### S-03: Search and filter runs
 
@@ -196,19 +196,19 @@ Foundations below assume these are present and do NOT re-scaffold them.
 |---|---|---|---|---|
 | F-01 | run-domain-schema | Establish run-domain schema and RLS baseline | — | Done (shipped); folder still under `context/changes/` until `/10x-archive` |
 | S-01 | create-and-list-runs | Run creation + public active-runs list | — | Done in `v0.1.1` (+ `v0.1.2` profile/RLS + Deploy DB sync); folder still under `context/changes/` until `/10x-archive` |
-| S-02 | apply-and-approve-participants | Apply to join + organizer approval + roster | yes | North star — next core-loop slice |
+| S-02 | apply-and-approve-participants | Apply to join + organizer approval + roster | — | Done in `v0.1.3` (north star); folder still under `context/changes/` until `/10x-archive` |
 | S-03 | search-filter-runs | Search and filter active runs | yes | Parallel candidate off S-01 |
 | S-04 | run-archival-lifecycle | Run lifecycle: in-progress grace + archival | yes | Parallel candidate off S-01 |
-| S-05 | auto-join-mode | Auto-join mode | no | Waiting on S-02 |
+| S-05 | auto-join-mode | Auto-join mode | yes | Unblocked by S-02 — next core-loop slice |
 | S-06 | admin-moderation-tools | Admin moderation: delete runs, ban, verify | yes | Parallel candidate off S-01 |
-| S-07 | participant-archive-history | Participant archive history | no | Waiting on S-02 + S-04 |
+| S-07 | participant-archive-history | Participant archive history | no | Waiting on S-04 (S-02 done) |
 | S-08 | my-runs-dashboard | My-runs dashboard | yes | Cuttable nice-to-have off S-01 |
 | S-09 | admin-player-archive-view | Admin view of player archived run history | no | Waiting on S-04 + S-06 |
 
 ## Open Roadmap Questions
 
 1. **Where does the KoG map catalog come from — a manually seeded static list, or imported from existing KoG map data?** — **Resolved (S-01 planning):** import from [KoGmaps `mapinfo.txt`](https://github.com/Gamer12120/KoGmaps/blob/main/mapinfo.txt); vendor a snapshot + offline loader for seed; automate GitHub re-pulls later. Unparseable DATE strings stored as null.
-2. **What is the minimum slice set before announcing to the KoG community?** — Owner: user. Block: none (suggested floor for market feedback: S-02 + S-04 + S-06 — loop works, list stays clean, moderation exists — but this is the user's call).
+2. **What is the minimum slice set before announcing to the KoG community?** — Owner: user. Block: none (suggested floor for market feedback: S-02 ✓ + S-04 + S-06 — loop works, list stays clean, moderation exists — but this is the user's call).
 
 ## Parked
 
@@ -226,3 +226,4 @@ Foundations below assume these are present and do NOT re-scaffold them.
 |---|---|---|---|
 | F-01 | run-domain-schema | schema on local + remote (pre-`v0.1.1`) | Status flipped after S-01 release sync; `/10x-archive` still pending for the change folder |
 | S-01 | create-and-list-runs | `v0.1.1` (+ hardening `v0.1.2`) | Create + public list/detail + KoGmaps catalog; `v0.1.2` added `ensure_own_profile` and automated remote `db push` / gated map seed on Deploy; `/10x-archive` still pending |
+| S-02 | apply-and-approve-participants | `v0.1.3` | Apply/withdraw/accept/deny + public roster + organizer seat/leave; auto-join apply deferred to S-05; `/10x-archive` still pending |

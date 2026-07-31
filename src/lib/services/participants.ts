@@ -97,6 +97,29 @@ export async function listPendingParticipants(
   }));
 }
 
+export async function listDeniedParticipants(
+  supabase: AppSupabaseClient,
+  runId: string,
+): Promise<PendingParticipant[]> {
+  const { data, error } = await supabase
+    .from("run_participants")
+    .select(PARTICIPANT_SELECT)
+    .eq("run_id", runId)
+    .eq("status", "denied")
+    .order("created_at", { ascending: true });
+
+  if (error) {
+    throw new Error(`Failed to list denied participants: ${error.message}`);
+  }
+
+  return (data as unknown as ParticipantRow[]).map((row) => ({
+    id: row.id,
+    userId: row.user_id,
+    nickname: mapNickname(row),
+    createdAt: row.created_at,
+  }));
+}
+
 export async function getOwnParticipation(
   supabase: AppSupabaseClient,
   runId: string,
@@ -299,11 +322,16 @@ export async function decideParticipant(
     throw new ParticipantError("Cannot deny a confirmed participant");
   }
 
+  if (row.status !== "pending" && row.status !== "denied") {
+    throw new ParticipantError("Could not update participant");
+  }
+
   const { data: updated, error } = await supabase
     .from("run_participants")
     .update({ status, updated_at: new Date().toISOString() })
     .eq("id", participantId)
     .eq("run_id", runId)
+    .in("status", ["pending", "denied"])
     .select("id")
     .maybeSingle();
 
