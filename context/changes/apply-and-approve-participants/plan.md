@@ -307,14 +307,14 @@ Roster sizes are bounded by `max_participants` (small). Prefer a single detail q
 
 #### Automated
 
-- [x] 3.1 npm run lint passes
-- [x] 3.2 npm run build passes
+- [x] 3.1 npm run lint passes — 27017f5
+- [x] 3.2 npm run build passes — 27017f5
 
 #### Manual
 
-- [x] 3.3 Guest → auth return → nickname → Apply under ~30s
-- [x] 3.4 Organizer pending UI + soft capacity warn; overfill allowed
-- [x] 3.5 Organizer Leave team; still shown as organizer
-- [x] 3.6 Auto-join coming-soon UI; no apply control
-- [x] 3.7 Withdraw pending from UI
-- [x] 3.8 Denied cannot Apply again; organizer can later Accept
+- [x] 3.3 Guest → auth return → nickname → Apply under ~30s — 27017f5
+- [x] 3.4 Organizer pending UI + soft capacity warn; overfill allowed — 27017f5
+- [x] 3.5 Organizer Leave team; still shown as organizer — 27017f5
+- [x] 3.6 Auto-join coming-soon UI; no apply control — 27017f5
+- [x] 3.7 Withdraw pending from UI — 27017f5
+- [x] 3.8 Denied cannot Apply again; organizer can later Accept — 27017f5
