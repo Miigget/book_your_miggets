@@ -24,6 +24,7 @@ interface Props {
   ownStatus: Enums<"participant_status"> | null;
   organizerSeated: boolean;
   pending: PendingApplicant[];
+  denied: PendingApplicant[];
   serverError?: string | null;
 }
 
@@ -38,6 +39,7 @@ export default function RunParticipantActions({
   ownStatus,
   organizerSeated,
   pending,
+  denied,
   serverError,
 }: Props) {
   const returnPath = `/runs/${runId}`;
@@ -219,6 +221,43 @@ export default function RunParticipantActions({
                       </Button>
                     </form>
                   </div>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+      )}
+
+      {isOrganizer && (
+        <div className="space-y-3 border-t border-white/10 pt-5">
+          <h3 className="text-sm font-semibold tracking-wide text-white/80 uppercase">Denied applications</h3>
+          {denied.length === 0 ? (
+            <p className="text-sm text-blue-100/50">No denied applications.</p>
+          ) : (
+            <ul className="space-y-3">
+              {denied.map((applicant) => (
+                <li
+                  key={applicant.id}
+                  className={cn(
+                    "flex flex-col gap-2 rounded-lg border border-white/10 bg-white/5 px-3 py-3 sm:flex-row sm:items-center sm:justify-between",
+                  )}
+                >
+                  <span className="text-sm text-white">{applicant.nickname ?? "Unknown player"}</span>
+                  <form
+                    method="POST"
+                    action={`/api/runs/${runId}/participants/${applicant.id}/decide`}
+                    onSubmit={confirmAccept}
+                  >
+                    <input type="hidden" name="status" value="confirmed" />
+                    <Button
+                      type="submit"
+                      size="sm"
+                      className="rounded-lg bg-emerald-600 text-white hover:bg-emerald-500"
+                    >
+                      <Check className="size-4" />
+                      Accept
+                    </Button>
+                  </form>
                 </li>
               ))}
             </ul>

@@ -31,7 +31,8 @@ export const POST: APIRoute = async (context) => {
     if (err instanceof ParticipantError) {
       return fail(err.message);
     }
-    return fail(err instanceof Error ? err.message : "Could not withdraw application");
+    console.error("withdrawApplication failed", err);
+    return fail("Could not withdraw application");
   }
 
   return context.redirect(`/runs/${runId}`);

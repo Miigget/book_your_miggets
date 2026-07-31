@@ -22,3 +22,10 @@
 - **Problem**: The developer has to find local URLs and restart servers/Docker by hand before they can verify, which wastes time and slows the feedback loop.
 - **Rule**: At the manual-verification gate, include clickable links to the local site and any other URLs or tools needed for the checks, and make sure the local app server and Docker services (e.g. Supabase) are already running (restart them if needed) so verification can start immediately.
 - **Applies to**: implement, and any other skill or step that asks the user to perform manual verification
+
+## Do not echo raw infrastructure errors into user-facing redirects
+
+- **Context**: `src/pages/api/runs/[id]/apply.ts` (and withdraw / leave-team / decide); `?error=` + `ServerError`
+- **Problem**: Non-`ParticipantError` paths put raw `err.message` (often PostgREST/DB text) into `?error=` and render it to the user. Same habit as create-run, now on more mutation surfaces — information leakage and ugly UX.
+- **Rule**: 
+- **Applies to**: 

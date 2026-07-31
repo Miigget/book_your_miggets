@@ -31,7 +31,8 @@ export const POST: APIRoute = async (context) => {
     if (err instanceof ParticipantError) {
       return fail(err.message);
     }
-    return fail(err instanceof Error ? err.message : "Could not apply to this run");
+    console.error("applyToRun failed", err);
+    return fail("Could not apply to this run");
   }
 
   return context.redirect(`/runs/${runId}`);
