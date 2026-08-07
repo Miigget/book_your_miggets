@@ -1,10 +1,10 @@
 ---
 change_id: create-and-list-runs
 title: Run creation and public active-runs list
-status: implemented
+status: archived
 created: 2026-07-29
-updated: 2026-07-30
-archived_at: null
+updated: 2026-08-07
+archived_at: 2026-08-07T06:35:05Z
 ---
 
 ## Notes
