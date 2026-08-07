@@ -274,27 +274,27 @@ No database migration. No data backfill. Rollback = revert the app code; DB cont
 
 #### Automated
 
-- [x] 2.1 Linting passes: `npm run lint`
-- [x] 2.2 Production build passes: `npm run build`
+- [x] 2.1 Linting passes: `npm run lint` — 89a8e9c
+- [x] 2.2 Production build passes: `npm run build` — 89a8e9c
 
 #### Manual
 
-- [x] 2.3 Admin can delete a run; it disappears from `/runs` and its participant rows are gone (checked in SQL)
-- [x] 2.4 Admin can ban → banned user is friendly-blocked; unban restores normal flows
-- [x] 2.5 Admin can verify/unverify; `profiles.is_verified` flips in SQL
-- [x] 2.6 Non-admin POSTing to any admin endpoint gets a friendly rejection, and direct SQL confirms nothing changed
-- [x] 2.7 Admin cannot ban their own account
+- [x] 2.3 Admin can delete a run; it disappears from `/runs` and its participant rows are gone (checked in SQL) — 89a8e9c
+- [x] 2.4 Admin can ban → banned user is friendly-blocked; unban restores normal flows — 89a8e9c
+- [x] 2.5 Admin can verify/unverify; `profiles.is_verified` flips in SQL — 89a8e9c
+- [x] 2.6 Non-admin POSTing to any admin endpoint gets a friendly rejection, and direct SQL confirms nothing changed — 89a8e9c
+- [x] 2.7 Admin cannot ban their own account — 89a8e9c
 
 ### Phase 3: Admin UI & First-Admin Docs
 
 #### Automated
 
-- [ ] 3.1 Linting passes: `npm run lint`
-- [ ] 3.2 Production build passes: `npm run build`
+- [x] 3.1 Linting passes: `npm run lint`
+- [x] 3.2 Production build passes: `npm run build`
 
 #### Manual
 
-- [ ] 3.3 Admin sees Topbar link and the `/admin` table; ban/verify toggles work end-to-end from the UI with notices
-- [ ] 3.4 Admin sees "Delete run" on a run detail page, confirm dialog fires, deletion lands on `/runs` with the notice
-- [ ] 3.5 Non-admin sees neither the Topbar link nor any admin control on run detail
-- [ ] 3.6 README instructions promote a fresh local account successfully
+- [x] 3.3 Admin sees Topbar link and the `/admin` table; ban/verify toggles work end-to-end from the UI with notices
+- [x] 3.4 Admin sees "Delete run" on a run detail page, confirm dialog fires, deletion lands on `/runs` with the notice
+- [x] 3.5 Non-admin sees neither the Topbar link nor any admin control on run detail
+- [x] 3.6 README instructions promote a fresh local account successfully

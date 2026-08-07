@@ -1,0 +1,148 @@
+---
+import Layout from "@/layouts/Layout.astro";
+import Banner from "@/components/Banner.astro";
+import Topbar from "@/components/Topbar.astro";
+import { createClient } from "@/lib/supabase";
+import { listProfilesForAdmin, type AdminProfileRow } from "@/lib/services/admin";
+
+// Route protection lives in middleware: only admins reach this page.
+const supabase = createClient(Astro.request.headers, Astro.cookies);
+const { user } = Astro.locals;
+const notice = Astro.url.searchParams.get("notice");
+const serverError = Astro.url.searchParams.get("error");
+
+let profiles: AdminProfileRow[] = [];
+let loadError: string | null = null;
+
+if (!supabase) {
+  loadError = "Supabase is not configured.";
+} else {
+  try {
+    profiles = await listProfilesForAdmin(supabase);
+  } catch (err) {
+    loadError = err instanceof Error ? err.message : "Could not load users.";
+  }
+}
+
+function formatCreated(value: string): string {
+  return value.slice(0, 10);
+}
+---
+
+<Layout title="Admin — Book Your Miggets">
+  <div class="bg-cosmic relative min-h-screen w-full overflow-hidden">
+    <div
+      class="pointer-events-none absolute top-1/4 -left-24 h-[350px] w-[350px] rounded-full bg-purple-500/20 blur-[120px]"
+    >
+    </div>
+    <div
+      class="pointer-events-none absolute top-2/3 -right-16 h-[250px] w-[250px] rounded-full bg-blue-500/15 blur-[100px]"
+    >
+    </div>
+
+    <div class="relative z-10 mx-auto max-w-5xl p-4 sm:p-8">
+      <Topbar />
+
+      {
+        notice && (
+          <div class="mb-6 overflow-hidden rounded-lg">
+            <Banner variant="info">{notice}</Banner>
+          </div>
+        )
+      }
+      {
+        serverError && (
+          <div class="mb-6 overflow-hidden rounded-lg">
+            <Banner variant="error">{serverError}</Banner>
+          </div>
+        )
+      }
+
+      <header class="mb-8">
+        <h1
+          class="bg-gradient-to-r from-blue-200 to-purple-200 bg-clip-text text-3xl font-bold text-transparent sm:text-4xl"
+        >
+          Admin — users
+        </h1>
+        <p class="mt-2 text-sm text-blue-100/60">
+          Ban or verify users. To delete a run, open its detail page — admins see a delete control there.
+        </p>
+      </header>
+
+      {
+        loadError ? (
+          <p class="rounded-lg border border-red-400/30 bg-red-500/10 px-4 py-3 text-sm text-red-100">{loadError}</p>
+        ) : (
+          <div class="overflow-x-auto rounded-xl border border-white/10 bg-white/5 backdrop-blur-xl">
+            <table class="w-full text-left text-sm">
+              <thead>
+                <tr class="border-b border-white/10 text-xs tracking-wide text-white/60 uppercase">
+                  <th class="px-4 py-3">Nickname</th>
+                  <th class="px-4 py-3">User id</th>
+                  <th class="px-4 py-3">Role</th>
+                  <th class="px-4 py-3">Verified</th>
+                  <th class="px-4 py-3">Banned</th>
+                  <th class="px-4 py-3">Created</th>
+                  <th class="px-4 py-3">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {profiles.map((profile) => (
+                  <tr class="border-b border-white/5 last:border-b-0">
+                    <td class="px-4 py-3 text-white">{profile.nickname ?? "—"}</td>
+                    <td class="px-4 py-3 font-mono text-xs text-blue-100/60">{profile.id}</td>
+                    <td class="px-4 py-3 text-blue-100/80">{profile.role}</td>
+                    <td class="px-4 py-3">
+                      {profile.is_verified ? (
+                        <span class="text-emerald-300">yes</span>
+                      ) : (
+                        <span class="text-blue-100/50">no</span>
+                      )}
+                    </td>
+                    <td class="px-4 py-3">
+                      {profile.is_banned ? (
+                        <span class="text-red-300">yes</span>
+                      ) : (
+                        <span class="text-blue-100/50">no</span>
+                      )}
+                    </td>
+                    <td class="px-4 py-3 text-blue-100/60">{formatCreated(profile.created_at)}</td>
+                    <td class="px-4 py-3">
+                      <div class="flex flex-wrap gap-2">
+                        <form method="POST" action={`/api/admin/users/${profile.id}/verify`}>
+                          <input type="hidden" name="value" value={profile.is_verified ? "false" : "true"} />
+                          <button
+                            type="submit"
+                            class="rounded-lg border border-white/20 px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-white/10"
+                          >
+                            {profile.is_verified ? "Unverify" : "Verify"}
+                          </button>
+                        </form>
+                        {profile.id !== user?.id && (
+                          <form method="POST" action={`/api/admin/users/${profile.id}/ban`}>
+                            <input type="hidden" name="value" value={profile.is_banned ? "false" : "true"} />
+                            <button
+                              type="submit"
+                              class:list={[
+                                "rounded-lg px-3 py-1.5 text-xs font-medium transition-colors",
+                                profile.is_banned
+                                  ? "border border-white/20 text-white hover:bg-white/10"
+                                  : "border border-red-400/40 text-red-200 hover:bg-red-500/20",
+                              ]}
+                            >
+                              {profile.is_banned ? "Unban" : "Ban"}
+                            </button>
+                          </form>
+                        )}
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )
+      }
+    </div>
+  </div>
+</Layout>
