@@ -238,30 +238,30 @@ The `FOR UPDATE` lock is per-run and held only for the duration of one short RPC
 
 #### Automated
 
-- [x] 1.1 Migration applies cleanly: `npx supabase db reset`
-- [x] 1.2 Types regenerated: `src/types/database.ts` contains `auto_join_run` in `Functions`
-- [x] 1.3 Lint passes: `npm run lint`
-- [x] 1.4 Build passes: `npm run build`
+- [x] 1.1 Migration applies cleanly: `npx supabase db reset` — 284e97c
+- [x] 1.2 Types regenerated: `src/types/database.ts` contains `auto_join_run` in `Functions` — 284e97c
+- [x] 1.3 Lint passes: `npm run lint` — 284e97c
+- [x] 1.4 Build passes: `npm run build` — 284e97c
 
 #### Manual
 
-- [x] 1.5 SQL smoke test: `auto_join_run` confirms with free slot, then `already_confirmed`
-- [x] 1.6 Race check: concurrent calls at one slot yield exactly one `confirmed`, one `full`
-- [x] 1.7 Guard checks: `not_auto_join`, `not_active`, `full` outcomes verified
+- [x] 1.5 SQL smoke test: `auto_join_run` confirms with free slot, then `already_confirmed` — 284e97c
+- [x] 1.6 Race check: concurrent calls at one slot yield exactly one `confirmed`, one `full` — 284e97c
+- [x] 1.7 Guard checks: `not_auto_join`, `not_active`, `full` outcomes verified — 284e97c
 
 ### Phase 2: Service branch + apply endpoint reuse + UI
 
 #### Automated
 
-- [ ] 2.1 Lint passes: `npm run lint`
-- [ ] 2.2 Build passes: `npm run build`
+- [x] 2.1 Lint passes: `npm run lint`
+- [x] 2.2 Build passes: `npm run build`
 
 #### Manual
 
-- [ ] 2.3 Auto-join happy path: instant roster + filled count on detail and list
-- [ ] 2.4 Full-run rejection: disabled state + server error on stale POST
-- [ ] 2.5 Nickname gate works on auto-join runs
-- [ ] 2.6 Approval-required flow regression-free
-- [ ] 2.7 Guest sign-in `returnTo` path joins successfully
-- [ ] 2.8 Existing participation states show status messages, no join button
-- [ ] 2.9 Double-submit join is idempotent (single roster entry, no error)
+- [x] 2.3 Auto-join happy path: instant roster + filled count on detail and list
+- [x] 2.4 Full-run rejection: disabled state + server error on stale POST
+- [x] 2.5 Nickname gate works on auto-join runs
+- [x] 2.6 Approval-required flow regression-free
+- [x] 2.7 Guest sign-in `returnTo` path joins successfully
+- [x] 2.8 Existing participation states show status messages, no join button
+- [x] 2.9 Double-submit join is idempotent (single roster entry, no error)
