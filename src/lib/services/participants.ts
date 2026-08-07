@@ -182,14 +182,42 @@ async function loadActiveRunForMutation(
   return data;
 }
 
+async function autoJoinRun(supabase: AppSupabaseClient, runId: string): Promise<void> {
+  const { data: outcome, error } = await supabase.rpc("auto_join_run", { p_run_id: runId });
+
+  if (error) {
+    console.error("auto_join_run RPC failed", error);
+    throw new ParticipantError("Could not apply to this run");
+  }
+
+  switch (outcome) {
+    case "confirmed":
+    case "already_confirmed":
+      // already_confirmed is idempotent success: a double-submit race resolves
+      // here once the run-row lock serializes the two requests.
+      return;
+    case "full":
+      throw new ParticipantError("This run is already full");
+    case "already_pending":
+      throw new ParticipantError("You already applied to this run");
+    case "denied":
+      throw new ParticipantError("Your application was denied; the organizer can still accept you later");
+    case "no_nickname":
+      throw new ParticipantError("Set a nickname before applying");
+    case "not_active":
+      throw new ParticipantError("Run not found or no longer active");
+    default:
+      // not_auto_join / banned / not_authenticated should be unreachable via the
+      // service prelude; treat them (and unknown outcomes) as unexpected.
+      console.error("auto_join_run returned unexpected outcome", outcome);
+      throw new ParticipantError("Could not apply to this run");
+  }
+}
+
 export async function applyToRun(supabase: AppSupabaseClient, runId: string, userId: string): Promise<void> {
   await ensureOwnProfile(supabase);
 
   const run = await loadActiveRunForMutation(supabase, runId);
-
-  if (run.join_mode !== "approval_required") {
-    throw new ParticipantError("Applying to auto-join runs is not available yet");
-  }
 
   const nickname = await getOwnNickname(supabase, userId);
   if (!nickname) {
@@ -211,6 +239,11 @@ export async function applyToRun(supabase: AppSupabaseClient, runId: string, use
         throw new ParticipantError("Unexpected participation status");
       }
     }
+  }
+
+  if (run.join_mode === "auto_join") {
+    await autoJoinRun(supabase, runId);
+    return;
   }
 
   const { error } = await supabase.from("run_participants").insert({

@@ -91,17 +91,24 @@ export default function RunParticipantActions({
     );
   }
 
+  const isAutoJoin = joinMode === "auto_join";
+  const autoJoinFull = isAutoJoin && confirmedCount >= maxParticipants;
+
   return (
     <div className="space-y-5">
       <ServerError message={serverError} />
 
-      {joinMode === "auto_join" && (
-        <p className="text-sm text-blue-100/60">
-          Auto-join is coming soon. You can browse this run, but applying is not available yet.
-        </p>
+      {autoJoinFull && ownStatus === null && (
+        <div className="space-y-2">
+          <Button type="button" disabled className="w-full rounded-lg bg-white/10 px-4 py-2 font-medium text-white/60">
+            <UserPlus className="size-4" />
+            This run is full
+          </Button>
+          <p className="text-sm text-blue-100/50">All {maxParticipants} slots are taken.</p>
+        </div>
       )}
 
-      {joinMode === "approval_required" && !nickname && ownStatus === null && (
+      {!autoJoinFull && !nickname && ownStatus === null && (
         <form
           method="POST"
           action="/api/profile/nickname"
@@ -129,10 +136,10 @@ export default function RunParticipantActions({
         </form>
       )}
 
-      {joinMode === "approval_required" && nickname && ownStatus === null && (
+      {!autoJoinFull && nickname && ownStatus === null && (
         <form method="POST" action={`/api/runs/${runId}/apply`}>
-          <SubmitButton pendingText="Applying..." icon={<UserPlus className="size-4" />}>
-            Apply to join
+          <SubmitButton pendingText={isAutoJoin ? "Joining..." : "Applying..."} icon={<UserPlus className="size-4" />}>
+            {isAutoJoin ? "Join run" : "Apply to join"}
           </SubmitButton>
         </form>
       )}
