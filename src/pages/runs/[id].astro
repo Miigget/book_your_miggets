@@ -65,6 +65,7 @@ if (pageError === "missing") {
 }
 
 const pageTitle = run ? `${run.displayTitle} — Book Your Miggets` : "Run — Book Your Miggets";
+const isBanned = Boolean(Astro.locals.profile?.isBanned);
 const isOrganizer = Boolean(user?.id && user.id === run?.organizerId);
 const organizerSeated = isOrganizer && confirmed.some((p) => p.userId === user?.id);
 const confirmedCount = confirmed.length;
@@ -216,6 +217,7 @@ function formatReleasedOn(value: string | null): string {
                   maxParticipants={run.maxParticipants}
                   confirmedCount={confirmedCount}
                   isGuest={!user}
+                  isBanned={isBanned}
                   isOrganizer={isOrganizer}
                   nickname={nickname}
                   ownStatus={own?.status ?? null}

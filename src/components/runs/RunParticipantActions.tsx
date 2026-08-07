@@ -19,6 +19,7 @@ interface Props {
   maxParticipants: number;
   confirmedCount: number;
   isGuest: boolean;
+  isBanned: boolean;
   isOrganizer: boolean;
   nickname: string | null;
   ownStatus: Enums<"participant_status"> | null;
@@ -34,6 +35,7 @@ export default function RunParticipantActions({
   maxParticipants,
   confirmedCount,
   isGuest,
+  isBanned,
   isOrganizer,
   nickname,
   ownStatus,
@@ -98,7 +100,13 @@ export default function RunParticipantActions({
     <div className="space-y-5">
       <ServerError message={serverError} />
 
-      {autoJoinFull && ownStatus === null && (
+      {isBanned && ownStatus === null && (
+        <p className="rounded-xl border border-red-400/30 bg-red-500/10 px-4 py-3 text-sm text-red-100">
+          Your account is banned — you cannot join runs.
+        </p>
+      )}
+
+      {!isBanned && autoJoinFull && ownStatus === null && (
         <div className="space-y-2">
           <Button type="button" disabled className="w-full rounded-lg bg-white/10 px-4 py-2 font-medium text-white/60">
             <UserPlus className="size-4" />
@@ -108,7 +116,7 @@ export default function RunParticipantActions({
         </div>
       )}
 
-      {!autoJoinFull && !nickname && ownStatus === null && (
+      {!isBanned && !autoJoinFull && !nickname && ownStatus === null && (
         <form
           method="POST"
           action="/api/profile/nickname"
@@ -136,7 +144,7 @@ export default function RunParticipantActions({
         </form>
       )}
 
-      {!autoJoinFull && nickname && ownStatus === null && (
+      {!isBanned && !autoJoinFull && nickname && ownStatus === null && (
         <form method="POST" action={`/api/runs/${runId}/apply`}>
           <SubmitButton pendingText={isAutoJoin ? "Joining..." : "Applying..."} icon={<UserPlus className="size-4" />}>
             {isAutoJoin ? "Join run" : "Apply to join"}
