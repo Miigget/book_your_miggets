@@ -259,31 +259,31 @@ No database migration. No data backfill. Rollback = revert the app code; DB cont
 
 #### Automated
 
-- [x] 1.1 Types stay in sync: `npx astro sync` succeeds
-- [x] 1.2 Linting passes: `npm run lint`
-- [x] 1.3 Production build passes: `npm run build`
+- [x] 1.1 Types stay in sync: `npx astro sync` succeeds — 2b7f0c3
+- [x] 1.2 Linting passes: `npm run lint` — 2b7f0c3
+- [x] 1.3 Production build passes: `npm run build` — 2b7f0c3
 
 #### Manual
 
-- [x] 1.4 Banned user posting to `/api/profile/nickname` or `/api/runs` gets redirected with "Your account is banned", not a raw error
-- [x] 1.5 Banned user sees the banned notice on run detail and `/runs/new`; sign-out still works
-- [x] 1.6 Non-admin authenticated user gets 404 on `/admin`; unauthenticated user is redirected to sign-in
-- [x] 1.7 Unbanned regular flows (apply/withdraw/decide/create) behave exactly as before
+- [x] 1.4 Banned user posting to `/api/profile/nickname` or `/api/runs` gets redirected with "Your account is banned", not a raw error — 2b7f0c3
+- [x] 1.5 Banned user sees the banned notice on run detail and `/runs/new`; sign-out still works — 2b7f0c3
+- [x] 1.6 Non-admin authenticated user gets 404 on `/admin`; unauthenticated user is redirected to sign-in — 2b7f0c3
+- [x] 1.7 Unbanned regular flows (apply/withdraw/decide/create) behave exactly as before — 2b7f0c3
 
 ### Phase 2: Admin Moderation APIs
 
 #### Automated
 
-- [ ] 2.1 Linting passes: `npm run lint`
-- [ ] 2.2 Production build passes: `npm run build`
+- [x] 2.1 Linting passes: `npm run lint`
+- [x] 2.2 Production build passes: `npm run build`
 
 #### Manual
 
-- [ ] 2.3 Admin can delete a run; it disappears from `/runs` and its participant rows are gone (checked in SQL)
-- [ ] 2.4 Admin can ban → banned user is friendly-blocked; unban restores normal flows
-- [ ] 2.5 Admin can verify/unverify; `profiles.is_verified` flips in SQL
-- [ ] 2.6 Non-admin POSTing to any admin endpoint gets a friendly rejection, and direct SQL confirms nothing changed
-- [ ] 2.7 Admin cannot ban their own account
+- [x] 2.3 Admin can delete a run; it disappears from `/runs` and its participant rows are gone (checked in SQL)
+- [x] 2.4 Admin can ban → banned user is friendly-blocked; unban restores normal flows
+- [x] 2.5 Admin can verify/unverify; `profiles.is_verified` flips in SQL
+- [x] 2.6 Non-admin POSTing to any admin endpoint gets a friendly rejection, and direct SQL confirms nothing changed
+- [x] 2.7 Admin cannot ban their own account
 
 ### Phase 3: Admin UI & First-Admin Docs
 
