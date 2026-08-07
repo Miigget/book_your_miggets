@@ -235,6 +235,7 @@ export type Database = {
       }
     }
     Functions: {
+      auto_join_run: { Args: { p_run_id: string }; Returns: string }
       ensure_own_profile: {
         Args: never
         Returns: {
