@@ -253,15 +253,15 @@ The `FOR UPDATE` lock is per-run and held only for the duration of one short RPC
 
 #### Automated
 
-- [x] 2.1 Lint passes: `npm run lint`
-- [x] 2.2 Build passes: `npm run build`
+- [x] 2.1 Lint passes: `npm run lint` — 3529534
+- [x] 2.2 Build passes: `npm run build` — 3529534
 
 #### Manual
 
-- [x] 2.3 Auto-join happy path: instant roster + filled count on detail and list
-- [x] 2.4 Full-run rejection: disabled state + server error on stale POST
-- [x] 2.5 Nickname gate works on auto-join runs
-- [x] 2.6 Approval-required flow regression-free
-- [x] 2.7 Guest sign-in `returnTo` path joins successfully
-- [x] 2.8 Existing participation states show status messages, no join button
-- [x] 2.9 Double-submit join is idempotent (single roster entry, no error)
+- [x] 2.3 Auto-join happy path: instant roster + filled count on detail and list — 3529534
+- [x] 2.4 Full-run rejection: disabled state + server error on stale POST — 3529534
+- [x] 2.5 Nickname gate works on auto-join runs — 3529534
+- [x] 2.6 Approval-required flow regression-free — 3529534
+- [x] 2.7 Guest sign-in `returnTo` path joins successfully — 3529534
+- [x] 2.8 Existing participation states show status messages, no join button — 3529534
+- [x] 2.9 Double-submit join is idempotent (single roster entry, no error) — 3529534
