@@ -289,12 +289,12 @@ No database migration. No data backfill. Rollback = revert the app code; DB cont
 
 #### Automated
 
-- [x] 3.1 Linting passes: `npm run lint`
-- [x] 3.2 Production build passes: `npm run build`
+- [x] 3.1 Linting passes: `npm run lint` — 5655463
+- [x] 3.2 Production build passes: `npm run build` — 5655463
 
 #### Manual
 
-- [x] 3.3 Admin sees Topbar link and the `/admin` table; ban/verify toggles work end-to-end from the UI with notices
-- [x] 3.4 Admin sees "Delete run" on a run detail page, confirm dialog fires, deletion lands on `/runs` with the notice
-- [x] 3.5 Non-admin sees neither the Topbar link nor any admin control on run detail
-- [x] 3.6 README instructions promote a fresh local account successfully
+- [x] 3.3 Admin sees Topbar link and the `/admin` table; ban/verify toggles work end-to-end from the UI with notices — 5655463
+- [x] 3.4 Admin sees "Delete run" on a run detail page, confirm dialog fires, deletion lands on `/runs` with the notice — 5655463
+- [x] 3.5 Non-admin sees neither the Topbar link nor any admin control on run detail — 5655463
+- [x] 3.6 README instructions promote a fresh local account successfully — 5655463
