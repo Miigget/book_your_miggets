@@ -34,7 +34,7 @@ The King of Gores (KoG) community in TeeWorlds has no tool for organizing shared
 | S-02 | apply-and-approve-participants | register, apply to a run, get accepted/denied; roster shows confirmed players | S-01 | FR-001, FR-002, FR-004, FR-008, FR-009, US-01 | done |
 | S-03 | search-filter-runs | search and filter active runs by map, date, or requirements | S-01 | FR-007 | proposed |
 | S-04 | run-archival-lifecycle | see runs marked in-progress during the 1-hour grace, then archived off the active list | S-01 | FR-013, US-01 | done |
-| S-05 | auto-join-mode | join an auto-join run and be confirmed instantly if capacity allows | S-02 | FR-014, US-02 | in-progress |
+| S-05 | auto-join-mode | join an auto-join run and be confirmed instantly if capacity allows | S-02 | FR-014, US-02 | done |
 | S-06 | admin-moderation-tools | (admin) delete runs, ban users, mark users verified | S-01, F-01 | FR-010, FR-011, FR-012 | proposed |
 | S-07 | participant-archive-history | (confirmed participant) revisit archived runs they took part in | S-02, S-04 | FR-015, US-01 | proposed |
 | S-08 | my-runs-dashboard | (organizer) view all runs they created in one place | S-01 | FR-005 | proposed |
@@ -139,7 +139,7 @@ Foundations below assume these are present and do NOT re-scaffold them.
 - **Blockers:** —
 - **Unknowns:** —
 - **Risk:** concurrent applies against the last slot is the one race condition in the product; sequenced after S-02 so the base application machinery exists to extend.
-- **Status:** in-progress
+- **Status:** done
 
 ### S-06: Admin moderation tools
 
@@ -233,3 +233,4 @@ Foundations below assume these are present and do NOT re-scaffold them.
 - **S-01: user can create a run (map from list/search, date/time, max participants, minimum points threshold, join mode) and any guest can browse the public active-runs list without logging in.** — Archived 2026-08-07 → `context/archive/2026-07-29-create-and-list-runs/`. Lesson: —.
 - **S-02: user can register, apply to join an approval-required run, and the organizer can accept or deny each applicant; confirmed players appear on the public participant list and count toward capacity.** — Archived 2026-08-07 → `context/archive/2026-07-31-apply-and-approve-participants/`. Lesson: —.
 - **S-04: user can see a run marked "in-progress / already started" during the 1-hour grace after its scheduled start, after which it leaves the active list into the archive (retained, not deleted).** — Archived 2026-08-07 → `context/archive/2026-08-07-run-archival-lifecycle/`. Lesson: —.
+- **S-05: user can apply to an auto-join run and be confirmed on the participant list immediately if capacity remains.** — Archived 2026-08-07 → `context/archive/2026-08-07-auto-join-mode/`. Lesson: —.
