@@ -1,0 +1,51 @@
+---
+description: Edukacyjne wyjaśnienia PL przy decyzjach 10x-* (pytania, opcje, rekomendacje)
+alwaysApply: false
+---
+# 10x learning coach (PL)
+
+Gdy użytkownik korzysta ze skilla `10x-*` **i** w odpowiedzi są pytania, wybory (A/B/C), rekomendacje albo trade-offy — dołącz sekcję **Nauczanie** po polsku.
+
+## Cel sekcji (ważne)
+
+Tłumacz **treść decyzji**, nie działanie skilla.
+
+Użytkownik ma zrozumieć: *o co dokładnie pytam*, *co znaczy każda opcja*, *dlaczego ⭐ jest rekomendowana*, *kiedy warto rozważyć alternatywę*.
+
+## Struktura „Nauczanie”
+
+Dla **każdego** pytania decyzyjnego w tej turze (krótko, po kolei):
+
+1. **O co chodzi** — 1–2 zdania po polsku, bez żargonu (lub z natychmiastowym tłumaczeniem).
+2. **Opcje ludzkim językiem** — co wybór A/B/C *oznacza w praktyce* (nie powtarzaj angielskiego briefu 1:1).
+3. **Dlaczego ⭐** — dlaczego rekomendacja jest bezpieczniejsza / bliżej celu / tańsza w ryzyku.
+4. **Kiedy nie ⭐** — kiedy sensowna jest inna litera (jedno zdanie na realną alternatywę).
+
+Używaj analogii przy trudnych pojęciach (*FK*, *seed*, *cutover*, *single source of truth*), ale analogia ma oświetlać **tę decyzję**, nie cały skill.
+
+Angielskie słowa kluczowe OK - wyjaśniaj po polsku tylko te mniej oczywiste.
+
+Długość: zwykle **4–10 zdań na pytanie**; przy 3 pytaniach — osobne mini-akapity (np. **1. Etykiety eksportu**, **2. OTHER**, **3. Przechowywanie**), nie jeden ogólny akapit.
+
+## Antywzorzec (zakazane)
+
+```text
+❌ „Pytamy najpierw o kontrakt, bo to fundamenty…”
+❌ „Ten krok skilla jest po to, żeby…”
+❌ „/10x-plan zbiera decyzje load-bearing, dlatego…”
+❌ Jedna metafora o całym remoncie zamiast wyjaśnienia A vs B vs C
+```
+
+Jeśli nie ma pytań decyzyjnych w turze — **pomiń** sekcję albo daj max 2 zdania o nowym pojęciu/artefakcie. Nie wypełniaj „Nauczania” meta-opisem skilla.
+
+## Przykład dobrego tonu
+
+Przy pytaniu o etykiety PL/EN w eksporcie (opcje: tylko PL z DB / mapy w exporterach / kolumny bilingual):
+
+> **Nauczanie**
+>
+> **1. Etykiety w eksporcie** — chodzi o to, skąd CSV/PDF biorą polskie i angielskie nazwy nadgodzin po przeniesieniu typów do słownika w bazie.
+> - **A** = jedna nazwa w bazie (jak inne słowniki HR) — prościej, ale EN w eksporcie może zostać „po polsku” albo wymagać osobnej mapy później.
+> - **B (rekomendowane)** = na start zostawiamy gotowe tłumaczenia PL/EN w kodzie eksporterów dla 8 znanych kodów; nowe typy z admina biorą nazwę ze słownika. Najbliżej „działa jak dziś” w obu językach, bez rozbudowy formularza.
+> - **C** = osobne pola `name_pl` / `name_en` w bazie — najczystszy *single source of truth* (jedno miejsce prawdy), ale większa zmiana schematu i UI; odstępstwo od wzorca Specjalizacji.
+> Wybierz **C**, jeśli od razu chcesz, by nowe typy miały porządne EN bez ruszania kodu eksporterów.
