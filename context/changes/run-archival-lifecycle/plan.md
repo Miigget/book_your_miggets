@@ -243,41 +243,41 @@ Active list remains a single ordered query with an extra `starts_at` bound; exis
 
 #### Automated
 
-- [x] 1.1 `npm run lint` passes
-- [x] 1.2 `npm run build` passes
-- [x] 1.3 `src/lib/run-lifecycle.ts` exists and is imported by `runs.ts` and `participants.ts`
-- [x] 1.4 `listActiveRuns` / `getActiveRunById` / `loadActiveRunForMutation` filter by active window
+- [x] 1.1 `npm run lint` passes — 6c3318e
+- [x] 1.2 `npm run build` passes — 6c3318e
+- [x] 1.3 `src/lib/run-lifecycle.ts` exists and is imported by `runs.ts` and `participants.ts` — 6c3318e
+- [x] 1.4 `listActiveRuns` / `getActiveRunById` / `loadActiveRunForMutation` filter by active window — 6c3318e
 
 #### Manual
 
-- [x] 1.5 Grace-window run (~30m past start) lists, details, and accepts eligible mutations
-- [x] 1.6 Past-grace run (>1h) omitted from list, detail null, mutation rejected
-- [x] 1.7 Create-run path unchanged (future `starts_at`, `archived_at: null`)
+- [x] 1.5 Grace-window run (~30m past start) lists, details, and accepts eligible mutations — 6c3318e
+- [x] 1.6 Past-grace run (>1h) omitted from list, detail null, mutation rejected — 6c3318e
+- [x] 1.7 Create-run path unchanged (future `starts_at`, `archived_at: null`) — 6c3318e
 
 ### Phase 2: RLS active-window policies
 
 #### Automated
 
-- [x] 2.1 Migration file present under `supabase/migrations/` with active-window predicates
-- [x] 2.2 `npm run lint` and `npm run build` still pass
+- [x] 2.1 Migration file present under `supabase/migrations/` with active-window predicates — 6c3318e
+- [x] 2.2 `npm run lint` and `npm run build` still pass — 6c3318e
 
 #### Manual
 
-- [x] 2.3 Migration applies cleanly on local Supabase
-- [x] 2.4 Anon cannot SELECT past-grace null-`archived_at` rows
-- [x] 2.5 Organizer can SELECT own past-grace row; app active helpers still hide it
+- [x] 2.3 Migration applies cleanly on local Supabase — 6c3318e
+- [x] 2.4 Anon cannot SELECT past-grace null-`archived_at` rows — 6c3318e
+- [x] 2.5 Organizer can SELECT own past-grace row; app active helpers still hide it — 6c3318e
 
 ### Phase 3: In-progress UX, copy, and handoff docs
 
 #### Automated
 
-- [x] 3.1 `npm run lint` passes
-- [x] 3.2 `npm run build` passes
-- [x] 3.3 List/detail reference `lifecyclePhase` for in-progress labeling
+- [x] 3.1 `npm run lint` passes — 6c3318e
+- [x] 3.2 `npm run build` passes — 6c3318e
+- [x] 3.3 List/detail reference `lifecyclePhase` for in-progress labeling — 6c3318e
 
 #### Manual
 
-- [x] 3.4 In-progress label visible on `/runs` and `/runs/[id]` during grace
-- [x] 3.5 Upcoming run has no in-progress label
-- [x] 3.6 Past-grace guest detail URL still 404
-- [x] 3.7 Foundation FR-013 docs lock derived-at-read for MVP
+- [x] 3.4 In-progress label visible on `/runs` and `/runs/[id]` during grace — 6c3318e
+- [x] 3.5 Upcoming run has no in-progress label — 6c3318e
+- [x] 3.6 Past-grace guest detail URL still 404 — 6c3318e
+- [x] 3.7 Foundation FR-013 docs lock derived-at-read for MVP — 6c3318e

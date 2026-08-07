@@ -1,7 +1,7 @@
 ---
 change_id: run-archival-lifecycle
 title: Run archival lifecycle
-status: implementing
+status: implemented
 created: 2026-08-07
 updated: 2026-08-07
 archived_at: null
