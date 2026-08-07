@@ -54,14 +54,14 @@ Navigation aid — groups items that share a Prerequisites chain. Canonical orde
 
 ## Baseline
 
-What's already in place in the codebase as of `2026-07-31` (updated after north-star S-02 in `v0.1.3`; earlier: F-01 + S-01 in `v0.1.1`, create-run/profile + Deploy DB sync in `v0.1.2`).
+What's already in place in the codebase as of `2026-08-07` (updated after S-04 in `v0.1.5`; earlier: north-star S-02 in `v0.1.3`, F-01 + S-01 in `v0.1.1`, create-run/profile + Deploy DB sync in `v0.1.2`).
 Foundations below assume these are present and do NOT re-scaffold them.
 
-- **Frontend:** partial — Astro SSR + React islands + Tailwind/shadcn; auth/dashboard; public run list/detail with filled/capacity and apply/approve/leave-team actions; auth-gated create form (`/runs`, `/runs/[id]`, `/runs/new`). Auto-join apply UI stays “coming soon” until S-05.
-- **Backend / API:** partial — SSR on Cloudflare Workers; auth endpoints; `POST /api/runs`, `POST /api/profile/nickname`, plus participant mutations (`apply` / `withdraw` / `leave-team` / `decide`); middleware gates `/dashboard` and `/runs/new`.
-- **Data:** present for F-01/S-01/S-02 — migrations for `profiles`, `runs`, `run_participants`, `maps`; organizer auto-seat trigger + DELETE withdraw/leave policies; `ensure_own_profile` RPC; KoGmaps seed/import; generated `src/types/database.ts`.
+- **Frontend:** partial — Astro SSR + React islands + Tailwind/shadcn; auth/dashboard; public run list/detail with filled/capacity, in-progress labels during the 1h grace, and apply/approve/leave-team actions; auth-gated create form (`/runs`, `/runs/[id]`, `/runs/new`). Auto-join apply UI stays “coming soon” until S-05.
+- **Backend / API:** partial — SSR on Cloudflare Workers; auth endpoints; `POST /api/runs`, `POST /api/profile/nickname`, plus participant mutations (`apply` / `withdraw` / `leave-team` / `decide`); middleware gates `/dashboard` and `/runs/new`; active list/detail/mutations enforce the FR-013 active window.
+- **Data:** present for F-01/S-01/S-02/S-04 — migrations for `profiles`, `runs`, `run_participants`, `maps`; organizer auto-seat trigger + DELETE withdraw/leave policies; `ensure_own_profile` RPC; KoGmaps seed/import; RLS active-window SELECT for guest/member; generated `src/types/database.ts`.
 - **Auth:** present — Supabase email/password end-to-end: signup/signin/signout routes, cookie sessions, protected-route middleware, auth pages, safe `returnTo` back to `/runs/{uuid}` for the guest→apply path. FR-001/FR-002 are exercised inside the participation flow.
-- **Deploy / infra:** present — Cloudflare Workers via wrangler; CI (lint/build on PR/`main`); production Deploy on tag `v*` runs Supabase `db push`, seeds `kog-maps.sql` only when that file changed since the previous tag, then deploys the Worker (`.github/workflows/deploy.yml`); live at [https://book-your-miggets.bookyourmiggets.workers.dev](https://book-your-miggets.bookyourmiggets.workers.dev) (`v0.1.3`).
+- **Deploy / infra:** present — Cloudflare Workers via wrangler; CI (lint/build on PR/`main`); production Deploy on tag `v*` runs Supabase `db push`, seeds `kog-maps.sql` only when that file changed since the previous tag, then deploys the Worker (`.github/workflows/deploy.yml`); live at [https://book-your-miggets.bookyourmiggets.workers.dev](https://book-your-miggets.bookyourmiggets.workers.dev) (`v0.1.5`).
 - **Observability:** partial — Workers observability enabled in `wrangler.jsonc`; no app-level logging or error tracking. No NFR gates launch on this, so no foundation is opened for it.
 
 ## Foundations
@@ -194,11 +194,11 @@ Foundations below assume these are present and do NOT re-scaffold them.
 
 | Roadmap ID | Change ID | Suggested issue title | Ready for `/10x-plan` | Notes |
 |---|---|---|---|---|
-| F-01 | run-domain-schema | Establish run-domain schema and RLS baseline | — | Done (shipped); folder still under `context/changes/` until `/10x-archive` |
-| S-01 | create-and-list-runs | Run creation + public active-runs list | — | Done in `v0.1.1` (+ `v0.1.2` profile/RLS + Deploy DB sync); folder still under `context/changes/` until `/10x-archive` |
-| S-02 | apply-and-approve-participants | Apply to join + organizer approval + roster | — | Done in `v0.1.3` (north star); folder still under `context/changes/` until `/10x-archive` |
+| F-01 | run-domain-schema | Establish run-domain schema and RLS baseline | — | Done (shipped); archived → `context/archive/2026-07-29-run-domain-schema/` |
+| S-01 | create-and-list-runs | Run creation + public active-runs list | — | Done in `v0.1.1` (+ `v0.1.2`); archived → `context/archive/2026-07-29-create-and-list-runs/` |
+| S-02 | apply-and-approve-participants | Apply to join + organizer approval + roster | — | Done in `v0.1.3` (north star); archived → `context/archive/2026-07-31-apply-and-approve-participants/` |
 | S-03 | search-filter-runs | Search and filter active runs | yes | Parallel candidate off S-01 |
-| S-04 | run-archival-lifecycle | Run lifecycle: in-progress grace + archival | — | Implemented on `main` (awaiting `/gh-release`); folder under `context/changes/` until `/10x-archive` |
+| S-04 | run-archival-lifecycle | Run lifecycle: in-progress grace + archival | — | Done in `v0.1.5`; archived → `context/archive/2026-08-07-run-archival-lifecycle/` |
 | S-05 | auto-join-mode | Auto-join mode | yes | Unblocked by S-02 — next core-loop slice |
 | S-06 | admin-moderation-tools | Admin moderation: delete runs, ban, verify | yes | Parallel candidate off S-01 |
 | S-07 | participant-archive-history | Participant archive history | yes | Unblocked by S-04 (S-02 done) |
@@ -224,10 +224,12 @@ Foundations below assume these are present and do NOT re-scaffold them.
 
 | Roadmap ID | Change ID | Shipped | Notes |
 |---|---|---|---|
-| F-01 | run-domain-schema | schema on local + remote (pre-`v0.1.1`) | Status flipped after S-01 release sync; `/10x-archive` still pending for the change folder |
-| S-01 | create-and-list-runs | `v0.1.1` (+ hardening `v0.1.2`) | Create + public list/detail + KoGmaps catalog; `v0.1.2` added `ensure_own_profile` and automated remote `db push` / gated map seed on Deploy; `/10x-archive` still pending |
-| S-02 | apply-and-approve-participants | `v0.1.3` | Apply/withdraw/accept/deny + public roster + organizer seat/leave; auto-join apply deferred to S-05; `/10x-archive` still pending |
+| F-01 | run-domain-schema | schema on local + remote (pre-`v0.1.1`) | Archived 2026-08-07 → `context/archive/2026-07-29-run-domain-schema/` |
+| S-01 | create-and-list-runs | `v0.1.1` (+ hardening `v0.1.2`) | Create + public list/detail + KoGmaps catalog; `ensure_own_profile` + Deploy DB sync; archived 2026-08-07 |
+| S-02 | apply-and-approve-participants | `v0.1.3` | Apply/withdraw/accept/deny + public roster + organizer seat/leave; auto-join apply deferred to S-05; archived 2026-08-07 |
+| S-04 | run-archival-lifecycle | `v0.1.5` | Derived-at-read 1h grace + active-window RLS; in-progress labels; past-grace runs leave the guest active list; archived 2026-08-07 |
 
 - **F-01: (foundation) the first migration lands: minimal tables for user profiles (role, `is_verified`, ban flag), runs, and join applications/participations with per-role RLS policies, plus the migration workflow proven locally and in deploy. Downstream slices extend this contract with their own migrations — this foundation does not pre-build every column.** — Archived 2026-08-07 → `context/archive/2026-07-29-run-domain-schema/`. Lesson: —.
 - **S-01: user can create a run (map from list/search, date/time, max participants, minimum points threshold, join mode) and any guest can browse the public active-runs list without logging in.** — Archived 2026-08-07 → `context/archive/2026-07-29-create-and-list-runs/`. Lesson: —.
 - **S-02: user can register, apply to join an approval-required run, and the organizer can accept or deny each applicant; confirmed players appear on the public participant list and count toward capacity.** — Archived 2026-08-07 → `context/archive/2026-07-31-apply-and-approve-participants/`. Lesson: —.
+- **S-04: user can see a run marked "in-progress / already started" during the 1-hour grace after its scheduled start, after which it leaves the active list into the archive (retained, not deleted).** — Archived 2026-08-07 → `context/archive/2026-08-07-run-archival-lifecycle/`. Lesson: —.
