@@ -3,7 +3,7 @@ project: "Book Your Miggets"
 version: 1
 status: draft
 created: 2026-07-27
-updated: 2026-07-31
+updated: 2026-08-07
 prd_version: 1
 main_goal: market-feedback
 top_blocker: capacity
@@ -227,3 +227,5 @@ Foundations below assume these are present and do NOT re-scaffold them.
 | F-01 | run-domain-schema | schema on local + remote (pre-`v0.1.1`) | Status flipped after S-01 release sync; `/10x-archive` still pending for the change folder |
 | S-01 | create-and-list-runs | `v0.1.1` (+ hardening `v0.1.2`) | Create + public list/detail + KoGmaps catalog; `v0.1.2` added `ensure_own_profile` and automated remote `db push` / gated map seed on Deploy; `/10x-archive` still pending |
 | S-02 | apply-and-approve-participants | `v0.1.3` | Apply/withdraw/accept/deny + public roster + organizer seat/leave; auto-join apply deferred to S-05; `/10x-archive` still pending |
+
+- **F-01: (foundation) the first migration lands: minimal tables for user profiles (role, `is_verified`, ban flag), runs, and join applications/participations with per-role RLS policies, plus the migration workflow proven locally and in deploy. Downstream slices extend this contract with their own migrations — this foundation does not pre-build every column.** — Archived 2026-08-07 → `context/archive/2026-07-29-run-domain-schema/`. Lesson: —.

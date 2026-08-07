@@ -1,10 +1,10 @@
 ---
 change_id: run-domain-schema
 title: Run-domain schema and RLS baseline
-status: implemented
+status: archived
 created: 2026-07-29
-updated: 2026-07-29
-archived_at: null
+updated: 2026-08-07
+archived_at: 2026-08-07T06:35:31Z
 ---
 
 ## Notes
