@@ -25,7 +25,7 @@
 
 ## Do not echo raw infrastructure errors into user-facing redirects
 
-- **Context**: `src/pages/api/runs/[id]/apply.ts` (and withdraw / leave-team / decide); `?error=` + `ServerError`
-- **Problem**: Non-`ParticipantError` paths put raw `err.message` (often PostgREST/DB text) into `?error=` and render it to the user. Same habit as create-run, now on more mutation surfaces — information leakage and ugly UX.
-- **Rule**: 
-- **Applies to**: 
+- **Context**: Auth and mutation API routes that redirect with `?error=` (e.g. apply / withdraw / leave-team / decide, sign-in, dev-quick-login)
+- **Problem**: Non-domain-error paths put raw `err.message` (often PostgREST/Auth/DB text) into `?error=` and render it to the user — information leakage and ugly UX.
+- **Rule**: Only put intentional, user-facing strings in `?error=` (e.g. `ParticipantError.message` or fixed copy). Log raw infrastructure errors server-side (`console.error`); never forward Auth/PostgREST/`Error.message` into redirects.
+- **Applies to**: All `src/pages/api/**` redirect error paths and any page that displays `?error=`

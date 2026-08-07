@@ -1,13 +1,15 @@
 import type { APIRoute } from "astro";
+import { isDevQuickLoginEnabled } from "@/lib/dev-quick-login";
 import {
   DEV_QUICK_LOGIN_ACCOUNTS,
   createLocalServiceRoleClient,
-  isDevQuickLoginEnabled,
   resolveDevQuickLoginAccount,
-} from "@/lib/dev-quick-login";
+} from "@/lib/dev-quick-login-server";
 import { authErrorRedirect, safeRunReturnTo } from "@/lib/safe-return-to";
 import { createClient } from "@/lib/supabase";
 import { ensureOwnProfile } from "@/lib/services/runs";
+
+const FAIL_MESSAGE = "Dev quick login failed";
 
 export const POST: APIRoute = async (context) => {
   if (!isDevQuickLoginEnabled()) {
@@ -33,6 +35,11 @@ export const POST: APIRoute = async (context) => {
     return context.redirect(authErrorRedirect("/auth/signin", "Dev quick login unavailable", returnTo));
   }
 
+  const fail = (cause: unknown) => {
+    console.error("dev-quick-login failed", cause);
+    return context.redirect(authErrorRedirect("/auth/signin", FAIL_MESSAGE, returnTo));
+  };
+
   // Clear any existing session so switching accounts is one click.
   await supabase.auth.signOut();
 
@@ -50,16 +57,14 @@ export const POST: APIRoute = async (context) => {
       const { data: listed } = await admin.auth.admin.listUsers({ page: 1, perPage: 200 });
       const existing = listed.users.find((user) => user.email?.toLowerCase() === email);
       if (!existing) {
-        return context.redirect(
-          authErrorRedirect("/auth/signin", createError.message || "Could not create dev user", returnTo),
-        );
+        return fail(createError);
       }
       const { error: updateError } = await admin.auth.admin.updateUserById(existing.id, {
         password,
         email_confirm: true,
       });
       if (updateError) {
-        return context.redirect(authErrorRedirect("/auth/signin", updateError.message, returnTo));
+        return fail(updateError);
       }
     }
 
@@ -67,7 +72,7 @@ export const POST: APIRoute = async (context) => {
   }
 
   if (signInError) {
-    return context.redirect(authErrorRedirect("/auth/signin", signInError.message, returnTo));
+    return fail(signInError);
   }
 
   const {
@@ -75,7 +80,7 @@ export const POST: APIRoute = async (context) => {
   } = await supabase.auth.getUser();
 
   if (!user) {
-    return context.redirect(authErrorRedirect("/auth/signin", "Dev quick login failed", returnTo));
+    return fail(new Error("No user after sign-in"));
   }
 
   try {
@@ -84,12 +89,11 @@ export const POST: APIRoute = async (context) => {
     if (profile?.nickname !== nickname) {
       const { error: nickError } = await supabase.from("profiles").update({ nickname }).eq("id", user.id);
       if (nickError && nickError.code !== "23505") {
-        return context.redirect(authErrorRedirect("/auth/signin", nickError.message, returnTo));
+        return fail(nickError);
       }
     }
   } catch (err) {
-    const message = err instanceof Error ? err.message : "Could not prepare dev profile";
-    return context.redirect(authErrorRedirect("/auth/signin", message, returnTo));
+    return fail(err);
   }
 
   return context.redirect(returnTo ?? "/runs");

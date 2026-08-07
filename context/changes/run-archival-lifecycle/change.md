@@ -1,9 +1,10 @@
 ---
 change_id: run-archival-lifecycle
 title: Run archival lifecycle
-status: implemented
+status: impl_reviewed
 created: 2026-08-07
 updated: 2026-08-07
+
 archived_at: null
 ---
 
