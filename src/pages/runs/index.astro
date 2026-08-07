@@ -1,5 +1,6 @@
 ---
 import Layout from "@/layouts/Layout.astro";
+import Banner from "@/components/Banner.astro";
 import Topbar from "@/components/Topbar.astro";
 import { formatStart } from "@/lib/format-date";
 import { createClient } from "@/lib/supabase";
@@ -7,6 +8,8 @@ import { formatJoinMode, listActiveRuns } from "@/lib/services/runs";
 
 const supabase = createClient(Astro.request.headers, Astro.cookies);
 const { user } = Astro.locals;
+const notice = Astro.url.searchParams.get("notice");
+const serverError = Astro.url.searchParams.get("error");
 
 let runs: Awaited<ReturnType<typeof listActiveRuns>> = [];
 let loadError: string | null = null;
@@ -35,6 +38,21 @@ if (!supabase) {
 
     <div class="relative z-10 mx-auto max-w-3xl p-4 sm:p-8">
       <Topbar />
+
+      {
+        notice && (
+          <div class="mb-6 overflow-hidden rounded-lg">
+            <Banner variant="info">{notice}</Banner>
+          </div>
+        )
+      }
+      {
+        serverError && (
+          <div class="mb-6 overflow-hidden rounded-lg">
+            <Banner variant="error">{serverError}</Banner>
+          </div>
+        )
+      }
 
       <header class="mb-8 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
