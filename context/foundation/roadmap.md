@@ -54,14 +54,14 @@ Navigation aid — groups items that share a Prerequisites chain. Canonical orde
 
 ## Baseline
 
-What's already in place in the codebase as of `2026-08-07` (updated after S-04 in `v0.1.5`; earlier: north-star S-02 in `v0.1.3`, F-01 + S-01 in `v0.1.1`, create-run/profile + Deploy DB sync in `v0.1.2`).
+What's already in place in the codebase as of `2026-08-07` (updated after S-05 + S-06 in `v0.1.6`; earlier: S-04 in `v0.1.5`, north-star S-02 in `v0.1.3`, F-01 + S-01 in `v0.1.1`, create-run/profile + Deploy DB sync in `v0.1.2`).
 Foundations below assume these are present and do NOT re-scaffold them.
 
-- **Frontend:** partial — Astro SSR + React islands + Tailwind/shadcn; auth/dashboard; public run list/detail with filled/capacity, in-progress labels during the 1h grace, and apply/approve/leave-team actions; auth-gated create form (`/runs`, `/runs/[id]`, `/runs/new`). Auto-join apply UI stays “coming soon” until S-05.
-- **Backend / API:** partial — SSR on Cloudflare Workers; auth endpoints; `POST /api/runs`, `POST /api/profile/nickname`, plus participant mutations (`apply` / `withdraw` / `leave-team` / `decide`); middleware gates `/dashboard` and `/runs/new`; active list/detail/mutations enforce the FR-013 active window.
-- **Data:** present for F-01/S-01/S-02/S-04 — migrations for `profiles`, `runs`, `run_participants`, `maps`; organizer auto-seat trigger + DELETE withdraw/leave policies; `ensure_own_profile` RPC; KoGmaps seed/import; RLS active-window SELECT for guest/member; generated `src/types/database.ts`.
-- **Auth:** present — Supabase email/password end-to-end: signup/signin/signout routes, cookie sessions, protected-route middleware, auth pages, safe `returnTo` back to `/runs/{uuid}` for the guest→apply path. FR-001/FR-002 are exercised inside the participation flow.
-- **Deploy / infra:** present — Cloudflare Workers via wrangler; CI (lint/build on PR/`main`); production Deploy on tag `v*` runs Supabase `db push`, seeds `kog-maps.sql` only when that file changed since the previous tag, then deploys the Worker (`.github/workflows/deploy.yml`); live at [https://book-your-miggets.bookyourmiggets.workers.dev](https://book-your-miggets.bookyourmiggets.workers.dev) (`v0.1.5`).
+- **Frontend:** partial — Astro SSR + React islands + Tailwind/shadcn; auth/dashboard; public run list/detail with filled/capacity, in-progress labels during the 1h grace, apply/approve/leave-team, and instant auto-join on matching runs; admin moderation UI (delete run, ban, verify); auth-gated create form (`/runs`, `/runs/[id]`, `/runs/new`, `/admin`).
+- **Backend / API:** partial — SSR on Cloudflare Workers; auth endpoints; `POST /api/runs`, `POST /api/profile/nickname`, participant mutations (`apply` / `withdraw` / `leave-team` / `decide` with race-safe auto-join), plus admin moderation APIs; middleware gates `/dashboard`, `/runs/new`, and `/admin`; active list/detail/mutations enforce the FR-013 active window; banned users are blocked from mutations.
+- **Data:** present for F-01/S-01/S-02/S-04/S-05/S-06 — migrations for `profiles`, `runs`, `run_participants`, `maps`; organizer auto-seat trigger + DELETE withdraw/leave policies; `ensure_own_profile` + race-safe `auto_join_run` RPCs; KoGmaps seed/import; RLS active-window SELECT for guest/member; generated `src/types/database.ts`.
+- **Auth:** present — Supabase email/password end-to-end: signup/signin/signout routes, cookie sessions, protected-route middleware, auth pages, safe `returnTo` back to `/runs/{uuid}` for the guest→apply path. FR-001/FR-002 are exercised inside the participation flow; admin role gating for moderation.
+- **Deploy / infra:** present — Cloudflare Workers via wrangler; CI (lint/build on PR/`main`); production Deploy on tag `v*` runs Supabase `db push`, seeds `kog-maps.sql` only when that file changed since the previous tag, then deploys the Worker (`.github/workflows/deploy.yml`); live at [https://book-your-miggets.bookyourmiggets.workers.dev](https://book-your-miggets.bookyourmiggets.workers.dev) (`v0.1.6`).
 - **Observability:** partial — Workers observability enabled in `wrangler.jsonc`; no app-level logging or error tracking. No NFR gates launch on this, so no foundation is opened for it.
 
 ## Foundations
@@ -199,8 +199,8 @@ Foundations below assume these are present and do NOT re-scaffold them.
 | S-02 | apply-and-approve-participants | Apply to join + organizer approval + roster | — | Done in `v0.1.3` (north star); archived → `context/archive/2026-07-31-apply-and-approve-participants/` |
 | S-03 | search-filter-runs | Search and filter active runs | yes | Parallel candidate off S-01 |
 | S-04 | run-archival-lifecycle | Run lifecycle: in-progress grace + archival | — | Done in `v0.1.5`; archived → `context/archive/2026-08-07-run-archival-lifecycle/` |
-| S-05 | auto-join-mode | Auto-join mode | — | Done; archived → `context/archive/2026-08-07-auto-join-mode/` |
-| S-06 | admin-moderation-tools | Admin moderation: delete runs, ban, verify | — | Done; archived → `context/archive/2026-08-07-admin-moderation-tools/` |
+| S-05 | auto-join-mode | Auto-join mode | — | Done in `v0.1.6`; archived → `context/archive/2026-08-07-auto-join-mode/` |
+| S-06 | admin-moderation-tools | Admin moderation: delete runs, ban, verify | — | Done in `v0.1.6`; archived → `context/archive/2026-08-07-admin-moderation-tools/` |
 | S-07 | participant-archive-history | Participant archive history | yes | Unblocked by S-04 (S-02 done) |
 | S-08 | my-runs-dashboard | My-runs dashboard | yes | Cuttable nice-to-have off S-01 |
 | S-09 | admin-player-archive-view | Admin view of player archived run history | yes | Unblocked by S-06 (S-04 done) |
@@ -228,6 +228,8 @@ Foundations below assume these are present and do NOT re-scaffold them.
 | S-01 | create-and-list-runs | `v0.1.1` (+ hardening `v0.1.2`) | Create + public list/detail + KoGmaps catalog; `ensure_own_profile` + Deploy DB sync; archived 2026-08-07 |
 | S-02 | apply-and-approve-participants | `v0.1.3` | Apply/withdraw/accept/deny + public roster + organizer seat/leave; auto-join apply deferred to S-05; archived 2026-08-07 |
 | S-04 | run-archival-lifecycle | `v0.1.5` | Derived-at-read 1h grace + active-window RLS; in-progress labels; past-grace runs leave the guest active list; archived 2026-08-07 |
+| S-05 | auto-join-mode | `v0.1.6` | Race-safe `auto_join_run` RPC + apply path/UI for instant confirm when capacity remains; archived 2026-08-07 |
+| S-06 | admin-moderation-tools | `v0.1.6` | Admin delete-run / ban / verify APIs + UI; ban enforcement on mutations; first-admin promote runbook; archived 2026-08-07 |
 
 - **F-01: (foundation) the first migration lands: minimal tables for user profiles (role, `is_verified`, ban flag), runs, and join applications/participations with per-role RLS policies, plus the migration workflow proven locally and in deploy. Downstream slices extend this contract with their own migrations — this foundation does not pre-build every column.** — Archived 2026-08-07 → `context/archive/2026-07-29-run-domain-schema/`. Lesson: —.
 - **S-01: user can create a run (map from list/search, date/time, max participants, minimum points threshold, join mode) and any guest can browse the public active-runs list without logging in.** — Archived 2026-08-07 → `context/archive/2026-07-29-create-and-list-runs/`. Lesson: —.
