@@ -199,11 +199,11 @@ Foundations below assume these are present and do NOT re-scaffold them.
 | S-02 | apply-and-approve-participants | Apply to join + organizer approval + roster | — | Done in `v0.1.3` (north star); archived → `context/archive/2026-07-31-apply-and-approve-participants/` |
 | S-03 | search-filter-runs | Search and filter active runs | yes | Parallel candidate off S-01 |
 | S-04 | run-archival-lifecycle | Run lifecycle: in-progress grace + archival | — | Done in `v0.1.5`; archived → `context/archive/2026-08-07-run-archival-lifecycle/` |
-| S-05 | auto-join-mode | Auto-join mode | yes | Unblocked by S-02 — next core-loop slice |
-| S-06 | admin-moderation-tools | Admin moderation: delete runs, ban, verify | yes | Parallel candidate off S-01 |
+| S-05 | auto-join-mode | Auto-join mode | — | Done; archived → `context/archive/2026-08-07-auto-join-mode/` |
+| S-06 | admin-moderation-tools | Admin moderation: delete runs, ban, verify | — | Done; archived → `context/archive/2026-08-07-admin-moderation-tools/` |
 | S-07 | participant-archive-history | Participant archive history | yes | Unblocked by S-04 (S-02 done) |
 | S-08 | my-runs-dashboard | My-runs dashboard | yes | Cuttable nice-to-have off S-01 |
-| S-09 | admin-player-archive-view | Admin view of player archived run history | no | Waiting on S-06 (S-04 done) |
+| S-09 | admin-player-archive-view | Admin view of player archived run history | yes | Unblocked by S-06 (S-04 done) |
 
 ## Open Roadmap Questions
 
