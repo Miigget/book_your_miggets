@@ -33,7 +33,7 @@ The King of Gores (KoG) community in TeeWorlds has no tool for organizing shared
 | S-01 | create-and-list-runs | create a run; any guest sees it on the public active-runs list | F-01, seeded map catalog | FR-003, FR-006, US-01 | done |
 | S-02 | apply-and-approve-participants | register, apply to a run, get accepted/denied; roster shows confirmed players | S-01 | FR-001, FR-002, FR-004, FR-008, FR-009, US-01 | done |
 | S-03 | search-filter-runs | search and filter active runs by map, date, or requirements | S-01 | FR-007 | proposed |
-| S-04 | run-archival-lifecycle | see runs marked in-progress during the 1-hour grace, then archived off the active list | S-01 | FR-013, US-01 | proposed |
+| S-04 | run-archival-lifecycle | see runs marked in-progress during the 1-hour grace, then archived off the active list | S-01 | FR-013, US-01 | in-progress |
 | S-05 | auto-join-mode | join an auto-join run and be confirmed instantly if capacity allows | S-02 | FR-014, US-02 | proposed |
 | S-06 | admin-moderation-tools | (admin) delete runs, ban users, mark users verified | S-01, F-01 | FR-010, FR-011, FR-012 | proposed |
 | S-07 | participant-archive-history | (confirmed participant) revisit archived runs they took part in | S-02, S-04 | FR-015, US-01 | proposed |
@@ -127,7 +127,7 @@ Foundations below assume these are present and do NOT re-scaffold them.
 - **Blockers:** —
 - **Unknowns:** —
 - **Risk:** timed archival is not first-class on this stack (per `tech-stack.md`) — whether it's cron-driven or derived at read time is a `/10x-plan` decision; sequenced before community launch so the "past runs don't clutter the active list" guardrail holds from day one.
-- **Status:** proposed
+- **Status:** in-progress
 
 ### S-05: Auto-join mode
 

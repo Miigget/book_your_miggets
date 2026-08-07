@@ -2,6 +2,7 @@
 import Layout from "@/layouts/Layout.astro";
 import Topbar from "@/components/Topbar.astro";
 import RunParticipantActions from "@/components/runs/RunParticipantActions";
+import { formatStart } from "@/lib/format-date";
 import { createClient } from "@/lib/supabase";
 import {
   getOwnParticipation,
@@ -68,13 +69,6 @@ const isOrganizer = Boolean(user?.id && user.id === run?.organizerId);
 const organizerSeated = isOrganizer && confirmed.some((p) => p.userId === user?.id);
 const confirmedCount = confirmed.length;
 
-function formatStart(iso: string): string {
-  return new Date(iso).toLocaleString(undefined, {
-    dateStyle: "medium",
-    timeStyle: "short",
-  });
-}
-
 function formatReleasedOn(value: string | null): string {
   if (!value) return "Unknown";
   return value;
@@ -121,6 +115,11 @@ function formatReleasedOn(value: string | null): string {
                 <h1 class="bg-gradient-to-r from-blue-200 to-purple-200 bg-clip-text text-3xl font-bold text-transparent sm:text-4xl">
                   {run.displayTitle}
                 </h1>
+                {run.lifecyclePhase === "in_progress" && (
+                  <p class="mt-2 text-sm text-blue-100/80">
+                    Status: <span class="text-amber-200">In progress / already started</span>
+                  </p>
+                )}
                 {run.organizerNickname && (
                   <p class="mt-2 text-sm text-blue-100/60">
                     Organized by <span class="text-blue-100/90">{run.organizerNickname}</span>
