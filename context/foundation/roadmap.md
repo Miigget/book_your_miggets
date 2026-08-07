@@ -35,7 +35,7 @@ The King of Gores (KoG) community in TeeWorlds has no tool for organizing shared
 | S-03 | search-filter-runs | search and filter active runs by map, date, or requirements | S-01 | FR-007 | proposed |
 | S-04 | run-archival-lifecycle | see runs marked in-progress during the 1-hour grace, then archived off the active list | S-01 | FR-013, US-01 | done |
 | S-05 | auto-join-mode | join an auto-join run and be confirmed instantly if capacity allows | S-02 | FR-014, US-02 | done |
-| S-06 | admin-moderation-tools | (admin) delete runs, ban users, mark users verified | S-01, F-01 | FR-010, FR-011, FR-012 | in-progress |
+| S-06 | admin-moderation-tools | (admin) delete runs, ban users, mark users verified | S-01, F-01 | FR-010, FR-011, FR-012 | done |
 | S-07 | participant-archive-history | (confirmed participant) revisit archived runs they took part in | S-02, S-04 | FR-015, US-01 | proposed |
 | S-08 | my-runs-dashboard | (organizer) view all runs they created in one place | S-01 | FR-005 | proposed |
 | S-09 | admin-player-archive-view | (admin) view any player's archived run history from their profile | S-04, S-06 | FR-016 | proposed |
@@ -152,7 +152,7 @@ Foundations below assume these are present and do NOT re-scaffold them.
 - **Unknowns:**
   - How is the first admin designated (manual DB flag at deploy vs seeded account)? — **Resolved (S-06 planning):** manual SQL promote (`update public.profiles set role = 'admin' where id = …`), reusing the F-01 runbook and documented in README; no seeded credentials in the repo.
 - **Risk:** launching a community tool without a moderation safety valve is the real risk; the slice itself is small and fully parallelizable with the core loop.
-- **Status:** in-progress
+- **Status:** done
 
 ### S-07: Participant archive history
 
@@ -234,3 +234,4 @@ Foundations below assume these are present and do NOT re-scaffold them.
 - **S-02: user can register, apply to join an approval-required run, and the organizer can accept or deny each applicant; confirmed players appear on the public participant list and count toward capacity.** — Archived 2026-08-07 → `context/archive/2026-07-31-apply-and-approve-participants/`. Lesson: —.
 - **S-04: user can see a run marked "in-progress / already started" during the 1-hour grace after its scheduled start, after which it leaves the active list into the archive (retained, not deleted).** — Archived 2026-08-07 → `context/archive/2026-08-07-run-archival-lifecycle/`. Lesson: —.
 - **S-05: user can apply to an auto-join run and be confirmed on the participant list immediately if capacity remains.** — Archived 2026-08-07 → `context/archive/2026-08-07-auto-join-mode/`. Lesson: —.
+- **S-06: admin can delete runs, ban users, and mark a user as verified (`is_verified`).** — Archived 2026-08-07 → `context/archive/2026-08-07-admin-moderation-tools/`. Lesson: —.
