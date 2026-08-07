@@ -33,7 +33,7 @@ The King of Gores (KoG) community in TeeWorlds has no tool for organizing shared
 | S-01 | create-and-list-runs | create a run; any guest sees it on the public active-runs list | F-01, seeded map catalog | FR-003, FR-006, US-01 | done |
 | S-02 | apply-and-approve-participants | register, apply to a run, get accepted/denied; roster shows confirmed players | S-01 | FR-001, FR-002, FR-004, FR-008, FR-009, US-01 | done |
 | S-03 | search-filter-runs | search and filter active runs by map, date, or requirements | S-01 | FR-007 | proposed |
-| S-04 | run-archival-lifecycle | see runs marked in-progress during the 1-hour grace, then archived off the active list | S-01 | FR-013, US-01 | in-progress |
+| S-04 | run-archival-lifecycle | see runs marked in-progress during the 1-hour grace, then archived off the active list | S-01 | FR-013, US-01 | done |
 | S-05 | auto-join-mode | join an auto-join run and be confirmed instantly if capacity allows | S-02 | FR-014, US-02 | proposed |
 | S-06 | admin-moderation-tools | (admin) delete runs, ban users, mark users verified | S-01, F-01 | FR-010, FR-011, FR-012 | proposed |
 | S-07 | participant-archive-history | (confirmed participant) revisit archived runs they took part in | S-02, S-04 | FR-015, US-01 | proposed |
@@ -126,8 +126,8 @@ Foundations below assume these are present and do NOT re-scaffold them.
 - **Parallel with:** S-02, S-03, S-05, S-06, S-08
 - **Blockers:** —
 - **Unknowns:** —
-- **Risk:** timed archival is not first-class on this stack (per `tech-stack.md`) — whether it's cron-driven or derived at read time is a `/10x-plan` decision; sequenced before community launch so the "past runs don't clutter the active list" guardrail holds from day one.
-- **Status:** in-progress
+- **Risk:** MVP uses derived-at-read + RLS active window (no stamped `archived_at` yet); clock skew between Postgres `now()` and Worker `Date` is seconds-level and accepted. Sequenced before community launch so past runs don't clutter the active list.
+- **Status:** done
 
 ### S-05: Auto-join mode
 
@@ -198,12 +198,12 @@ Foundations below assume these are present and do NOT re-scaffold them.
 | S-01 | create-and-list-runs | Run creation + public active-runs list | — | Done in `v0.1.1` (+ `v0.1.2` profile/RLS + Deploy DB sync); folder still under `context/changes/` until `/10x-archive` |
 | S-02 | apply-and-approve-participants | Apply to join + organizer approval + roster | — | Done in `v0.1.3` (north star); folder still under `context/changes/` until `/10x-archive` |
 | S-03 | search-filter-runs | Search and filter active runs | yes | Parallel candidate off S-01 |
-| S-04 | run-archival-lifecycle | Run lifecycle: in-progress grace + archival | yes | Parallel candidate off S-01 |
+| S-04 | run-archival-lifecycle | Run lifecycle: in-progress grace + archival | — | Implemented on `main` (awaiting `/gh-release`); folder under `context/changes/` until `/10x-archive` |
 | S-05 | auto-join-mode | Auto-join mode | yes | Unblocked by S-02 — next core-loop slice |
 | S-06 | admin-moderation-tools | Admin moderation: delete runs, ban, verify | yes | Parallel candidate off S-01 |
-| S-07 | participant-archive-history | Participant archive history | no | Waiting on S-04 (S-02 done) |
+| S-07 | participant-archive-history | Participant archive history | yes | Unblocked by S-04 (S-02 done) |
 | S-08 | my-runs-dashboard | My-runs dashboard | yes | Cuttable nice-to-have off S-01 |
-| S-09 | admin-player-archive-view | Admin view of player archived run history | no | Waiting on S-04 + S-06 |
+| S-09 | admin-player-archive-view | Admin view of player archived run history | no | Waiting on S-06 (S-04 done) |
 
 ## Open Roadmap Questions
 
