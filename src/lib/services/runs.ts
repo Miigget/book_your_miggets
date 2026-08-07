@@ -1,4 +1,5 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
+import { activeWindowStartsAfter, getRunLifecyclePhase, type ActiveRunLifecyclePhase } from "@/lib/run-lifecycle";
 import type { Database, Enums, Tables } from "@/types/database";
 
 export type AppSupabaseClient = SupabaseClient<Database>;
@@ -20,6 +21,7 @@ export interface RunListItem {
   organizerId: string;
   organizerNickname: string | null;
   confirmedCount: number;
+  lifecyclePhase: ActiveRunLifecyclePhase;
 }
 
 export type RunDetail = RunListItem & {
@@ -97,7 +99,10 @@ export function formatJoinMode(mode: Enums<"join_mode">): string {
   }
 }
 
-function mapRunRow(row: RunRow, confirmedCount = 0): RunDetail {
+function mapRunRow(row: RunRow, confirmedCount = 0, now = Date.now()): RunDetail | null {
+  const phase = getRunLifecyclePhase(row.starts_at, now);
+  if (phase === "archived") return null;
+
   const map = row.map;
   const organizerNickname = row.organizer?.nickname ?? null;
 
@@ -113,6 +118,7 @@ function mapRunRow(row: RunRow, confirmedCount = 0): RunDetail {
     organizerId: row.organizer_id,
     organizerNickname,
     confirmedCount,
+    lifecyclePhase: phase,
     displayTitle: resolveRunTitle({
       title: row.title,
       mapName: map?.name,
@@ -149,10 +155,12 @@ async function confirmedCountsForRuns(supabase: AppSupabaseClient, runIds: strin
 }
 
 export async function listActiveRuns(supabase: AppSupabaseClient): Promise<RunListItem[]> {
+  const now = Date.now();
   const { data, error } = await supabase
     .from("runs")
     .select(RUN_SELECT)
     .is("archived_at", null)
+    .gt("starts_at", activeWindowStartsAfter(now))
     .order("starts_at", { ascending: true });
 
   if (error) {
@@ -165,15 +173,19 @@ export async function listActiveRuns(supabase: AppSupabaseClient): Promise<RunLi
     rows.map((row) => row.id),
   );
 
-  return rows.map((row) => mapRunRow(row, counts.get(row.id) ?? 0));
+  return rows
+    .map((row) => mapRunRow(row, counts.get(row.id) ?? 0, now))
+    .filter((run): run is RunDetail => run !== null);
 }
 
 export async function getActiveRunById(supabase: AppSupabaseClient, id: string): Promise<RunDetail | null> {
+  const now = Date.now();
   const { data, error } = await supabase
     .from("runs")
     .select(RUN_SELECT)
     .eq("id", id)
     .is("archived_at", null)
+    .gt("starts_at", activeWindowStartsAfter(now))
     .maybeSingle();
 
   if (error) {
@@ -183,7 +195,7 @@ export async function getActiveRunById(supabase: AppSupabaseClient, id: string):
   if (!data) return null;
 
   // Detail pages load the confirmed roster separately; avoid a duplicate count fetch here.
-  return mapRunRow(data, 0);
+  return mapRunRow(data, 0, now);
 }
 
 export type MapPickerItem = Pick<Tables<"maps">, "id" | "name" | "difficulty" | "points" | "stars">;

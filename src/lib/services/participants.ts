@@ -1,3 +1,4 @@
+import { activeWindowStartsAfter } from "@/lib/run-lifecycle";
 import type { Enums } from "@/types/database";
 import { ensureOwnProfile, getOwnNickname, isUuid, type AppSupabaseClient } from "@/lib/services/runs";
 
@@ -167,6 +168,7 @@ async function loadActiveRunForMutation(
     .select("id, join_mode, organizer_id")
     .eq("id", runId)
     .is("archived_at", null)
+    .gt("starts_at", activeWindowStartsAfter())
     .maybeSingle();
 
   if (error) {
@@ -226,9 +228,7 @@ export async function applyToRun(supabase: AppSupabaseClient, runId: string, use
 }
 
 export async function withdrawApplication(supabase: AppSupabaseClient, runId: string, userId: string): Promise<void> {
-  if (!isUuid(runId)) {
-    throw new ParticipantError("Invalid run");
-  }
+  await loadActiveRunForMutation(supabase, runId);
 
   const own = await getOwnParticipation(supabase, runId, userId);
   if (!own) {
