@@ -1,7 +1,7 @@
 ---
 change_id: admin-moderation-tools
 title: "Admin moderation: delete runs, ban users, mark verified"
-status: implemented
+status: impl_reviewed
 created: 2026-08-07
 updated: 2026-08-07
 archived_at: null
