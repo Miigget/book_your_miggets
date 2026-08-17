@@ -255,6 +255,7 @@ export type Database = {
         }
       }
       is_admin: { Args: never; Returns: boolean }
+      is_confirmed_participant: { Args: { p_run_id: string }; Returns: boolean }
       is_not_banned: { Args: never; Returns: boolean }
     }
     Enums: {

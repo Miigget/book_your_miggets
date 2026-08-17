@@ -1,35 +1,30 @@
 ---
 import Layout from "@/layouts/Layout.astro";
-import Banner from "@/components/Banner.astro";
-import RunListFilters from "@/components/runs/RunListFilters.astro";
 import Topbar from "@/components/Topbar.astro";
 import { formatStart } from "@/lib/format-date";
-import { hasActiveFilters, parseRunListFilters } from "@/lib/run-list-filters";
 import { createClient } from "@/lib/supabase";
-import { formatJoinMode, listActiveRuns } from "@/lib/services/runs";
+import { formatJoinMode, listArchivedRunsForParticipant } from "@/lib/services/runs";
 
 const supabase = createClient(Astro.request.headers, Astro.cookies);
 const { user } = Astro.locals;
-const notice = Astro.url.searchParams.get("notice");
-const serverError = Astro.url.searchParams.get("error");
-const filters = parseRunListFilters(Astro.url.searchParams);
-const filtersActive = hasActiveFilters(filters);
 
-let runs: Awaited<ReturnType<typeof listActiveRuns>> = [];
+let runs: Awaited<ReturnType<typeof listArchivedRunsForParticipant>> = [];
 let loadError: string | null = null;
 
 if (!supabase) {
   loadError = "Supabase is not configured.";
+} else if (!user) {
+  loadError = "Authentication required.";
 } else {
   try {
-    runs = await listActiveRuns(supabase, filters);
+    runs = await listArchivedRunsForParticipant(supabase, user.id);
   } catch (err) {
-    loadError = err instanceof Error ? err.message : "Failed to load runs.";
+    loadError = err instanceof Error ? err.message : "Failed to load past runs.";
   }
 }
 ---
 
-<Layout title="Active runs — Book Your Miggets">
+<Layout title="Past runs — Book Your Miggets">
   <div class="bg-cosmic relative min-h-screen w-full overflow-hidden">
     <div
       class="pointer-events-none absolute top-1/4 -left-24 h-[350px] w-[350px] rounded-full bg-purple-500/20 blur-[120px]"
@@ -43,80 +38,22 @@ if (!supabase) {
     <div class="relative z-10 mx-auto max-w-3xl p-4 sm:p-8">
       <Topbar />
 
-      {
-        notice && (
-          <div class="mb-6 overflow-hidden rounded-lg">
-            <Banner variant="info">{notice}</Banner>
-          </div>
-        )
-      }
-      {
-        serverError && (
-          <div class="mb-6 overflow-hidden rounded-lg">
-            <Banner variant="error">{serverError}</Banner>
-          </div>
-        )
-      }
-
-      <header class="mb-8 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-        <div>
-          <h1
-            class="bg-gradient-to-r from-blue-200 to-purple-200 bg-clip-text text-3xl font-bold text-transparent sm:text-4xl"
-          >
-            Active runs
-          </h1>
-          <p class="mt-2 text-sm text-blue-100/60">
-            Browse active TeeWorlds gores runs (upcoming and in progress). No account needed.
-          </p>
-          {
-            user && (
-              <p class="mt-2 text-sm">
-                <a href="/runs/history" class="text-purple-300 transition-colors hover:text-purple-100 hover:underline">
-                  Your past runs
-                </a>
-              </p>
-            )
-          }
-        </div>
-        {
-          user ? (
-            <a
-              href="/runs/new"
-              class="inline-flex items-center justify-center rounded-lg bg-purple-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-purple-500"
-            >
-              Create a run
-            </a>
-          ) : (
-            <a
-              href="/auth/signin"
-              class="inline-flex items-center justify-center rounded-lg border border-white/20 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-white/10"
-            >
-              Sign in to create
-            </a>
-          )
-        }
+      <header class="mb-8">
+        <h1
+          class="bg-gradient-to-r from-blue-200 to-purple-200 bg-clip-text text-3xl font-bold text-transparent sm:text-4xl"
+        >
+          Past runs
+        </h1>
+        <p class="mt-2 text-sm text-blue-100/60">Archived runs you were confirmed on.</p>
       </header>
-
-      <RunListFilters filters={filters} filtersActive={filtersActive} />
 
       {
         loadError ? (
           <p class="rounded-lg border border-red-400/30 bg-red-500/10 px-4 py-3 text-sm text-red-100">{loadError}</p>
-        ) : runs.length === 0 && filtersActive ? (
-          <div class="rounded-xl border border-white/10 bg-white/5 px-6 py-12 text-center backdrop-blur-xl">
-            <p class="text-lg font-medium text-white">No runs match these filters</p>
-            <p class="mt-2 text-sm text-blue-100/60">Clear the filters to see all active runs.</p>
-            <a
-              href="/runs"
-              class="mt-4 inline-flex items-center justify-center rounded-lg border border-white/20 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-white/10"
-            >
-              Clear
-            </a>
-          </div>
         ) : runs.length === 0 ? (
           <div class="rounded-xl border border-white/10 bg-white/5 px-6 py-12 text-center backdrop-blur-xl">
-            <p class="text-lg font-medium text-white">No active runs yet</p>
-            <p class="mt-2 text-sm text-blue-100/60">Check back soon, or create one when you are signed in.</p>
+            <p class="text-lg font-medium text-white">No past runs</p>
+            <p class="mt-2 text-sm text-blue-100/60">Confirmed runs show up here after they leave the active list.</p>
           </div>
         ) : (
           <ul class="flex flex-col gap-3">
@@ -129,9 +66,7 @@ if (!supabase) {
                   <div class="flex flex-col gap-1 sm:flex-row sm:items-baseline sm:justify-between">
                     <h2 class="text-lg font-semibold text-white">
                       {run.displayTitle}
-                      {run.lifecyclePhase === "in_progress" && (
-                        <span class="ml-2 text-sm font-medium text-amber-200">In progress</span>
-                      )}
+                      <span class="ml-2 text-sm font-medium text-blue-100/70">Archived</span>
                     </h2>
                     <time class="shrink-0 text-sm text-blue-100/70" datetime={run.startsAt}>
                       {formatStart(run.startsAt)}
