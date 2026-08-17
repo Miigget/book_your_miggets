@@ -236,9 +236,9 @@ None. No schema, RLS, or seed changes. Rollback is revert of the page + service 
 
 #### Automated
 
-- [x] 1.1 `parseRunListFilters` / `hasActiveFilters` / `utcDayRange` exist and `listActiveRuns` accepts optional filters
-- [x] 1.2 `npm run lint` passes
-- [x] 1.3 `npm run build` passes
+- [x] 1.1 `parseRunListFilters` / `hasActiveFilters` / `utcDayRange` exist and `listActiveRuns` accepts optional filters — 03fa808
+- [x] 1.2 `npm run lint` passes — 03fa808
+- [x] 1.3 `npm run build` passes — 03fa808
 
 #### Manual
 
@@ -251,9 +251,9 @@ None. No schema, RLS, or seed changes. Rollback is revert of the page + service 
 
 #### Automated
 
-- [ ] 2.1 `/runs` contains a GET form whose field `name`s are `map`, `date`, `min_points`, `join`
-- [ ] 2.2 `npm run lint` passes
-- [ ] 2.3 `npm run build` passes
+- [x] 2.1 `/runs` contains a GET form whose field `name`s are `map`, `date`, `min_points`, `join`
+- [x] 2.2 `npm run lint` passes
+- [x] 2.3 `npm run build` passes
 
 #### Manual
 
