@@ -215,11 +215,11 @@ Same shape as S-07: one `run_participants` query for the target user, one `runs`
 
 #### Automated
 
-- [x] 1.1 `src/pages/admin/users/[id].astro` exists
-- [x] 1.2 `getProfileForAdmin` exists in `src/lib/services/admin.ts`
-- [x] 1.3 `/admin` nickname cells link to `/admin/users/{id}`
-- [x] 1.4 `npm run lint` passes
-- [x] 1.5 `npm run build` passes
+- [x] 1.1 `src/pages/admin/users/[id].astro` exists — aeca0db
+- [x] 1.2 `getProfileForAdmin` exists in `src/lib/services/admin.ts` — aeca0db
+- [x] 1.3 `/admin` nickname cells link to `/admin/users/{id}` — aeca0db
+- [x] 1.4 `npm run lint` passes — aeca0db
+- [x] 1.5 `npm run build` passes — aeca0db
 
 #### Manual
 
@@ -235,10 +235,10 @@ Same shape as S-07: one `run_participants` query for the target user, one `runs`
 
 #### Automated
 
-- [ ] 2.1 `getArchivedRunForAdmin` exists; `getArchivedRunForParticipant` still requires a confirmed seat
-- [ ] 2.2 `[id].astro` calls the admin loader only when `isAdmin`
-- [ ] 2.3 `npm run lint` passes
-- [ ] 2.4 `npm run build` passes
+- [x] 2.1 `getArchivedRunForAdmin` exists; `getArchivedRunForParticipant` still requires a confirmed seat
+- [x] 2.2 `[id].astro` calls the admin loader only when `isAdmin`
+- [x] 2.3 `npm run lint` passes
+- [x] 2.4 `npm run build` passes
 
 #### Manual
 

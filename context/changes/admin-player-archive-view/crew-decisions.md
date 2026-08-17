@@ -23,6 +23,9 @@ Mode: **YOLO**. Crew Lead answered specialist questions; the human was asked onl
 | 2026-08-17T13:44 | gh-change-sync | --event planned → #10 Backlog |
 | 2026-08-17T13:48 | 10x-plan-review | SOUND; F1 observation (delete ?error= banner) deferred to Phase 2 |
 | 2026-08-17T13:55 | 10x-implement p1 | profile + list landed; lint/build ok; manuals skipped |
+| 2026-08-17T13:58 | 10x-implement p1 | COMMIT_OK → aeca0db; gh-change-sync implementing → #10 In progress |
+| 2026-08-17T14:05 | 10x-impl-review p1 | APPROVED (0 findings) |
+| 2026-08-17T14:12 | 10x-implement p2 | admin bypass + F1 Banner; lint/build ok |
 
 ## Decisions the Crew Lead made (no human)
 
@@ -39,7 +42,8 @@ Mode: **YOLO**. Crew Lead answered specialist questions; the human was asked onl
 - **missing-empty** — Invalid/unknown id vs player with zero archives. Chose **A (404 if no profile; empty list if player exists)**. Why: matches `/runs/{id}` 404 and `/runs/history` empty copy; admin can still open a new member.
 - **profile-chrome** — Extra fields on the profile page. Chose **A (nickname, user id, archive list only)**. Why: smallest FR-016 surface; ban/verify stay on `/admin`; no duplicate S-06 forms.
 - **archived-delete** — Keep Delete run on archived `/runs/{id}` after the admin bypass. Chose **A (yes, same as today)**. Why: FR-010 is not active-only; one rule; `window.confirm` stays the guard.
-- **plan-review-F1** — Whether to block on archived-detail swallowing delete `?error=`. Chose **defer to Phase 2 (non-blocking)**. Why: SOUND overall; optional Banner next to AdminRunControls is a one-line UX fix, not a plan rewrite.
+- **plan-review-F1** — Whether to block on archived-detail swallowing delete `?error=`. Chose **apply in Phase 2 (non-blocking)**. Why: SOUND overall; Banner next to AdminRunControls is a one-line UX fix, not a plan rewrite. Implemented in Phase 2.
+- **phase-2-commit** — Phase-end ritual commit. Chose **COMMIT_OK**. Why: YOLO authorizes phase-end commits; do not push.
 
 ### Obvious
 - change-id `admin-player-archive-view` matches roadmap S-09 → gh-change-sync 1:1 link, no `--parent`.
@@ -53,7 +57,7 @@ Mode: **YOLO**. Crew Lead answered specialist questions; the human was asked onl
 ## Human-action gates
 
 - Phase 1 manual 1.6–1.12: skipped (YOLO residual risk) — no browser; card click 404 until Phase 2 is expected
-- Phase 2 manuals: pending
+- Phase 2 manuals 2.5–2.10: skipped (YOLO residual risk) — 404 matrix, back-link split, Delete confirm
 
 ## Stop / escape hatches
 
@@ -61,4 +65,4 @@ Mode: **YOLO**. Crew Lead answered specialist questions; the human was asked onl
 
 ## GitHub
 
-- change-sync: #10 events new, planned, plan_reviewed (Backlog, link-roadmap S-09)
+- change-sync: #10 events new, planned, plan_reviewed, implementing (In progress, link-roadmap S-09)
