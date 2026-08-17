@@ -14,14 +14,21 @@ import {
   type OwnParticipation,
   type PendingParticipant,
 } from "@/lib/services/participants";
-import { formatJoinMode, getActiveRunById, getOwnNickname, type RunDetail } from "@/lib/services/runs";
+import {
+  formatJoinMode,
+  getActiveRunById,
+  getArchivedRunForParticipant,
+  getOwnNickname,
+  type ArchivedRunDetail,
+  type RunDetail,
+} from "@/lib/services/runs";
 
 const { id } = Astro.params;
 const supabase = createClient(Astro.request.headers, Astro.cookies);
 const { user } = Astro.locals;
 const serverError = Astro.url.searchParams.get("error");
 
-let run: RunDetail | null = null;
+let run: RunDetail | ArchivedRunDetail | null = null;
 let pageError: "missing" | "config" | "load" | null = null;
 let confirmed: ConfirmedParticipant[] = [];
 let pending: PendingParticipant[] = [];
@@ -36,11 +43,15 @@ if (!id) {
 } else {
   try {
     run = await getActiveRunById(supabase, id);
+    if (!run && user) {
+      run = await getArchivedRunForParticipant(supabase, id, user.id);
+    }
     if (!run) {
       pageError = "missing";
     } else {
       confirmed = await listConfirmedParticipants(supabase, run.id);
-      if (user) {
+      const archived = run.lifecyclePhase === "archived";
+      if (user && !archived) {
         const isOrganizer = user.id === run.organizerId;
         [own, nickname] = await Promise.all([
           getOwnParticipation(supabase, run.id, user.id),
@@ -66,6 +77,7 @@ if (pageError === "missing") {
 }
 
 const pageTitle = run ? `${run.displayTitle} — Book Your Miggets` : "Run — Book Your Miggets";
+const isArchived = run?.lifecyclePhase === "archived";
 const isBanned = Boolean(Astro.locals.profile?.isBanned);
 const isAdmin = Astro.locals.profile?.role === "admin";
 const isOrganizer = Boolean(user?.id && user.id === run?.organizerId);
@@ -93,8 +105,11 @@ function formatReleasedOn(value: string | null): string {
       <Topbar />
 
       <p class="mb-6">
-        <a href="/runs" class="text-sm text-purple-300 transition-colors hover:text-purple-100 hover:underline">
-          ← Active runs
+        <a
+          href={isArchived ? "/runs/history" : "/runs"}
+          class="text-sm text-purple-300 transition-colors hover:text-purple-100 hover:underline"
+        >
+          {isArchived ? "← Past runs" : "← Active runs"}
         </a>
       </p>
 
@@ -121,6 +136,11 @@ function formatReleasedOn(value: string | null): string {
                 {run.lifecyclePhase === "in_progress" && (
                   <p class="mt-2 text-sm text-blue-100/80">
                     Status: <span class="text-amber-200">In progress / already started</span>
+                  </p>
+                )}
+                {run.lifecyclePhase === "archived" && (
+                  <p class="mt-2 text-sm text-blue-100/80">
+                    Status: <span class="text-blue-100/90">Archived</span>
                   </p>
                 )}
                 {run.organizerNickname && (
@@ -212,22 +232,24 @@ function formatReleasedOn(value: string | null): string {
                   </ul>
                 )}
 
-                <RunParticipantActions
-                  client:load
-                  runId={run.id}
-                  joinMode={run.joinMode}
-                  maxParticipants={run.maxParticipants}
-                  confirmedCount={confirmedCount}
-                  isGuest={!user}
-                  isBanned={isBanned}
-                  isOrganizer={isOrganizer}
-                  nickname={nickname}
-                  ownStatus={own?.status ?? null}
-                  organizerSeated={organizerSeated}
-                  pending={pending.map((p) => ({ id: p.id, nickname: p.nickname }))}
-                  denied={denied.map((p) => ({ id: p.id, nickname: p.nickname }))}
-                  serverError={serverError}
-                />
+                {!isArchived && (
+                  <RunParticipantActions
+                    client:load
+                    runId={run.id}
+                    joinMode={run.joinMode}
+                    maxParticipants={run.maxParticipants}
+                    confirmedCount={confirmedCount}
+                    isGuest={!user}
+                    isBanned={isBanned}
+                    isOrganizer={isOrganizer}
+                    nickname={nickname}
+                    ownStatus={own?.status ?? null}
+                    organizerSeated={organizerSeated}
+                    pending={pending.map((p) => ({ id: p.id, nickname: p.nickname }))}
+                    denied={denied.map((p) => ({ id: p.id, nickname: p.nickname }))}
+                    serverError={serverError}
+                  />
+                )}
               </section>
 
               {isAdmin && (

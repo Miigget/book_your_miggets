@@ -7,7 +7,7 @@ Book Your Miggets is a Team Finder / Run Scheduler for TeeWorlds gores. Stack: A
 - Prefer Astro for layout/static UI; use React only for interactive islands. Never add Next.js directives (`"use client"`, etc.).
 - Merge Tailwind classes with `cn()` from `@/lib/utils` — do not concatenate class strings.
 - API routes export uppercase `GET` / `POST` under `src/pages/api/` (see `@src/pages/api/auth/signin.ts`).
-- Gate private pages via `PROTECTED_ROUTES` in `@src/middleware.ts` (currently `/dashboard`, `/runs/new`).
+- Gate private pages via `PROTECTED_ROUTES` in `@src/middleware.ts` (currently `/dashboard`, `/runs/new`, `/admin`, `/runs/history`).
 - Secrets are `SUPABASE_URL` and `SUPABASE_KEY` (`@.env.example`). Use `.env` for Node or `.dev.vars` for Cloudflare local — both gitignored; never commit them.
 - When adding Postgres tables, place SQL in `supabase/migrations/` as `YYYYMMDDHHmmss_short_description.sql` and enable RLS with per-operation, per-role policies.
 

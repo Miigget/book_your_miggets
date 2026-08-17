@@ -1,7 +1,7 @@
 import { defineMiddleware } from "astro:middleware";
 import { createClient } from "@/lib/supabase";
 
-const PROTECTED_ROUTES = ["/dashboard", "/runs/new", "/admin"];
+const PROTECTED_ROUTES = ["/dashboard", "/runs/new", "/admin", "/runs/history"];
 
 /** Same-origin Referer pathname, else "/" — the open-redirect guard for the banned-POST gate. */
 function bannedRedirectTarget(referer: string | null, requestOrigin: string): string {

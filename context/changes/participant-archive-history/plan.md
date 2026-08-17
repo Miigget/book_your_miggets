@@ -314,11 +314,11 @@ History size is the viewer’s confirmed runs, not the global catalog. One `run_
 
 #### Automated
 
-- [x] 2.1 `listArchivedRunsForParticipant` and `getArchivedRunForParticipant` exist
-- [x] 2.2 `listActiveRuns` / `getActiveRunById` still filter the active window
-- [x] 2.3 `npm run lint` passes
-- [x] 2.4 `npm run build` passes
-- [x] 2.9 `getActiveRunById` and `getArchivedRunForParticipant` return null for invalid UUID (no throw)
+- [x] 2.1 `listArchivedRunsForParticipant` and `getArchivedRunForParticipant` exist — 5f71dc6
+- [x] 2.2 `listActiveRuns` / `getActiveRunById` still filter the active window — 5f71dc6
+- [x] 2.3 `npm run lint` passes — 5f71dc6
+- [x] 2.4 `npm run build` passes — 5f71dc6
+- [x] 2.9 `getActiveRunById` and `getArchivedRunForParticipant` return null for invalid UUID (no throw) — 5f71dc6
 
 #### Manual
 
@@ -331,11 +331,11 @@ History size is the viewer’s confirmed runs, not the global catalog. One `run_
 
 #### Automated
 
-- [ ] 3.1 `src/pages/runs/history.astro` exists; middleware lists `/runs/history`
-- [ ] 3.2 Topbar includes a History link for signed-in users
-- [ ] 3.3 `npm run lint` passes
-- [ ] 3.4 `npm run build` passes
-- [ ] 3.5 `AGENTS.md` `PROTECTED_ROUTES` line includes `/admin` and `/runs/history`
+- [x] 3.1 `src/pages/runs/history.astro` exists; middleware lists `/runs/history`
+- [x] 3.2 Topbar includes a History link for signed-in users
+- [x] 3.3 `npm run lint` passes
+- [x] 3.4 `npm run build` passes
+- [x] 3.5 `AGENTS.md` `PROTECTED_ROUTES` line includes `/admin` and `/runs/history`
 
 #### Manual
 
