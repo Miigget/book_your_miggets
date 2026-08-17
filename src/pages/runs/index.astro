@@ -155,6 +155,12 @@ if (!supabase) {
                         </dd>
                       </div>
                     )}
+                    {run.organizerNickname && (
+                      <div>
+                        <dt class="inline">Organizer: </dt>
+                        <dd class="inline text-blue-100/90">{run.organizerNickname}</dd>
+                      </div>
+                    )}
                   </dl>
                 </a>
               </li>

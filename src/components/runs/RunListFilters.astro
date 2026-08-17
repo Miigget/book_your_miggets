@@ -27,13 +27,13 @@ const labelClass = "mb-1 block text-sm text-blue-100/80";
 >
   <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
     <div>
-      <label for="filter-map" class:list={[labelClass]}>Map</label>
+      <label for="filter-search" class:list={[labelClass]}>Search</label>
       <input
-        id="filter-map"
+        id="filter-search"
         type="search"
         name="map"
         value={filters.mapQuery ?? ""}
-        placeholder="Search by map name"
+        placeholder="Map or organizer nickname"
         class:list={[fieldClass]}
       />
     </div>

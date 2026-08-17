@@ -128,6 +128,13 @@ function mapRunRow(row: RunRow, confirmedCount = 0, now = Date.now()): RunDetail
   };
 }
 
+function matchesMapOrOrganizer(row: RunRow, query: string): boolean {
+  const needle = query.toLowerCase();
+  const mapName = row.map?.name.toLowerCase() ?? "";
+  const nickname = row.organizer?.nickname?.toLowerCase() ?? "";
+  return mapName.includes(needle) || nickname.includes(needle);
+}
+
 async function confirmedCountsForRuns(supabase: AppSupabaseClient, runIds: string[]): Promise<Map<string, number>> {
   const counts = new Map<string, number>();
   for (const id of runIds) {
@@ -185,8 +192,8 @@ export async function listActiveRuns(
 
   let rows = data as unknown as RunRow[];
   if (filters.mapQuery) {
-    const needle = filters.mapQuery.toLowerCase();
-    rows = rows.filter((row) => row.map?.name.toLowerCase().includes(needle));
+    const query = filters.mapQuery;
+    rows = rows.filter((row) => matchesMapOrOrganizer(row, query));
   }
 
   const counts = await confirmedCountsForRuns(
