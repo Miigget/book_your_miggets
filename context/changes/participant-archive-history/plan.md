@@ -331,11 +331,11 @@ History size is the viewer’s confirmed runs, not the global catalog. One `run_
 
 #### Automated
 
-- [x] 3.1 `src/pages/runs/history.astro` exists; middleware lists `/runs/history`
-- [x] 3.2 Topbar includes a History link for signed-in users
-- [x] 3.3 `npm run lint` passes
-- [x] 3.4 `npm run build` passes
-- [x] 3.5 `AGENTS.md` `PROTECTED_ROUTES` line includes `/admin` and `/runs/history`
+- [x] 3.1 `src/pages/runs/history.astro` exists; middleware lists `/runs/history` — 0c09984
+- [x] 3.2 Topbar includes a History link for signed-in users — 0c09984
+- [x] 3.3 `npm run lint` passes — 0c09984
+- [x] 3.4 `npm run build` passes — 0c09984
+- [x] 3.5 `AGENTS.md` `PROTECTED_ROUTES` line includes `/admin` and `/runs/history` — 0c09984
 
 #### Manual
 
