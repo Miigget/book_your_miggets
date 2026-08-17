@@ -1,10 +1,10 @@
 ---
 change_id: participant-archive-history
 title: Let confirmed participants revisit archived runs they took part in
-status: impl_reviewed
+status: archived
 created: 2026-08-17
 updated: 2026-08-17
-archived_at: null
+archived_at: 2026-08-17T10:46:37Z
 ---
 
 ## Notes
