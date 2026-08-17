@@ -1,5 +1,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { activeWindowStartsAfter, getRunLifecyclePhase, type ActiveRunLifecyclePhase } from "@/lib/run-lifecycle";
+import { utcDayRange, type RunListFilters } from "@/lib/run-list-filters";
 import type { Database, Enums, Tables } from "@/types/database";
 
 export type AppSupabaseClient = SupabaseClient<Database>;
@@ -127,6 +128,13 @@ function mapRunRow(row: RunRow, confirmedCount = 0, now = Date.now()): RunDetail
   };
 }
 
+function matchesMapOrOrganizer(row: RunRow, query: string): boolean {
+  const needle = query.toLowerCase();
+  const mapName = row.map?.name.toLowerCase() ?? "";
+  const nickname = row.organizer?.nickname?.toLowerCase() ?? "";
+  return mapName.includes(needle) || nickname.includes(needle);
+}
+
 async function confirmedCountsForRuns(supabase: AppSupabaseClient, runIds: string[]): Promise<Map<string, number>> {
   const counts = new Map<string, number>();
   for (const id of runIds) {
@@ -154,20 +162,40 @@ async function confirmedCountsForRuns(supabase: AppSupabaseClient, runIds: strin
   return counts;
 }
 
-export async function listActiveRuns(supabase: AppSupabaseClient): Promise<RunListItem[]> {
+export async function listActiveRuns(
+  supabase: AppSupabaseClient,
+  filters: RunListFilters = {},
+): Promise<RunListItem[]> {
   const now = Date.now();
-  const { data, error } = await supabase
+  let query = supabase
     .from("runs")
     .select(RUN_SELECT)
     .is("archived_at", null)
-    .gt("starts_at", activeWindowStartsAfter(now))
-    .order("starts_at", { ascending: true });
+    .gt("starts_at", activeWindowStartsAfter(now));
+
+  if (filters.date) {
+    const { startIso, endIso } = utcDayRange(filters.date);
+    query = query.gte("starts_at", startIso).lt("starts_at", endIso);
+  }
+  if (filters.minPoints !== undefined) {
+    query = query.lte("min_points", filters.minPoints);
+  }
+  if (filters.joinMode) {
+    query = query.eq("join_mode", filters.joinMode);
+  }
+
+  const { data, error } = await query.order("starts_at", { ascending: true });
 
   if (error) {
     throw new Error(`Failed to list active runs: ${error.message}`);
   }
 
-  const rows = data as unknown as RunRow[];
+  let rows = data as unknown as RunRow[];
+  if (filters.mapQuery) {
+    const query = filters.mapQuery;
+    rows = rows.filter((row) => matchesMapOrOrganizer(row, query));
+  }
+
   const counts = await confirmedCountsForRuns(
     supabase,
     rows.map((row) => row.id),

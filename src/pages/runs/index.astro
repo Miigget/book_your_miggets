@@ -1,8 +1,10 @@
 ---
 import Layout from "@/layouts/Layout.astro";
 import Banner from "@/components/Banner.astro";
+import RunListFilters from "@/components/runs/RunListFilters.astro";
 import Topbar from "@/components/Topbar.astro";
 import { formatStart } from "@/lib/format-date";
+import { hasActiveFilters, parseRunListFilters } from "@/lib/run-list-filters";
 import { createClient } from "@/lib/supabase";
 import { formatJoinMode, listActiveRuns } from "@/lib/services/runs";
 
@@ -10,6 +12,8 @@ const supabase = createClient(Astro.request.headers, Astro.cookies);
 const { user } = Astro.locals;
 const notice = Astro.url.searchParams.get("notice");
 const serverError = Astro.url.searchParams.get("error");
+const filters = parseRunListFilters(Astro.url.searchParams);
+const filtersActive = hasActiveFilters(filters);
 
 let runs: Awaited<ReturnType<typeof listActiveRuns>> = [];
 let loadError: string | null = null;
@@ -18,7 +22,7 @@ if (!supabase) {
   loadError = "Supabase is not configured.";
 } else {
   try {
-    runs = await listActiveRuns(supabase);
+    runs = await listActiveRuns(supabase, filters);
   } catch (err) {
     loadError = err instanceof Error ? err.message : "Failed to load runs.";
   }
@@ -84,9 +88,22 @@ if (!supabase) {
         }
       </header>
 
+      <RunListFilters filters={filters} filtersActive={filtersActive} />
+
       {
         loadError ? (
           <p class="rounded-lg border border-red-400/30 bg-red-500/10 px-4 py-3 text-sm text-red-100">{loadError}</p>
+        ) : runs.length === 0 && filtersActive ? (
+          <div class="rounded-xl border border-white/10 bg-white/5 px-6 py-12 text-center backdrop-blur-xl">
+            <p class="text-lg font-medium text-white">No runs match these filters</p>
+            <p class="mt-2 text-sm text-blue-100/60">Clear the filters to see all active runs.</p>
+            <a
+              href="/runs"
+              class="mt-4 inline-flex items-center justify-center rounded-lg border border-white/20 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-white/10"
+            >
+              Clear
+            </a>
+          </div>
         ) : runs.length === 0 ? (
           <div class="rounded-xl border border-white/10 bg-white/5 px-6 py-12 text-center backdrop-blur-xl">
             <p class="text-lg font-medium text-white">No active runs yet</p>
@@ -136,6 +153,12 @@ if (!supabase) {
                             · {run.map.difficulty} · {run.map.points} pts
                           </span>
                         </dd>
+                      </div>
+                    )}
+                    {run.organizerNickname && (
+                      <div>
+                        <dt class="inline">Organizer: </dt>
+                        <dd class="inline text-blue-100/90">{run.organizerNickname}</dd>
                       </div>
                     )}
                   </dl>

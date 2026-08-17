@@ -3,7 +3,7 @@ project: "Book Your Miggets"
 version: 1
 status: draft
 created: 2026-07-27
-updated: 2026-08-07
+updated: 2026-08-17
 prd_version: 1
 main_goal: market-feedback
 top_blocker: capacity
@@ -32,7 +32,7 @@ The King of Gores (KoG) community in TeeWorlds has no tool for organizing shared
 | F-01 | run-domain-schema | (foundation) minimal run-domain schema + RLS baseline landed | — | Access Control, Business Logic, FR-012 | done |
 | S-01 | create-and-list-runs | create a run; any guest sees it on the public active-runs list | F-01, seeded map catalog | FR-003, FR-006, US-01 | done |
 | S-02 | apply-and-approve-participants | register, apply to a run, get accepted/denied; roster shows confirmed players | S-01 | FR-001, FR-002, FR-004, FR-008, FR-009, US-01 | done |
-| S-03 | search-filter-runs | search and filter active runs by map, date, or requirements | S-01 | FR-007 | proposed |
+| S-03 | search-filter-runs | search and filter active runs by map, date, or requirements | S-01 | FR-007 | done |
 | S-04 | run-archival-lifecycle | see runs marked in-progress during the 1-hour grace, then archived off the active list | S-01 | FR-013, US-01 | done |
 | S-05 | auto-join-mode | join an auto-join run and be confirmed instantly if capacity allows | S-02 | FR-014, US-02 | done |
 | S-06 | admin-moderation-tools | (admin) delete runs, ban users, mark users verified | S-01, F-01 | FR-010, FR-011, FR-012 | done |
@@ -115,7 +115,7 @@ Foundations below assume these are present and do NOT re-scaffold them.
 - **Blockers:** —
 - **Unknowns:** —
 - **Risk:** finding the right run is the core pain being solved, but filter scope creep is easy — stay on the three axes FR-007 names.
-- **Status:** proposed
+- **Status:** done
 
 ### S-04: Run lifecycle — in-progress grace and archival
 
@@ -237,3 +237,4 @@ Foundations below assume these are present and do NOT re-scaffold them.
 - **S-04: user can see a run marked "in-progress / already started" during the 1-hour grace after its scheduled start, after which it leaves the active list into the archive (retained, not deleted).** — Archived 2026-08-07 → `context/archive/2026-08-07-run-archival-lifecycle/`. Lesson: —.
 - **S-05: user can apply to an auto-join run and be confirmed on the participant list immediately if capacity remains.** — Archived 2026-08-07 → `context/archive/2026-08-07-auto-join-mode/`. Lesson: —.
 - **S-06: admin can delete runs, ban users, and mark a user as verified (`is_verified`).** — Archived 2026-08-07 → `context/archive/2026-08-07-admin-moderation-tools/`. Lesson: —.
+- **S-03: user can search and filter the active-runs list by map, date, or requirements.** — Archived 2026-08-17 → `context/archive/2026-08-17-search-filter-runs/`. Lesson: —.
