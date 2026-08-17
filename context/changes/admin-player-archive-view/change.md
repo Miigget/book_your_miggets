@@ -1,7 +1,7 @@
 ---
 change_id: admin-player-archive-view
 title: Let admins view any player's archived run history from their profile
-status: implementing
+status: impl_reviewed
 created: 2026-08-17
 updated: 2026-08-17
 archived_at: null

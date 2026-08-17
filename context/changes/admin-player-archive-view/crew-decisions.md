@@ -3,7 +3,7 @@ change_id: admin-player-archive-view
 mode: YOLO
 started: 2026-08-17
 updated: 2026-08-17
-status: in-progress
+status: complete
 ---
 
 # Crew decisions — admin-player-archive-view
@@ -26,6 +26,11 @@ Mode: **YOLO**. Crew Lead answered specialist questions; the human was asked onl
 | 2026-08-17T13:58 | 10x-implement p1 | COMMIT_OK → aeca0db; gh-change-sync implementing → #10 In progress |
 | 2026-08-17T14:05 | 10x-impl-review p1 | APPROVED (0 findings) |
 | 2026-08-17T14:12 | 10x-implement p2 | admin bypass + F1 Banner; lint/build ok |
+| 2026-08-17T14:15 | 10x-implement p2 | COMMIT_OK → 62a1627 |
+| 2026-08-17T14:20 | 10x-impl-review p2 | APPROVED (0 findings) |
+| 2026-08-17T14:25 | 10x-impl-review | full APPROVED; change.md → impl_reviewed |
+| 2026-08-17T14:28 | gh-change-sync | --event implemented |
+| 2026-08-17T14:30 | 10x-archive | YOLO auto-archive (only manuals remain) |
 
 ## Decisions the Crew Lead made (no human)
 
@@ -33,7 +38,10 @@ Mode: **YOLO**. Crew Lead answered specialist questions; the human was asked onl
 - **profile-access** — Where the player profile lives and who may open it. Chose **A (`/admin/users/{id}`, admin-only)**. Why: inherits S-06 `/admin` 404; members never see a public-looking profile URL; option C is a social profile already ruled out.
 - **archived-detail** — What `/runs/{id}` does when an admin opens a card from the player's history. Chose **A (same URL, admin bypasses confirmed-seat 404)**. Why: FR-016 history is useless if every card 404s; guest/member 404 stays; no second detail surface.
 - **history-membership** — What “full archived run history” includes. Chose **A (same as S-07: current confirmed + archived)**. Why: reuse `listArchivedRunsForParticipant`; pending/denied and organizer-who-left are S-07/S-08, not this slice.
+- **banned-player** — May an admin open a banned player's archive. Chose **A (yes, same as unbanned)**. Why: moderation after a ban needs past runs; `/admin` already lists banned users so a 404 would break that path.
 - **phase-1-commit** — Phase-end ritual commit. Chose **COMMIT_OK**. Why: YOLO authorizes phase-end commits; do not push.
+- **phase-2-commit** — Phase-end ritual commit. Chose **COMMIT_OK**. Why: YOLO authorizes phase-end commits; do not push.
+- **archive** — Archive despite unchecked manuals. Chose **yes**. Why: YOLO auto-archive when only manual Progress rows remain; both phase reviews and full review APPROVED.
 
 ### Non-obvious
 - **skip-research** — Whether to hire `/10x-research` before plan. Chose **skip**. Why: YOLO default when the signal is weak; S-07 archive patterns and S-06 admin gating already exist and `/10x-plan` will map them.
@@ -43,12 +51,13 @@ Mode: **YOLO**. Crew Lead answered specialist questions; the human was asked onl
 - **profile-chrome** — Extra fields on the profile page. Chose **A (nickname, user id, archive list only)**. Why: smallest FR-016 surface; ban/verify stay on `/admin`; no duplicate S-06 forms.
 - **archived-delete** — Keep Delete run on archived `/runs/{id}` after the admin bypass. Chose **A (yes, same as today)**. Why: FR-010 is not active-only; one rule; `window.confirm` stays the guard.
 - **plan-review-F1** — Whether to block on archived-detail swallowing delete `?error=`. Chose **apply in Phase 2 (non-blocking)**. Why: SOUND overall; Banner next to AdminRunControls is a one-line UX fix, not a plan rewrite. Implemented in Phase 2.
-- **phase-2-commit** — Phase-end ritual commit. Chose **COMMIT_OK**. Why: YOLO authorizes phase-end commits; do not push.
 
 ### Obvious
 - change-id `admin-player-archive-view` matches roadmap S-09 → gh-change-sync 1:1 link, no `--parent`.
 - Intent seeded from roadmap S-09 / FR-016 rather than empty slug humanization.
 - Next stage `/10x-plan` (workflow default).
+- Continue to Phase 2 after Phase 1 APPROVED.
+- Full impl-review after both phases APPROVED.
 
 ## Decisions escalated to the human
 
@@ -56,8 +65,8 @@ Mode: **YOLO**. Crew Lead answered specialist questions; the human was asked onl
 
 ## Human-action gates
 
-- Phase 1 manual 1.6–1.12: skipped (YOLO residual risk) — no browser; card click 404 until Phase 2 is expected
-- Phase 2 manuals 2.5–2.10: skipped (YOLO residual risk) — 404 matrix, back-link split, Delete confirm
+- Phase 1 manual 1.6–1.12: skipped (YOLO residual risk) — guest/member 404 on `/admin/users/{id}`, empty/banned profile, card click
+- Phase 2 manuals 2.5–2.10: skipped (YOLO residual risk) — guest/member/left-organizer 404 on archived `/runs/{id}`, back-link split, Delete confirm
 
 ## Stop / escape hatches
 
@@ -65,4 +74,4 @@ Mode: **YOLO**. Crew Lead answered specialist questions; the human was asked onl
 
 ## GitHub
 
-- change-sync: #10 events new, planned, plan_reviewed, implementing (In progress, link-roadmap S-09)
+- change-sync: #10 events new, planned, plan_reviewed, implementing, implemented, archived (link-roadmap S-09)

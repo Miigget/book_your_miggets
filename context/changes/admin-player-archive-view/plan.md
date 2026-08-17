@@ -235,10 +235,10 @@ Same shape as S-07: one `run_participants` query for the target user, one `runs`
 
 #### Automated
 
-- [x] 2.1 `getArchivedRunForAdmin` exists; `getArchivedRunForParticipant` still requires a confirmed seat
-- [x] 2.2 `[id].astro` calls the admin loader only when `isAdmin`
-- [x] 2.3 `npm run lint` passes
-- [x] 2.4 `npm run build` passes
+- [x] 2.1 `getArchivedRunForAdmin` exists; `getArchivedRunForParticipant` still requires a confirmed seat — 62a1627
+- [x] 2.2 `[id].astro` calls the admin loader only when `isAdmin` — 62a1627
+- [x] 2.3 `npm run lint` passes — 62a1627
+- [x] 2.4 `npm run build` passes — 62a1627
 
 #### Manual
 
