@@ -1,6 +1,12 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
-import { activeWindowStartsAfter, getRunLifecyclePhase, type ActiveRunLifecyclePhase } from "@/lib/run-lifecycle";
+import {
+  activeWindowStartsAfter,
+  getRunLifecyclePhase,
+  isRunActive,
+  type ActiveRunLifecyclePhase,
+} from "@/lib/run-lifecycle";
 import { utcDayRange, type RunListFilters } from "@/lib/run-list-filters";
+import { getOwnParticipation } from "@/lib/services/participants";
 import type { Database, Enums, Tables } from "@/types/database";
 
 export type AppSupabaseClient = SupabaseClient<Database>;
@@ -29,10 +35,19 @@ export type RunDetail = RunListItem & {
   createdAt: string;
 };
 
+export type ArchivedRunListItem = Omit<RunListItem, "lifecyclePhase"> & {
+  lifecyclePhase: "archived";
+};
+
+export type ArchivedRunDetail = ArchivedRunListItem & {
+  createdAt: string;
+};
+
 const RUN_SELECT = `
   id,
   title,
   starts_at,
+  archived_at,
   max_participants,
   min_points,
   join_mode,
@@ -57,6 +72,7 @@ interface RunRow {
   id: string;
   title: string | null;
   starts_at: string;
+  archived_at: string | null;
   max_participants: number;
   min_points: number;
   join_mode: Enums<"join_mode">;
@@ -100,10 +116,7 @@ export function formatJoinMode(mode: Enums<"join_mode">): string {
   }
 }
 
-function mapRunRow(row: RunRow, confirmedCount = 0, now = Date.now()): RunDetail | null {
-  const phase = getRunLifecyclePhase(row.starts_at, now);
-  if (phase === "archived") return null;
-
+function runFieldsFromRow(row: RunRow, confirmedCount: number) {
   const map = row.map;
   const organizerNickname = row.organizer?.nickname ?? null;
 
@@ -119,13 +132,25 @@ function mapRunRow(row: RunRow, confirmedCount = 0, now = Date.now()): RunDetail
     organizerId: row.organizer_id,
     organizerNickname,
     confirmedCount,
-    lifecyclePhase: phase,
     displayTitle: resolveRunTitle({
       title: row.title,
       mapName: map?.name,
       nickname: organizerNickname,
     }),
   };
+}
+
+function mapRunRow(row: RunRow, confirmedCount = 0, now = Date.now()): RunDetail | null {
+  const phase = getRunLifecyclePhase(row.starts_at, now);
+  if (phase === "archived") return null;
+
+  return { ...runFieldsFromRow(row, confirmedCount), lifecyclePhase: phase };
+}
+
+function mapArchivedRunRow(row: RunRow, confirmedCount = 0, now = Date.now()): ArchivedRunDetail | null {
+  if (isRunActive(row.starts_at, row.archived_at, now)) return null;
+
+  return { ...runFieldsFromRow(row, confirmedCount), lifecyclePhase: "archived" };
 }
 
 function matchesMapOrOrganizer(row: RunRow, query: string): boolean {
@@ -207,6 +232,8 @@ export async function listActiveRuns(
 }
 
 export async function getActiveRunById(supabase: AppSupabaseClient, id: string): Promise<RunDetail | null> {
+  if (!isUuid(id)) return null;
+
   const now = Date.now();
   const { data, error } = await supabase
     .from("runs")
@@ -224,6 +251,74 @@ export async function getActiveRunById(supabase: AppSupabaseClient, id: string):
 
   // Detail pages load the confirmed roster separately; avoid a duplicate count fetch here.
   return mapRunRow(data, 0, now);
+}
+
+/**
+ * Personal archive index: confirmed participation ids first, then keep archived.
+ * Never list every archived row organizer/admin RLS can SELECT (S-08 leak).
+ */
+export async function listArchivedRunsForParticipant(
+  supabase: AppSupabaseClient,
+  userId: string,
+): Promise<ArchivedRunListItem[]> {
+  const { data: memberships, error: membershipError } = await supabase
+    .from("run_participants")
+    .select("run_id")
+    .eq("user_id", userId)
+    .eq("status", "confirmed");
+
+  if (membershipError) {
+    throw new Error(`Failed to list archived run memberships: ${membershipError.message}`);
+  }
+
+  const runIds = [...new Set(memberships.map((row) => row.run_id))];
+  if (runIds.length === 0) return [];
+
+  const now = Date.now();
+  const { data, error } = await supabase.from("runs").select(RUN_SELECT).in("id", runIds);
+
+  if (error) {
+    throw new Error(`Failed to list archived runs: ${error.message}`);
+  }
+
+  const archivedRows = (data as unknown as RunRow[])
+    .filter((row) => !isRunActive(row.starts_at, row.archived_at, now))
+    .sort((a, b) => Date.parse(b.starts_at) - Date.parse(a.starts_at));
+
+  const counts = await confirmedCountsForRuns(
+    supabase,
+    archivedRows.map((row) => row.id),
+  );
+
+  return archivedRows
+    .map((row) => mapArchivedRunRow(row, counts.get(row.id) ?? 0, now))
+    .filter((run): run is ArchivedRunDetail => run !== null);
+}
+
+/**
+ * Archived `/runs/{id}` only when the viewer still has a confirmed row and the run is archived.
+ * Organizer/admin RLS success is not enough — return null without a current confirmed seat.
+ */
+export async function getArchivedRunForParticipant(
+  supabase: AppSupabaseClient,
+  runId: string,
+  userId: string,
+): Promise<ArchivedRunDetail | null> {
+  if (!isUuid(runId)) return null;
+
+  const own = await getOwnParticipation(supabase, runId, userId);
+  if (own?.status !== "confirmed") return null;
+
+  const now = Date.now();
+  const { data, error } = await supabase.from("runs").select(RUN_SELECT).eq("id", runId).maybeSingle();
+
+  if (error) {
+    throw new Error(`Failed to load archived run: ${error.message}`);
+  }
+
+  if (!data) return null;
+
+  return mapArchivedRunRow(data, 0, now);
 }
 
 export type MapPickerItem = Pick<Tables<"maps">, "id" | "name" | "difficulty" | "points" | "stars">;

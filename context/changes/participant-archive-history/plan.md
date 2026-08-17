@@ -297,13 +297,13 @@ History size is the viewer’s confirmed runs, not the global catalog. One `run_
 
 #### Automated
 
-- [x] 1.1 Migration file exists under `supabase/migrations/` with the confirmed+archived SELECT predicate
-- [x] 1.2 `npm run lint` passes
-- [x] 1.3 `npm run build` passes
+- [x] 1.1 Migration file exists under `supabase/migrations/` with the confirmed+archived SELECT predicate — addb515
+- [x] 1.2 `npm run lint` passes — addb515
+- [x] 1.3 `npm run build` passes — addb515
 
 #### Manual
 
-- [x] 1.4 Migration applies cleanly on local Supabase
+- [x] 1.4 Migration applies cleanly on local Supabase — addb515
 - [ ] 1.5 As anon: cannot SELECT a past-grace run
 - [ ] 1.6 As pending or denied only: cannot SELECT the archived run
 - [ ] 1.7 As confirmed: can SELECT the archived run
@@ -314,11 +314,11 @@ History size is the viewer’s confirmed runs, not the global catalog. One `run_
 
 #### Automated
 
-- [ ] 2.1 `listArchivedRunsForParticipant` and `getArchivedRunForParticipant` exist
-- [ ] 2.2 `listActiveRuns` / `getActiveRunById` still filter the active window
-- [ ] 2.3 `npm run lint` passes
-- [ ] 2.4 `npm run build` passes
-- [ ] 2.9 `getActiveRunById` and `getArchivedRunForParticipant` return null for invalid UUID (no throw)
+- [x] 2.1 `listArchivedRunsForParticipant` and `getArchivedRunForParticipant` exist
+- [x] 2.2 `listActiveRuns` / `getActiveRunById` still filter the active window
+- [x] 2.3 `npm run lint` passes
+- [x] 2.4 `npm run build` passes
+- [x] 2.9 `getActiveRunById` and `getArchivedRunForParticipant` return null for invalid UUID (no throw)
 
 #### Manual
 
