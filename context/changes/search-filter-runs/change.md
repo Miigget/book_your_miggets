@@ -1,7 +1,7 @@
 ---
 change_id: search-filter-runs
 title: Search and filter active runs by map, date, or requirements
-status: implementing
+status: impl_reviewed
 created: 2026-08-17
 updated: 2026-08-17
 archived_at: null

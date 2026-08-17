@@ -251,9 +251,9 @@ None. No schema, RLS, or seed changes. Rollback is revert of the page + service 
 
 #### Automated
 
-- [x] 2.1 `/runs` contains a GET form whose field `name`s are `map`, `date`, `min_points`, `join`
-- [x] 2.2 `npm run lint` passes
-- [x] 2.3 `npm run build` passes
+- [x] 2.1 `/runs` contains a GET form whose field `name`s are `map`, `date`, `min_points`, `join` — 0c0c322
+- [x] 2.2 `npm run lint` passes — 0c0c322
+- [x] 2.3 `npm run build` passes — 0c0c322
 
 #### Manual
 

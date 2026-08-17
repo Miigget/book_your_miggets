@@ -3,7 +3,7 @@ change_id: search-filter-runs
 mode: YOLO
 started: 2026-08-17
 updated: 2026-08-17
-status: in-progress
+status: complete
 ---
 
 # Crew decisions — search-filter-runs
@@ -20,11 +20,18 @@ Mode: **YOLO**. Crew Lead answered specialist questions; the human was asked onl
 | 2026-08-17T10:28 | 10x-plan | round-2: ignore invalid params + distinct no-match empty |
 | 2026-08-17T10:32 | 10x-plan | plan.md + plan-brief.md written; status planned; roadmap S-03 planning |
 | 2026-08-17T10:40 | 10x-plan-review | SOUND; F1 LOW apply int4 cap in Phase 1 |
+| 2026-08-17T10:55 | 10x-implement p1 | Phase 1 committed 03fa808; manual 1.4–1.7 skipped (YOLO) |
+| 2026-08-17T11:05 | 10x-impl-review p1 | APPROVED |
+| 2026-08-17T11:15 | 10x-implement p2 | Phase 2 committed 0c0c322; manual 2.4–2.7 skipped (YOLO) |
+| 2026-08-17T11:25 | 10x-impl-review p2 | APPROVED |
+| 2026-08-17T11:35 | 10x-impl-review | full-plan APPROVED; status impl_reviewed |
 
 ## Decisions the Crew Lead made (no human)
 
 ### Critical
 - **q-requirements** — What “requirements” means on the list (product semantics of FR-007). Chose **A (I-qualify `min_points <= N` + optional `join_mode`)**. Why: guest discovery is “runs I can join”; a floor filter would hide easier runs when a player types their own points; skip capacity as a fourth axis.
+- **phase-end-commits** — Ritual git commits after Phase 1 and Phase 2. Chose **COMMIT_OK**. Why: YOLO authorizes phase-end and archive commits; SHAs `03fa808` and `0c0c322`.
+- **archive-despite-manuals** — Archive with Manual Progress still unchecked. Chose **continue archiving**. Why: YOLO auto-archive when only manual rows remain; browser click-through was skipped by mode.
 
 ### Non-obvious
 - **skip-research** — Whether to hire `/10x-research` before plan. Chose **skip**. Why: YOLO default when the research signal is weak; S-03 is a scoped add on the existing public list (map/date/requirements), and `/10x-plan` will map the list surface itself.
@@ -46,7 +53,8 @@ Mode: **YOLO**. Crew Lead answered specialist questions; the human was asked onl
 
 ## Human-action gates
 
-- none yet
+- Phase 1 manual 1.4–1.7 (logged-out URL filters in browser): skipped (YOLO residual risk)
+- Phase 2 manual 2.4–2.7 (form click-through): skipped (YOLO residual risk)
 
 ## Stop / escape hatches
 
@@ -54,4 +62,4 @@ Mode: **YOLO**. Crew Lead answered specialist questions; the human was asked onl
 
 ## GitHub
 
-- change-sync: #4 events new, planned (link-roadmap S-03, Backlog)
+- change-sync: #4 events new, planned, plan_reviewed, implementing, implemented (link-roadmap S-03, In review)
