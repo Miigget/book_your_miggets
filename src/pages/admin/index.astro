@@ -65,7 +65,8 @@ function formatCreated(value: string): string {
           Admin — users
         </h1>
         <p class="mt-2 text-sm text-blue-100/60">
-          Ban or verify users. To delete a run, open its detail page — admins see a delete control there.
+          Ban or verify users. Nicknames open that player's archived run history. To delete a run, open its detail page
+          — admins see a delete control there.
         </p>
       </header>
 
@@ -89,7 +90,14 @@ function formatCreated(value: string): string {
               <tbody>
                 {profiles.map((profile) => (
                   <tr class="border-b border-white/5 last:border-b-0">
-                    <td class="px-4 py-3 text-white">{profile.nickname ?? "—"}</td>
+                    <td class="px-4 py-3 text-white">
+                      <a
+                        href={`/admin/users/${profile.id}`}
+                        class="text-purple-300 transition-colors hover:text-purple-100 hover:underline"
+                      >
+                        {profile.nickname ?? "—"}
+                      </a>
+                    </td>
                     <td class="px-4 py-3 font-mono text-xs text-blue-100/60">{profile.id}</td>
                     <td class="px-4 py-3 text-blue-100/80">{profile.role}</td>
                     <td class="px-4 py-3">

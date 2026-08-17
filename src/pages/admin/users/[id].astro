@@ -1,0 +1,165 @@
+---
+import Layout from "@/layouts/Layout.astro";
+import Topbar from "@/components/Topbar.astro";
+import { formatStart } from "@/lib/format-date";
+import { createClient } from "@/lib/supabase";
+import { getProfileForAdmin, type AdminPlayerProfile } from "@/lib/services/admin";
+import { formatJoinMode, listArchivedRunsForParticipant } from "@/lib/services/runs";
+
+// Route protection lives in middleware: only admins reach this page.
+const { id } = Astro.params;
+const supabase = createClient(Astro.request.headers, Astro.cookies);
+
+let profile: AdminPlayerProfile | null = null;
+let pageError: "missing" | "config" | "load" | null = null;
+let runs: Awaited<ReturnType<typeof listArchivedRunsForParticipant>> = [];
+let listError: string | null = null;
+
+if (!id) {
+  pageError = "missing";
+} else if (!supabase) {
+  pageError = "config";
+} else {
+  try {
+    profile = await getProfileForAdmin(supabase, id);
+    if (!profile) {
+      pageError = "missing";
+    } else {
+      try {
+        runs = await listArchivedRunsForParticipant(supabase, profile.id);
+      } catch (err) {
+        console.error("listArchivedRunsForParticipant failed on admin player profile", err);
+        listError = "Could not load past runs.";
+      }
+    }
+  } catch (err) {
+    console.error("getProfileForAdmin failed on admin player profile", err);
+    pageError = "load";
+  }
+}
+
+if (pageError === "missing") {
+  Astro.response.status = 404;
+} else if (pageError === "load" || pageError === "config") {
+  Astro.response.status = 500;
+}
+
+const displayNickname = profile?.nickname ?? "—";
+const pageTitle = profile ? `${displayNickname} — Admin — Book Your Miggets` : "Player — Admin — Book Your Miggets";
+---
+
+<Layout title={pageTitle}>
+  <div class="bg-cosmic relative min-h-screen w-full overflow-hidden">
+    <div
+      class="pointer-events-none absolute top-1/4 -left-24 h-[350px] w-[350px] rounded-full bg-purple-500/20 blur-[120px]"
+    >
+    </div>
+    <div
+      class="pointer-events-none absolute top-2/3 -right-16 h-[250px] w-[250px] rounded-full bg-blue-500/15 blur-[100px]"
+    >
+    </div>
+
+    <div class="relative z-10 mx-auto max-w-3xl p-4 sm:p-8">
+      <Topbar />
+
+      <p class="mb-6">
+        <a href="/admin" class="text-sm text-purple-300 transition-colors hover:text-purple-100 hover:underline">
+          ← Users
+        </a>
+      </p>
+
+      {
+        pageError === "missing" ? (
+          <div class="rounded-xl border border-white/10 bg-white/5 px-6 py-12 text-center backdrop-blur-xl">
+            <h1 class="text-2xl font-bold text-white">Player not found</h1>
+            <p class="mt-2 text-sm text-blue-100/60">This player is missing.</p>
+          </div>
+        ) : pageError ? (
+          <div class="rounded-xl border border-red-400/30 bg-red-500/10 px-6 py-12 text-center">
+            <h1 class="text-2xl font-bold text-white">Could not load player</h1>
+            <p class="mt-2 text-sm text-red-100/80">
+              {pageError === "config" ? "Supabase is not configured." : "Please try again later."}
+            </p>
+          </div>
+        ) : (
+          profile && (
+            <>
+              <header class="mb-8">
+                <h1 class="bg-gradient-to-r from-blue-200 to-purple-200 bg-clip-text text-3xl font-bold text-transparent sm:text-4xl">
+                  {displayNickname}
+                </h1>
+                <p class="mt-2 font-mono text-xs text-blue-100/60">{profile.id}</p>
+              </header>
+
+              {listError ? (
+                <p class="rounded-lg border border-red-400/30 bg-red-500/10 px-4 py-3 text-sm text-red-100">
+                  {listError}
+                </p>
+              ) : runs.length === 0 ? (
+                <div class="rounded-xl border border-white/10 bg-white/5 px-6 py-12 text-center backdrop-blur-xl">
+                  <p class="text-lg font-medium text-white">No past runs</p>
+                  <p class="mt-2 text-sm text-blue-100/60">This player has no archived confirmed runs.</p>
+                </div>
+              ) : (
+                <ul class="flex flex-col gap-3">
+                  {runs.map((run) => (
+                    <li>
+                      <a
+                        href={`/runs/${run.id}`}
+                        class="block rounded-xl border border-white/10 bg-white/5 px-5 py-4 transition-colors hover:border-white/20 hover:bg-white/10"
+                      >
+                        <div class="flex flex-col gap-1 sm:flex-row sm:items-baseline sm:justify-between">
+                          <h2 class="text-lg font-semibold text-white">
+                            {run.displayTitle}
+                            <span class="ml-2 text-sm font-medium text-blue-100/70">Archived</span>
+                          </h2>
+                          <time class="shrink-0 text-sm text-blue-100/70" datetime={run.startsAt}>
+                            {formatStart(run.startsAt)}
+                          </time>
+                        </div>
+                        <dl class="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-sm text-blue-100/60">
+                          <div>
+                            <dt class="inline">Filled: </dt>
+                            <dd class="inline text-blue-100/90">
+                              {run.confirmedCount}/{run.maxParticipants}
+                            </dd>
+                          </div>
+                          <div>
+                            <dt class="inline">Min points: </dt>
+                            <dd class="inline text-blue-100/90">{run.minPoints}</dd>
+                          </div>
+                          <div>
+                            <dt class="inline">Join: </dt>
+                            <dd class="inline text-blue-100/90">{formatJoinMode(run.joinMode)}</dd>
+                          </div>
+                          {run.map && (
+                            <div>
+                              <dt class="inline">Map: </dt>
+                              <dd class="inline text-blue-100/90">
+                                {run.map.name}
+                                <span class="text-blue-100/50">
+                                  {" "}
+                                  · {run.map.difficulty} · {run.map.points} pts
+                                </span>
+                              </dd>
+                            </div>
+                          )}
+                          {run.organizerNickname && (
+                            <div>
+                              <dt class="inline">Organizer: </dt>
+                              <dd class="inline text-blue-100/90">{run.organizerNickname}</dd>
+                            </div>
+                          )}
+                        </dl>
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </>
+          )
+        )
+      }
+    </div>
+  </div>
+</Layout>

@@ -1,5 +1,5 @@
 import type { Enums } from "@/types/database";
-import type { AppSupabaseClient } from "@/lib/services/runs";
+import { isUuid, type AppSupabaseClient } from "@/lib/services/runs";
 
 export class AdminError extends Error {
   constructor(message: string) {
@@ -26,6 +26,28 @@ export async function listProfilesForAdmin(supabase: AppSupabaseClient): Promise
   if (error) {
     console.error("listProfilesForAdmin failed", error);
     throw new AdminError("Could not load users");
+  }
+
+  return data;
+}
+
+export interface AdminPlayerProfile {
+  id: string;
+  nickname: string | null;
+}
+
+/** Header for `/admin/users/{id}` — id + nickname only. Do not return role/verified/banned. */
+export async function getProfileForAdmin(
+  supabase: AppSupabaseClient,
+  userId: string,
+): Promise<AdminPlayerProfile | null> {
+  if (!isUuid(userId)) return null;
+
+  const { data, error } = await supabase.from("profiles").select("id, nickname").eq("id", userId).maybeSingle();
+
+  if (error) {
+    console.error("getProfileForAdmin failed", error);
+    throw new AdminError("Could not load this player");
   }
 
   return data;

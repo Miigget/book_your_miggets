@@ -321,6 +321,29 @@ export async function getArchivedRunForParticipant(
   return mapArchivedRunRow(data, 0, now);
 }
 
+/**
+ * Archived `/runs/{id}` by id with no confirmed-seat check.
+ * Callers MUST already have verified `locals.profile.role === "admin"`.
+ * Organizer RLS (`runs_select_own_organizer`) would otherwise leak S-08.
+ */
+export async function getArchivedRunForAdmin(
+  supabase: AppSupabaseClient,
+  runId: string,
+): Promise<ArchivedRunDetail | null> {
+  if (!isUuid(runId)) return null;
+
+  const now = Date.now();
+  const { data, error } = await supabase.from("runs").select(RUN_SELECT).eq("id", runId).maybeSingle();
+
+  if (error) {
+    throw new Error(`Failed to load archived run: ${error.message}`);
+  }
+
+  if (!data) return null;
+
+  return mapArchivedRunRow(data, 0, now);
+}
+
 export type MapPickerItem = Pick<Tables<"maps">, "id" | "name" | "difficulty" | "points" | "stars">;
 
 export async function listMapsForPicker(supabase: AppSupabaseClient): Promise<MapPickerItem[]> {

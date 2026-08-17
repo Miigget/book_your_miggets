@@ -1,5 +1,6 @@
 ---
 import Layout from "@/layouts/Layout.astro";
+import Banner from "@/components/Banner.astro";
 import Topbar from "@/components/Topbar.astro";
 import AdminRunControls from "@/components/runs/AdminRunControls";
 import RunParticipantActions from "@/components/runs/RunParticipantActions";
@@ -17,6 +18,7 @@ import {
 import {
   formatJoinMode,
   getActiveRunById,
+  getArchivedRunForAdmin,
   getArchivedRunForParticipant,
   getOwnNickname,
   type ArchivedRunDetail,
@@ -26,10 +28,12 @@ import {
 const { id } = Astro.params;
 const supabase = createClient(Astro.request.headers, Astro.cookies);
 const { user } = Astro.locals;
+const isAdmin = Astro.locals.profile?.role === "admin";
 const serverError = Astro.url.searchParams.get("error");
 
 let run: RunDetail | ArchivedRunDetail | null = null;
 let pageError: "missing" | "config" | "load" | null = null;
+let archivedSource: "participant" | "admin" | null = null;
 let confirmed: ConfirmedParticipant[] = [];
 let pending: PendingParticipant[] = [];
 let denied: PendingParticipant[] = [];
@@ -45,6 +49,11 @@ if (!id) {
     run = await getActiveRunById(supabase, id);
     if (!run && user) {
       run = await getArchivedRunForParticipant(supabase, id, user.id);
+      if (run) archivedSource = "participant";
+    }
+    if (!run && isAdmin) {
+      run = await getArchivedRunForAdmin(supabase, id);
+      if (run) archivedSource = "admin";
     }
     if (!run) {
       pageError = "missing";
@@ -79,10 +88,11 @@ if (pageError === "missing") {
 const pageTitle = run ? `${run.displayTitle} — Book Your Miggets` : "Run — Book Your Miggets";
 const isArchived = run?.lifecyclePhase === "archived";
 const isBanned = Boolean(Astro.locals.profile?.isBanned);
-const isAdmin = Astro.locals.profile?.role === "admin";
 const isOrganizer = Boolean(user?.id && user.id === run?.organizerId);
 const organizerSeated = isOrganizer && confirmed.some((p) => p.userId === user?.id);
 const confirmedCount = confirmed.length;
+const archivedBackHref = archivedSource === "admin" ? "/admin" : "/runs/history";
+const archivedBackLabel = archivedSource === "admin" ? "← Admin" : "← Past runs";
 
 function formatReleasedOn(value: string | null): string {
   if (!value) return "Unknown";
@@ -106,10 +116,10 @@ function formatReleasedOn(value: string | null): string {
 
       <p class="mb-6">
         <a
-          href={isArchived ? "/runs/history" : "/runs"}
+          href={isArchived ? archivedBackHref : "/runs"}
           class="text-sm text-purple-300 transition-colors hover:text-purple-100 hover:underline"
         >
-          {isArchived ? "← Past runs" : "← Active runs"}
+          {isArchived ? archivedBackLabel : "← Active runs"}
         </a>
       </p>
 
@@ -254,6 +264,11 @@ function formatReleasedOn(value: string | null): string {
 
               {isAdmin && (
                 <section class="mb-8 rounded-xl border border-red-400/20 bg-red-500/5 px-5 py-5 backdrop-blur-xl">
+                  {isArchived && serverError && (
+                    <div class="mb-4 overflow-hidden rounded-lg">
+                      <Banner variant="error">{serverError}</Banner>
+                    </div>
+                  )}
                   <AdminRunControls client:load runId={run.id} />
                 </section>
               )}
