@@ -3,6 +3,7 @@ import Layout from "@/layouts/Layout.astro";
 import Banner from "@/components/Banner.astro";
 import Topbar from "@/components/Topbar.astro";
 import { formatStart } from "@/lib/format-date";
+import { parseRunListFilters } from "@/lib/run-list-filters";
 import { createClient } from "@/lib/supabase";
 import { formatJoinMode, listActiveRuns } from "@/lib/services/runs";
 
@@ -10,6 +11,7 @@ const supabase = createClient(Astro.request.headers, Astro.cookies);
 const { user } = Astro.locals;
 const notice = Astro.url.searchParams.get("notice");
 const serverError = Astro.url.searchParams.get("error");
+const filters = parseRunListFilters(Astro.url.searchParams);
 
 let runs: Awaited<ReturnType<typeof listActiveRuns>> = [];
 let loadError: string | null = null;
@@ -18,7 +20,7 @@ if (!supabase) {
   loadError = "Supabase is not configured.";
 } else {
   try {
-    runs = await listActiveRuns(supabase);
+    runs = await listActiveRuns(supabase, filters);
   } catch (err) {
     loadError = err instanceof Error ? err.message : "Failed to load runs.";
   }

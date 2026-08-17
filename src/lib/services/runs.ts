@@ -1,5 +1,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { activeWindowStartsAfter, getRunLifecyclePhase, type ActiveRunLifecyclePhase } from "@/lib/run-lifecycle";
+import { utcDayRange, type RunListFilters } from "@/lib/run-list-filters";
 import type { Database, Enums, Tables } from "@/types/database";
 
 export type AppSupabaseClient = SupabaseClient<Database>;
@@ -154,20 +155,40 @@ async function confirmedCountsForRuns(supabase: AppSupabaseClient, runIds: strin
   return counts;
 }
 
-export async function listActiveRuns(supabase: AppSupabaseClient): Promise<RunListItem[]> {
+export async function listActiveRuns(
+  supabase: AppSupabaseClient,
+  filters: RunListFilters = {},
+): Promise<RunListItem[]> {
   const now = Date.now();
-  const { data, error } = await supabase
+  let query = supabase
     .from("runs")
     .select(RUN_SELECT)
     .is("archived_at", null)
-    .gt("starts_at", activeWindowStartsAfter(now))
-    .order("starts_at", { ascending: true });
+    .gt("starts_at", activeWindowStartsAfter(now));
+
+  if (filters.date) {
+    const { startIso, endIso } = utcDayRange(filters.date);
+    query = query.gte("starts_at", startIso).lt("starts_at", endIso);
+  }
+  if (filters.minPoints !== undefined) {
+    query = query.lte("min_points", filters.minPoints);
+  }
+  if (filters.joinMode) {
+    query = query.eq("join_mode", filters.joinMode);
+  }
+
+  const { data, error } = await query.order("starts_at", { ascending: true });
 
   if (error) {
     throw new Error(`Failed to list active runs: ${error.message}`);
   }
 
-  const rows = data as unknown as RunRow[];
+  let rows = data as unknown as RunRow[];
+  if (filters.mapQuery) {
+    const needle = filters.mapQuery.toLowerCase();
+    rows = rows.filter((row) => row.map?.name.toLowerCase().includes(needle));
+  }
+
   const counts = await confirmedCountsForRuns(
     supabase,
     rows.map((row) => row.id),
