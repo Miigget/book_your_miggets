@@ -3,7 +3,7 @@ change_id: participant-archive-history
 mode: YOLO
 started: 2026-08-17
 updated: 2026-08-17
-status: in-progress
+status: complete
 ---
 
 # Crew decisions — participant-archive-history
@@ -20,12 +20,21 @@ Mode: **YOLO**. Crew Lead answered specialist questions; the human was asked onl
 | 2026-08-17T12:10 | 10x-plan | round-3: no filters/pagination; S-04-style RLS matrix; /runs cross-link |
 | 2026-08-17T12:15 | 10x-plan | phases → 3 (RLS → services → UI) |
 | 2026-08-17T12:20 | 10x-plan-review | SOUND; F1 isUuid on getActiveRunById → fix |
+| 2026-08-17T12:30 | 10x-implement p1 | Phase 1 committed addb515; manual 1.5–1.9 skipped (YOLO) |
+| 2026-08-17T12:40 | 10x-impl-review p1 | APPROVED |
+| 2026-08-17T12:50 | 10x-implement p2 | Phase 2 committed 5f71dc6; manual 2.5–2.8 skipped (YOLO) |
+| 2026-08-17T13:00 | 10x-impl-review p2 | APPROVED |
+| 2026-08-17T13:10 | 10x-implement p3 | Phase 3 committed 0c09984 + 349d2bb; manuals 3.6–3.12 skipped (YOLO) |
+| 2026-08-17T13:20 | 10x-impl-review p3 | APPROVED |
+| 2026-08-17T13:30 | 10x-impl-review | full-plan APPROVED; status impl_reviewed |
+| 2026-08-17T13:35 | 10x-archive | archive despite remaining manuals (YOLO) |
 
 ## Decisions the Crew Lead made (no human)
 
 ### Critical
 - **q-rls** — How confirmed participants read archived `runs` rows. Chose **A** (new SELECT policy: EXISTS confirmed row for `auth.uid()` AND archived predicate). Why: RLS is the F-01 authz boundary; DEFINER RPCs are for write races, not reads; omitting the time predicate would over-grant on active rows.
-- **phase-end-commits** — Ritual git commits after each implement phase and archive. Chose **COMMIT_OK**. Why: YOLO authorizes those ritual commits; never push.
+- **phase-end-commits** — Ritual git commits after each implement phase and archive. Chose **COMMIT_OK**. Why: YOLO authorizes those ritual commits; never push. SHAs: addb515, 5f71dc6, 0c09984, 349d2bb.
+- **archive-despite-manuals** — Archive with Manual Progress still unchecked. Chose **continue archiving**. Why: YOLO auto-archive when only manual Progress rows remain; PostgREST matrix and UI click-through were skipped by mode.
 
 ### Non-obvious
 - **skip-research** — Whether to hire `/10x-research` before plan. Chose **skip**. Why: YOLO default when the signal is weak; S-07 surface is the existing run/participant/RLS stack from S-02+S-04, and `/10x-plan` will map code itself.
@@ -50,7 +59,10 @@ Mode: **YOLO**. Crew Lead answered specialist questions; the human was asked onl
 
 ## Human-action gates
 
-- none yet
+- Phase 1 manual 1.5–1.9 (PostgREST RLS matrix: anon / pending-denied / confirmed / organizer-left / admin-without-seat): skipped (YOLO residual risk)
+- Phase 1.4 local `supabase db push` was applied by the implementer (mechanical, not UI)
+- Phase 2 manual 2.5–2.8 (list/detail service behavior in a live session): skipped (YOLO residual risk)
+- Phase 3 manual 3.6–3.12 (guest redirect, read-only detail, 404s, past-runs link, dashboard stub): skipped (YOLO residual risk)
 
 ## Stop / escape hatches
 
@@ -58,4 +70,4 @@ Mode: **YOLO**. Crew Lead answered specialist questions; the human was asked onl
 
 ## GitHub
 
-- change-sync: #8 events new, planned, plan_reviewed (link-roadmap S-07 → Backlog)
+- change-sync: #8 events new, planned, plan_reviewed, implementing, implemented (link-roadmap S-07 → In review); archived pending
