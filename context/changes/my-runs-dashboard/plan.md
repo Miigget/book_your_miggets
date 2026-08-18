@@ -252,11 +252,11 @@ One `runs` query filtered by `organizer_id`, then confirmed counts on remaining 
 
 #### Automated
 
-- [x] 1.1 `listRunsForOrganizer` exists and filters by `organizer_id` (not confirmed membership)
-- [x] 1.2 Pending counts are queried only for active `approval_required` runs
-- [x] 1.3 `listArchivedRunsForParticipant` / `getArchivedRunForParticipant` are unchanged
-- [x] 1.4 `npm run lint` passes
-- [x] 1.5 `npm run build` passes
+- [x] 1.1 `listRunsForOrganizer` exists and filters by `organizer_id` (not confirmed membership) — 38a3ac9
+- [x] 1.2 Pending counts are queried only for active `approval_required` runs — 38a3ac9
+- [x] 1.3 `listArchivedRunsForParticipant` / `getArchivedRunForParticipant` are unchanged — 38a3ac9
+- [x] 1.4 `npm run lint` passes — 38a3ac9
+- [x] 1.5 `npm run build` passes — 38a3ac9
 
 #### Manual
 
@@ -267,10 +267,10 @@ One `runs` query filtered by `organizer_id`, then confirmed counts on remaining 
 
 #### Automated
 
-- [ ] 2.1 `dashboard.astro` calls `listRunsForOrganizer` and no longer renders only the welcome/sign-out stub
-- [ ] 2.2 Topbar still links `/dashboard`; middleware still lists `/dashboard`
-- [ ] 2.3 `npm run lint` passes
-- [ ] 2.4 `npm run build` passes
+- [x] 2.1 `dashboard.astro` calls `listRunsForOrganizer` and no longer renders only the welcome/sign-out stub
+- [x] 2.2 Topbar still links `/dashboard`; middleware still lists `/dashboard`
+- [x] 2.3 `npm run lint` passes
+- [x] 2.4 `npm run build` passes
 
 #### Manual
 
