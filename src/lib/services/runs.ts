@@ -43,6 +43,10 @@ export type ArchivedRunDetail = ArchivedRunListItem & {
   createdAt: string;
 };
 
+export type OrganizerRunListItem = RunListItem & {
+  pendingCount: number;
+};
+
 const RUN_SELECT = `
   id,
   title,
@@ -187,6 +191,33 @@ async function confirmedCountsForRuns(supabase: AppSupabaseClient, runIds: strin
   return counts;
 }
 
+async function pendingCountsForRuns(supabase: AppSupabaseClient, runIds: string[]): Promise<Map<string, number>> {
+  const counts = new Map<string, number>();
+  for (const id of runIds) {
+    counts.set(id, 0);
+  }
+
+  if (runIds.length === 0) return counts;
+
+  await Promise.all(
+    runIds.map(async (id) => {
+      const { count, error } = await supabase
+        .from("run_participants")
+        .select("id", { count: "exact", head: true })
+        .eq("run_id", id)
+        .eq("status", "pending");
+
+      if (error) {
+        throw new Error(`Failed to count pending participants: ${error.message}`);
+      }
+
+      counts.set(id, count ?? 0);
+    }),
+  );
+
+  return counts;
+}
+
 export async function listActiveRuns(
   supabase: AppSupabaseClient,
   filters: RunListFilters = {},
@@ -254,8 +285,64 @@ export async function getActiveRunById(supabase: AppSupabaseClient, id: string):
 }
 
 /**
+ * Personal organizer inventory by ownership (`organizer_id`), not participation.
+ * Leave-team does not hide created runs. Do not reuse `listArchivedRunsForParticipant`.
+ */
+export async function listRunsForOrganizer(
+  supabase: AppSupabaseClient,
+  userId: string,
+): Promise<{ active: OrganizerRunListItem[]; archived: ArchivedRunListItem[] }> {
+  const now = Date.now();
+  const { data, error } = await supabase.from("runs").select(RUN_SELECT).eq("organizer_id", userId);
+
+  if (error) {
+    throw new Error(`Failed to list organizer runs: ${error.message}`);
+  }
+
+  const rows = data as unknown as RunRow[];
+  if (rows.length === 0) {
+    return { active: [], archived: [] };
+  }
+
+  const activeRows = rows
+    .filter((row) => isRunActive(row.starts_at, row.archived_at, now))
+    .sort((a, b) => Date.parse(a.starts_at) - Date.parse(b.starts_at));
+  const archivedRows = rows
+    .filter((row) => !isRunActive(row.starts_at, row.archived_at, now))
+    .sort((a, b) => Date.parse(b.starts_at) - Date.parse(a.starts_at));
+
+  const pendingIds = activeRows.filter((row) => row.join_mode === "approval_required").map((row) => row.id);
+  const [activeCounts, archivedCounts, pendingCounts] = await Promise.all([
+    confirmedCountsForRuns(
+      supabase,
+      activeRows.map((row) => row.id),
+    ),
+    confirmedCountsForRuns(
+      supabase,
+      archivedRows.map((row) => row.id),
+    ),
+    pendingCountsForRuns(supabase, pendingIds),
+  ]);
+
+  const active = activeRows
+    .map((row) => {
+      const mapped = mapRunRow(row, activeCounts.get(row.id) ?? 0, now);
+      if (!mapped) return null;
+      return { ...mapped, pendingCount: pendingCounts.get(row.id) ?? 0 };
+    })
+    .filter((run): run is OrganizerRunListItem => run !== null);
+
+  const archived = archivedRows
+    .map((row) => mapArchivedRunRow(row, archivedCounts.get(row.id) ?? 0, now))
+    .filter((run): run is ArchivedRunDetail => run !== null);
+
+  return { active, archived };
+}
+
+/**
  * Personal archive index: confirmed participation ids first, then keep archived.
- * Never list every archived row organizer/admin RLS can SELECT (S-08 leak).
+ * Never list every archived row organizer/admin RLS can SELECT from `/runs/history`.
+ * Organizer inventory is `listRunsForOrganizer` (filter by `organizer_id`), not this helper.
  */
 export async function listArchivedRunsForParticipant(
   supabase: AppSupabaseClient,
@@ -298,6 +385,7 @@ export async function listArchivedRunsForParticipant(
 /**
  * Archived `/runs/{id}` only when the viewer still has a confirmed row and the run is archived.
  * Organizer/admin RLS success is not enough — return null without a current confirmed seat.
+ * Organizer inventory is `listRunsForOrganizer`; this helper stays membership-gated.
  */
 export async function getArchivedRunForParticipant(
   supabase: AppSupabaseClient,
@@ -322,9 +410,35 @@ export async function getArchivedRunForParticipant(
 }
 
 /**
+ * Archived `/runs/{id}` when the signed-in viewer is the organizer, even without a confirmed seat.
+ * Callers MUST pass the signed-in viewer. The `organizer_id === userId` check is mandatory:
+ * admin RLS would otherwise return other people's rows from a by-id fetch.
+ * Do not reuse participant membership. Do not call from `/runs/history`.
+ */
+export async function getArchivedRunForOrganizer(
+  supabase: AppSupabaseClient,
+  runId: string,
+  userId: string,
+): Promise<ArchivedRunDetail | null> {
+  if (!isUuid(runId)) return null;
+
+  const now = Date.now();
+  const { data, error } = await supabase.from("runs").select(RUN_SELECT).eq("id", runId).maybeSingle();
+
+  if (error) {
+    throw new Error(`Failed to load archived run: ${error.message}`);
+  }
+
+  if (!data) return null;
+  if (data.organizer_id !== userId) return null;
+
+  return mapArchivedRunRow(data, 0, now);
+}
+
+/**
  * Archived `/runs/{id}` by id with no confirmed-seat check.
  * Callers MUST already have verified `locals.profile.role === "admin"`.
- * Organizer RLS (`runs_select_own_organizer`) would otherwise leak S-08.
+ * Organizer inventory is `listRunsForOrganizer` (by `organizer_id`); this by-id loader is not that surface.
  */
 export async function getArchivedRunForAdmin(
   supabase: AppSupabaseClient,

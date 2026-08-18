@@ -19,6 +19,7 @@ import {
   formatJoinMode,
   getActiveRunById,
   getArchivedRunForAdmin,
+  getArchivedRunForOrganizer,
   getArchivedRunForParticipant,
   getOwnNickname,
   type ArchivedRunDetail,
@@ -33,7 +34,7 @@ const serverError = Astro.url.searchParams.get("error");
 
 let run: RunDetail | ArchivedRunDetail | null = null;
 let pageError: "missing" | "config" | "load" | null = null;
-let archivedSource: "participant" | "admin" | null = null;
+let archivedSource: "participant" | "organizer" | "admin" | null = null;
 let confirmed: ConfirmedParticipant[] = [];
 let pending: PendingParticipant[] = [];
 let denied: PendingParticipant[] = [];
@@ -50,6 +51,10 @@ if (!id) {
     if (!run && user) {
       run = await getArchivedRunForParticipant(supabase, id, user.id);
       if (run) archivedSource = "participant";
+    }
+    if (!run && user) {
+      run = await getArchivedRunForOrganizer(supabase, id, user.id);
+      if (run) archivedSource = "organizer";
     }
     if (!run && isAdmin) {
       run = await getArchivedRunForAdmin(supabase, id);
@@ -91,8 +96,10 @@ const isBanned = Boolean(Astro.locals.profile?.isBanned);
 const isOrganizer = Boolean(user?.id && user.id === run?.organizerId);
 const organizerSeated = isOrganizer && confirmed.some((p) => p.userId === user?.id);
 const confirmedCount = confirmed.length;
-const archivedBackHref = archivedSource === "admin" ? "/admin" : "/runs/history";
-const archivedBackLabel = archivedSource === "admin" ? "← Admin" : "← Past runs";
+const archivedBackHref =
+  archivedSource === "organizer" ? "/dashboard" : archivedSource === "admin" ? "/admin" : "/runs/history";
+const archivedBackLabel =
+  archivedSource === "organizer" ? "← Dashboard" : archivedSource === "admin" ? "← Admin" : "← Past runs";
 
 function formatReleasedOn(value: string | null): string {
   if (!value) return "Unknown";
