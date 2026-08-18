@@ -410,6 +410,32 @@ export async function getArchivedRunForParticipant(
 }
 
 /**
+ * Archived `/runs/{id}` when the signed-in viewer is the organizer, even without a confirmed seat.
+ * Callers MUST pass the signed-in viewer. The `organizer_id === userId` check is mandatory:
+ * admin RLS would otherwise return other people's rows from a by-id fetch.
+ * Do not reuse participant membership. Do not call from `/runs/history`.
+ */
+export async function getArchivedRunForOrganizer(
+  supabase: AppSupabaseClient,
+  runId: string,
+  userId: string,
+): Promise<ArchivedRunDetail | null> {
+  if (!isUuid(runId)) return null;
+
+  const now = Date.now();
+  const { data, error } = await supabase.from("runs").select(RUN_SELECT).eq("id", runId).maybeSingle();
+
+  if (error) {
+    throw new Error(`Failed to load archived run: ${error.message}`);
+  }
+
+  if (!data) return null;
+  if (data.organizer_id !== userId) return null;
+
+  return mapArchivedRunRow(data, 0, now);
+}
+
+/**
  * Archived `/runs/{id}` by id with no confirmed-seat check.
  * Callers MUST already have verified `locals.profile.role === "admin"`.
  * Organizer inventory is `listRunsForOrganizer` (by `organizer_id`); this by-id loader is not that surface.
