@@ -3,7 +3,7 @@ project: "Book Your Miggets"
 version: 1
 status: draft
 created: 2026-07-27
-updated: 2026-08-17
+updated: 2026-08-18
 prd_version: 1
 main_goal: market-feedback
 top_blocker: capacity
@@ -37,7 +37,7 @@ The King of Gores (KoG) community in TeeWorlds has no tool for organizing shared
 | S-05 | auto-join-mode | join an auto-join run and be confirmed instantly if capacity allows | S-02 | FR-014, US-02 | done |
 | S-06 | admin-moderation-tools | (admin) delete runs, ban users, mark users verified | S-01, F-01 | FR-010, FR-011, FR-012 | done |
 | S-07 | participant-archive-history | (confirmed participant) revisit archived runs they took part in | S-02, S-04 | FR-015, US-01 | done |
-| S-08 | my-runs-dashboard | (organizer) view all runs they created in one place | S-01 | FR-005 | proposed |
+| S-08 | my-runs-dashboard | (organizer) view all runs they created in one place | S-01 | FR-005 | done |
 | S-09 | admin-player-archive-view | (admin) view any player's archived run history from their profile | S-04, S-06 | FR-016 | done |
 
 ## Streams
@@ -176,7 +176,7 @@ Foundations below assume these are present and do NOT re-scaffold them.
 - **Blockers:** —
 - **Unknowns:** —
 - **Risk:** nice-to-have (the only one) — first candidate to cut if the 3-week budget tightens; nothing depends on it.
-- **Status:** proposed
+- **Status:** done
 
 ### S-09: Admin view of a player's archive
 
@@ -240,3 +240,4 @@ Foundations below assume these are present and do NOT re-scaffold them.
 - **S-03: user can search and filter the active-runs list by map, date, or requirements.** — Archived 2026-08-17 → `context/archive/2026-08-17-search-filter-runs/`. Lesson: —.
 - **S-07: confirmed participant can view the archived runs they took part in.** — Archived 2026-08-17 → `context/archive/2026-08-17-participant-archive-history/`. Lesson: —.
 - **S-09: admin can open a player's profile and view that player's full archived run history.** — Archived 2026-08-17 → `context/archive/2026-08-17-admin-player-archive-view/`. Lesson: —.
+- **S-08: organizer can view and manage all runs they created in one place.** — Archived 2026-08-18 → `context/archive/2026-08-18-my-runs-dashboard/`. Lesson: —.
