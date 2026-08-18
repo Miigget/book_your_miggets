@@ -288,11 +288,11 @@ One `runs` query filtered by `organizer_id`, then confirmed counts on remaining 
 
 #### Automated
 
-- [x] 3.1 `getArchivedRunForOrganizer` exists and returns null when `organizer_id` does not match
-- [x] 3.2 `[id].astro` calls it only when `user` is set, after the participant loader, before the admin loader
-- [x] 3.3 `getArchivedRunForParticipant` still returns null without a confirmed seat
-- [x] 3.4 `npm run lint` passes
-- [x] 3.5 `npm run build` passes
+- [x] 3.1 `getArchivedRunForOrganizer` exists and returns null when `organizer_id` does not match — 113597c
+- [x] 3.2 `[id].astro` calls it only when `user` is set, after the participant loader, before the admin loader — 113597c
+- [x] 3.3 `getArchivedRunForParticipant` still returns null without a confirmed seat — 113597c
+- [x] 3.4 `npm run lint` passes — 113597c
+- [x] 3.5 `npm run build` passes — 113597c
 
 #### Manual
 

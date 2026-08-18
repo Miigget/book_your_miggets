@@ -1,7 +1,7 @@
 ---
 change_id: my-runs-dashboard
 title: Organizer dashboard to view and manage created runs
-status: implementing
+status: implemented
 created: 2026-08-18
 updated: 2026-08-18
 archived_at: null
