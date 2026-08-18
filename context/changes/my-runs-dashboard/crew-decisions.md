@@ -3,7 +3,7 @@ change_id: my-runs-dashboard
 mode: YOLO
 started: 2026-08-18
 updated: 2026-08-18
-status: in-progress
+status: complete
 ---
 
 # Crew decisions — my-runs-dashboard
@@ -22,6 +22,16 @@ Mode: **YOLO**. Crew Lead answered specialist questions; the human was asked onl
 | 2026-08-18 | gh-change-sync | #9 planned → Backlog |
 | 2026-08-18 | 10x-plan-review | SOUND; F1 LOW: leave-team-then-archive test recipe |
 | 2026-08-18 | gh-change-sync | #9 plan_reviewed → Backlog |
+| 2026-08-18 | 10x-implement p1 | listRunsForOrganizer; commit 38a3ac9 on feature/my-runs-dashboard |
+| 2026-08-18 | gh-change-sync | #9 implementing → In progress |
+| 2026-08-18 | 10x-impl-review p1 | APPROVED (0 findings) |
+| 2026-08-18 | 10x-implement p2 | dashboard UI; commit d00e53b |
+| 2026-08-18 | 10x-impl-review p2 | APPROVED (0 findings) |
+| 2026-08-18 | 10x-implement p3 | getArchivedRunForOrganizer; commits 113597c + 2b21e40; status implemented |
+| 2026-08-18 | gh-change-sync | implemented FAILED (GraphQL rate limit; retry around archive) |
+| 2026-08-18 | 10x-impl-review p3 | APPROVED (0 findings; organizer_id === viewer) |
+| 2026-08-18 | 10x-impl-review full | APPROVED (0 findings); status impl_reviewed |
+| 2026-08-18 | 10x-archive | pending (YOLO continue despite manual Progress rows) |
 
 ## Decisions the Crew Lead made (no human)
 
@@ -29,6 +39,11 @@ Mode: **YOLO**. Crew Lead answered specialist questions; the human was asked onl
 - **q-manage** — What “manage” means for this slice. Chose **A (view + deep-link to `/runs/{id}`)**. Why: FR-005 is view-only; accept/deny already live on detail; inbox/edit/cancel would blow a nice-to-have slice.
 - **q-inventory** — Which created runs belong on the dashboard. Chose **C (two sections: Active I created, then Past I created)**. Why: FR-005 says all created runs; two sorts (soonest-first active, newest-first past) match S-01/S-07 without mixing lifecycles.
 - **q-archived-detail** — Can an organizer open archived runs they created but left. Chose **A (organizer archived-detail loader)**. Why: listing past created runs with 404 cards is worse than a page-gate like S-09; owner SELECT already exists in RLS.
+- **commit-p1** — Phase-end ritual commit. Chose **COMMIT_OK**. Why: YOLO auto-approves phase-end commits; no push.
+- **commit-p2** — Phase-end ritual commit. Chose **COMMIT_OK**. Why: YOLO auto-approves phase-end commits; no push.
+- **commit-p3** — Phase-end ritual commit. Chose **COMMIT_OK**. Why: YOLO auto-approves phase-end commits; no push.
+- **archive-anyway** — Archive despite pending Progress. Chose **Continue archiving**. Why: YOLO auto-archives when only manual rows remain; automated 1.1–1.5 / 2.1–2.4 / 3.1–3.5 are done.
+- **commit-archive** — Archive ritual commit. Chose **COMMIT_OK**. Why: YOLO auto-approves archive commits; no push.
 
 ### Non-obvious
 - **skip-research** — Whether to hire `/10x-research` before plan. Chose **skip**. Why: YOLO/critical skip research when the signal is weak; this is a known dashboard slice off existing run list/dashboard patterns (S-01, S-07), not an unknown surface.
@@ -48,7 +63,9 @@ Mode: **YOLO**. Crew Lead answered specialist questions; the human was asked onl
 
 ## Human-action gates
 
-- none yet
+- Phase 1.6 / 1.7: skipped (YOLO residual risk) — leave-team + pending-count behavior not exercised in a running app
+- Phase 2.5–2.13: skipped (YOLO residual risk) — guest redirect, empty/mixed UX, pending vs auto-join, deep-link, unseated 404, history leak, banned GET
+- Phase 3.6–3.11: skipped (YOLO residual risk) — 404 matrix (unseated/seated organizer, guest, unrelated, admin) and leave-then-archive recipe not session-tested
 
 ## Stop / escape hatches
 
@@ -56,4 +73,4 @@ Mode: **YOLO**. Crew Lead answered specialist questions; the human was asked onl
 
 ## GitHub
 
-- change-sync: #9 events new → Backlog (link-roadmap S-08)
+- change-sync: #9 (roadmap S-08 1:1). Events: new → Backlog; planned → Backlog; plan_reviewed → Backlog; implementing → In progress. `implemented` hit GraphQL rate limit (retry with archive).
