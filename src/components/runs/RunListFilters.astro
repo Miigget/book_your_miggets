@@ -1,6 +1,6 @@
 ---
 import { cn } from "@/lib/utils";
-import type { RunListFilters } from "@/lib/run-list-filters";
+import { hasExtraFilters, type RunListFilters } from "@/lib/run-list-filters";
 import { formatJoinMode, JOIN_MODES } from "@/lib/services/runs";
 
 interface Props {
@@ -9,6 +9,7 @@ interface Props {
 }
 
 const { filters, filtersActive } = Astro.props;
+const extraFiltersActive = hasExtraFilters(filters);
 
 const fieldClass =
   "w-full rounded-lg border border-white/20 bg-white/10 px-3 py-2 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-purple-400";
@@ -25,7 +26,9 @@ const labelClass = "mb-1 block text-sm text-blue-100/80";
   aria-label="Filter runs"
   class="mb-8 rounded-xl border border-white/10 bg-white/5 p-4 backdrop-blur-xl sm:p-5"
 >
-  <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
+  <button type="submit" class="sr-only" tabindex="-1" aria-hidden="true">Filter</button>
+
+  <div class="grid grid-cols-[minmax(0,1fr)_auto] items-end gap-x-3">
     <div>
       <label for="filter-search" class:list={[labelClass]}>Search</label>
       <input
@@ -38,62 +41,116 @@ const labelClass = "mb-1 block text-sm text-blue-100/80";
       />
     </div>
 
-    <div>
-      <label for="filter-date" class:list={[labelClass]}>Date</label>
-      <input
-        id="filter-date"
-        type="date"
-        name="date"
-        value={filters.date ?? ""}
-        class:list={[cn(fieldClass, "[color-scheme:dark]")]}
-      />
-    </div>
-
-    <div>
-      <label for="filter-min-points" class:list={[labelClass]}>My points</label>
-      <input
-        id="filter-min-points"
-        type="number"
-        name="min_points"
-        min="0"
-        step="1"
-        value={filters.minPoints !== undefined ? String(filters.minPoints) : undefined}
-        class:list={[cn(fieldClass, "[color-scheme:dark]")]}
-      />
-      <p class="mt-1 text-xs text-blue-100/40">Shows runs whose minimum is at most this number.</p>
-    </div>
-
-    <div>
-      <label for="filter-join" class:list={[labelClass]}>Join mode</label>
-      <select id="filter-join" name="join" class:list={[selectClass]}>
-        <option value="" selected={!filters.joinMode} class="bg-slate-900">Any join mode</option>
-        {
-          JOIN_MODES.map((mode) => (
-            <option value={mode} selected={filters.joinMode === mode} class="bg-slate-900">
-              {formatJoinMode(mode)}
-            </option>
-          ))
-        }
-      </select>
-    </div>
-  </div>
-
-  <div class="mt-4 flex flex-wrap items-center gap-3">
     <button
-      type="submit"
-      class="inline-flex items-center justify-center rounded-lg bg-purple-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-purple-500"
+      type="button"
+      id="run-list-filters-toggle"
+      class="group inline-flex items-center justify-center rounded-lg border border-white/20 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-white/10"
+      aria-expanded={extraFiltersActive ? "true" : "false"}
+      aria-controls="run-list-filters-extra"
+      data-open={extraFiltersActive ? "true" : "false"}
     >
-      Filter
+      Filters
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="16"
+        height="16"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        class="ml-1.5 size-4 shrink-0 transition-transform group-data-[open=true]:rotate-180"
+        aria-hidden="true"
+      >
+        <path d="m6 9 6 6 6-6"></path>
+      </svg>
     </button>
-    {
-      filtersActive && (
-        <a
-          href="/runs"
-          class="inline-flex items-center justify-center rounded-lg border border-white/20 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-white/10"
-        >
-          Clear
-        </a>
-      )
-    }
+
+    <div
+      id="run-list-filters-extra"
+      class="col-span-full grid grid-rows-[0fr] data-[open=true]:grid-rows-[1fr]"
+      data-open={extraFiltersActive ? "true" : "false"}
+      inert={!extraFiltersActive ? true : undefined}
+    >
+      <div class="min-h-0 overflow-hidden">
+        <div class="grid grid-cols-1 gap-3 pt-3 sm:grid-cols-2">
+          <div>
+            <label for="filter-date" class:list={[labelClass]}>Date</label>
+            <input
+              id="filter-date"
+              type="date"
+              name="date"
+              value={filters.date ?? ""}
+              class:list={[cn(fieldClass, "[color-scheme:dark]")]}
+            />
+          </div>
+
+          <div>
+            <label for="filter-min-points" class:list={[labelClass]}>My points</label>
+            <input
+              id="filter-min-points"
+              type="number"
+              name="min_points"
+              min="0"
+              step="1"
+              value={filters.minPoints !== undefined ? String(filters.minPoints) : undefined}
+              class:list={[cn(fieldClass, "[color-scheme:dark]")]}
+            />
+            <p class="mt-1 text-xs text-blue-100/40">Shows runs whose minimum is at most this number.</p>
+          </div>
+
+          <div>
+            <label for="filter-join" class:list={[labelClass]}>Join mode</label>
+            <select id="filter-join" name="join" class:list={[selectClass]}>
+              <option value="" selected={!filters.joinMode} class="bg-slate-900">Any join mode</option>
+              {
+                JOIN_MODES.map((mode) => (
+                  <option value={mode} selected={filters.joinMode === mode} class="bg-slate-900">
+                    {formatJoinMode(mode)}
+                  </option>
+                ))
+              }
+            </select>
+          </div>
+        </div>
+
+        <div class="mt-4 flex flex-wrap items-center gap-3">
+          <button
+            type="submit"
+            class="inline-flex items-center justify-center rounded-lg bg-purple-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-purple-500"
+          >
+            Filter
+          </button>
+          {
+            filtersActive && (
+              <a
+                href="/runs"
+                class="inline-flex items-center justify-center rounded-lg border border-white/20 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-white/10"
+              >
+                Clear
+              </a>
+            )
+          }
+        </div>
+      </div>
+    </div>
   </div>
 </form>
+
+<script>
+  const toggle = document.getElementById("run-list-filters-toggle");
+  const extra = document.getElementById("run-list-filters-extra");
+  if (toggle instanceof HTMLButtonElement && extra instanceof HTMLElement) {
+    const setOpen = (open: boolean) => {
+      toggle.setAttribute("aria-expanded", String(open));
+      toggle.dataset.open = String(open);
+      extra.dataset.open = String(open);
+      extra.inert = !open;
+    };
+
+    toggle.addEventListener("click", () => {
+      setOpen(toggle.getAttribute("aria-expanded") !== "true");
+    });
+  }
+</script>

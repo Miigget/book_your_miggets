@@ -53,8 +53,13 @@ export function utcDayRange(date: string): { startIso: string; endIso: string } 
   return { startIso: start.toISOString(), endIso: end.toISOString() };
 }
 
+/** Date / points / join mode — not search. Used to expand the filter card. */
+export function hasExtraFilters(filters: RunListFilters): boolean {
+  return filters.date != null || filters.minPoints != null || filters.joinMode != null;
+}
+
 export function hasActiveFilters(filters: RunListFilters): boolean {
-  return filters.mapQuery != null || filters.date != null || filters.minPoints != null || filters.joinMode != null;
+  return filters.mapQuery != null || hasExtraFilters(filters);
 }
 
 export function parseRunListFilters(searchParams: URLSearchParams): RunListFilters {
