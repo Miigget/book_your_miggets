@@ -1,0 +1,57 @@
+---
+const year = new Date().getFullYear();
+---
+
+<footer class="relative z-10 mt-auto border-t border-white/10 bg-black/20">
+  <div class="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+    <div class="grid grid-cols-1 gap-8 md:grid-cols-3">
+      <div>
+        <a href="/" class="mb-3 inline-flex items-center gap-2">
+          <span class="text-lg font-extrabold tracking-tight">
+            <span class="bg-gradient-to-r from-blue-200 to-purple-200 bg-clip-text text-transparent"
+              >BookYourMiggets</span
+            >
+          </span>
+        </a>
+        <p class="text-sm text-blue-100/60">Find teammates for your KoG runs. Stop failing solo, fail together!</p>
+      </div>
+      <div>
+        <h3 class="mb-3 text-sm font-bold tracking-wider text-blue-100/50 uppercase">Quick Links</h3>
+        <ul class="space-y-2">
+          <li>
+            <a href="/runs" class="text-sm text-blue-100/60 transition-colors hover:text-purple-200">Browse Runs</a>
+          </li>
+          <li>
+            <a href="/runs/new" class="text-sm text-blue-100/60 transition-colors hover:text-purple-200">Create a Run</a
+            >
+          </li>
+          <li>
+            <a
+              href="https://kog.tw"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="text-sm text-blue-100/60 transition-colors hover:text-purple-200">KoG Website</a
+            >
+          </li>
+          <li>
+            <a
+              href="https://teeworlds.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="text-sm text-blue-100/60 transition-colors hover:text-purple-200">Teeworlds</a
+            >
+          </li>
+        </ul>
+      </div>
+      <div>
+        <h3 class="mb-3 text-sm font-bold tracking-wider text-blue-100/50 uppercase">Community</h3>
+        <p class="text-sm text-blue-100/60">
+          Not affiliated with KoG. Just a community tool for the miggets out there.
+        </p>
+      </div>
+    </div>
+    <div class="mt-8 flex flex-col items-center justify-between gap-3 border-t border-white/10 pt-6 sm:flex-row">
+      <p class="text-xs text-blue-100/50">© {year} BookYourMiggets. All rights reserved.</p>
+    </div>
+  </div>
+</footer>

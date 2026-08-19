@@ -4,52 +4,53 @@ const isAdmin = Astro.locals.profile?.role === "admin";
 ---
 
 <div
-  class="mb-4 flex items-center justify-between rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-sm text-white/80"
+  class="mb-4 flex flex-wrap items-center justify-between gap-x-4 gap-y-2 rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-sm text-white/80"
 >
+  <a
+    href="/"
+    class="shrink-0 bg-gradient-to-r from-blue-200 to-purple-200 bg-clip-text text-base font-semibold tracking-tight text-transparent transition-opacity hover:opacity-80"
+  >
+    BookYourMiggets
+  </a>
   {
     user ? (
-      <>
-        <span class="text-blue-100/70">{user.email}</span>
-        <div class="flex items-center gap-3">
-          <a href="/runs" class="text-purple-300 transition-colors hover:text-purple-100 hover:underline">
-            Runs
+      <div class="flex min-w-0 flex-wrap items-center justify-end gap-3">
+        <span class="truncate text-blue-100/70">{user.email}</span>
+        <a href="/runs" class="text-purple-300 transition-colors hover:text-purple-100 hover:underline">
+          Runs
+        </a>
+        <a href="/runs/history" class="text-purple-300 transition-colors hover:text-purple-100 hover:underline">
+          History
+        </a>
+        <a href="/runs/new" class="text-purple-300 transition-colors hover:text-purple-100 hover:underline">
+          New run
+        </a>
+        <a href="/dashboard" class="text-purple-300 transition-colors hover:text-purple-100 hover:underline">
+          Dashboard
+        </a>
+        {isAdmin && (
+          <a href="/admin" class="text-purple-300 transition-colors hover:text-purple-100 hover:underline">
+            Admin
           </a>
-          <a href="/runs/history" class="text-purple-300 transition-colors hover:text-purple-100 hover:underline">
-            History
-          </a>
-          <a href="/runs/new" class="text-purple-300 transition-colors hover:text-purple-100 hover:underline">
-            New run
-          </a>
-          <a href="/dashboard" class="text-purple-300 transition-colors hover:text-purple-100 hover:underline">
-            Dashboard
-          </a>
-          {isAdmin && (
-            <a href="/admin" class="text-purple-300 transition-colors hover:text-purple-100 hover:underline">
-              Admin
-            </a>
-          )}
-          <form method="POST" action="/api/auth/signout">
-            <button type="submit" class="text-purple-300 transition-colors hover:text-purple-100 hover:underline">
-              Sign out
-            </button>
-          </form>
-        </div>
-      </>
+        )}
+        <form method="POST" action="/api/auth/signout">
+          <button type="submit" class="text-purple-300 transition-colors hover:text-purple-100 hover:underline">
+            Sign out
+          </button>
+        </form>
+      </div>
     ) : (
-      <>
-        <span class="text-blue-100/70">Not signed in</span>
-        <div class="flex gap-3">
-          <a href="/runs" class="text-purple-300 transition-colors hover:text-purple-100 hover:underline">
-            Runs
-          </a>
-          <a href="/auth/signin" class="text-purple-300 transition-colors hover:text-purple-100 hover:underline">
-            Sign in
-          </a>
-          <a href="/auth/signup" class="text-purple-300 transition-colors hover:text-purple-100 hover:underline">
-            Sign up
-          </a>
-        </div>
-      </>
+      <div class="flex flex-wrap items-center justify-end gap-3">
+        <a href="/runs" class="text-purple-300 transition-colors hover:text-purple-100 hover:underline">
+          Runs
+        </a>
+        <a href="/auth/signin" class="text-purple-300 transition-colors hover:text-purple-100 hover:underline">
+          Sign in
+        </a>
+        <a href="/auth/signup" class="text-purple-300 transition-colors hover:text-purple-100 hover:underline">
+          Sign up
+        </a>
+      </div>
     )
   }
 </div>
