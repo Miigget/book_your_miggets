@@ -1,0 +1,91 @@
+---
+import Layout from "@/layouts/Layout.astro";
+import Banner from "@/components/Banner.astro";
+import PageChrome from "@/components/PageChrome.astro";
+import OwnProfileForm from "@/components/profile/OwnProfileForm";
+import { createClient } from "@/lib/supabase";
+import { getOwnProfile, getPendingNicknameRequest } from "@/lib/services/profile";
+import { ensureOwnProfile } from "@/lib/services/runs";
+
+const supabase = createClient(Astro.request.headers, Astro.cookies);
+const { user } = Astro.locals;
+const notice = Astro.url.searchParams.get("notice");
+const serverError = Astro.url.searchParams.get("error");
+
+let nickname: string | null = null;
+let isVerified = false;
+let kogPoints: number | null = null;
+let kogPointsVerified = false;
+let pendingRequestedNickname: string | null = null;
+let loadError: string | null = null;
+
+if (!supabase) {
+  loadError = "Supabase is not configured.";
+} else if (!user) {
+  loadError = "Authentication required.";
+} else {
+  try {
+    await ensureOwnProfile(supabase);
+    const [own, pending] = await Promise.all([
+      getOwnProfile(supabase, user.id),
+      getPendingNicknameRequest(supabase, user.id),
+    ]);
+    nickname = own.nickname;
+    isVerified = own.isVerified;
+    kogPoints = own.kogPoints;
+    kogPointsVerified = own.kogPointsVerified;
+    pendingRequestedNickname = pending?.requestedNickname ?? null;
+  } catch (err) {
+    console.error("own profile page load failed", err);
+    loadError = "Could not prepare your profile";
+  }
+}
+
+const sessionEmail = user?.email ?? "";
+---
+
+<Layout title="Profile — Book Your Miggets">
+  <PageChrome contentClass="max-w-xl">
+    {
+      notice && (
+        <div class="mb-6 overflow-hidden rounded-lg">
+          <Banner variant="info">{notice}</Banner>
+        </div>
+      )
+    }
+    {
+      serverError && (
+        <div class="mb-6 overflow-hidden rounded-lg">
+          <Banner variant="error">{serverError}</Banner>
+        </div>
+      )
+    }
+
+    <header class="mb-8">
+      <h1
+        class="bg-gradient-to-r from-blue-200 to-purple-200 bg-clip-text text-3xl font-bold text-transparent sm:text-4xl"
+      >
+        Profile
+      </h1>
+      <p class="mt-2 text-sm text-blue-100/60">Manage your nickname, email, password, and KoG points.</p>
+    </header>
+
+    {
+      loadError ? (
+        <p class="rounded-lg border border-red-400/30 bg-red-500/10 px-4 py-3 text-sm text-red-100">{loadError}</p>
+      ) : (
+        <div class="rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur-xl">
+          <OwnProfileForm
+            client:load
+            email={sessionEmail}
+            nickname={nickname}
+            isVerified={isVerified}
+            kogPoints={kogPoints}
+            kogPointsVerified={kogPointsVerified}
+            pendingRequestedNickname={pendingRequestedNickname}
+          />
+        </div>
+      )
+    }
+  </PageChrome>
+</Layout>

@@ -326,28 +326,28 @@ Additive: new nullable `kog_points`, flag default false, new table. Existing nic
 
 #### Automated
 
-- [x] 1.1 Migration file exists under supabase/migrations/ with RLS on the new table and the view column list excluding email/role/ban
-- [x] 1.2 npx supabase db reset (or project-equivalent apply) succeeds locally
-- [x] 1.3 npm run db:types regenerates src/types/database.ts including kog_points, kog_points_verified, and nickname_change_requests
-- [x] 1.4 npm run lint passes
-- [x] 1.5 npm run build passes
+- [x] 1.1 Migration file exists under supabase/migrations/ with RLS on the new table and the view column list excluding email/role/ban — 8ba2189
+- [x] 1.2 npx supabase db reset (or project-equivalent apply) succeeds locally — 8ba2189
+- [x] 1.3 npm run db:types regenerates src/types/database.ts including kog_points, kog_points_verified, and nickname_change_requests — 8ba2189
+- [x] 1.4 npm run lint passes — 8ba2189
+- [x] 1.5 npm run build passes — 8ba2189
 
 #### Manual
 
-- [x] 1.6 SQL: unverified user can UPDATE own nickname; after is_verified = true, the same UPDATE leaves nickname unchanged
-- [x] 1.7 SQL: member UPDATE of kog_points sets kog_points_verified to false; member cannot set the flag true
-- [x] 1.8 SQL: second pending request for the same user fails the unique index unless the first is updated in place
-- [x] 1.9 anon SELECT on public_profiles returns the new columns; SELECT of profiles as anon still fails
+- [x] 1.6 SQL: unverified user can UPDATE own nickname; after is_verified = true, the same UPDATE leaves nickname unchanged — 8ba2189
+- [x] 1.7 SQL: member UPDATE of kog_points sets kog_points_verified to false; member cannot set the flag true — 8ba2189
+- [x] 1.8 SQL: second pending request for the same user fails the unique index unless the first is updated in place — 8ba2189
+- [x] 1.9 anon SELECT on public_profiles returns the new columns; SELECT of profiles as anon still fails — 8ba2189
 
 ### Phase 2: Own profile, mutations, top bar
 
 #### Automated
 
-- [ ] 2.1 src/pages/profile.astro exists; /profile is in PROTECTED_ROUTES
-- [ ] 2.2 Profile API routes exist (nickname-request, points, email, password)
-- [ ] 2.3 Topbar does not render user.email (grep)
-- [ ] 2.4 npm run lint passes
-- [ ] 2.5 npm run build passes
+- [x] 2.1 src/pages/profile.astro exists; /profile is in PROTECTED_ROUTES
+- [x] 2.2 Profile API routes exist (nickname-request, points, email, password)
+- [x] 2.3 Topbar does not render user.email (grep)
+- [x] 2.4 npm run lint passes
+- [x] 2.5 npm run build passes
 
 #### Manual
 

@@ -1,6 +1,10 @@
 # book_your_miggets
 Team Finder / Run Scheduler for gores
 
+## Profile
+
+Signed-in members open **Profile** in the top bar (`/profile`) to manage nickname, email, password, and self-reported KoG points. The top bar shows nickname (or “Set nickname”), never email. Email stays off public pages.
+
 ## Admin access
 
 There are no seeded admin credentials. To designate the first admin:

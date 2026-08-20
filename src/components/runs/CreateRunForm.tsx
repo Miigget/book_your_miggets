@@ -13,6 +13,7 @@ const selectClass =
 interface Props {
   maps: MapPickerItem[];
   nickname: string | null;
+  isVerified: boolean;
   serverError?: string | null;
 }
 
@@ -23,8 +24,9 @@ function defaultLocalStartsAt(): string {
   return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
 }
 
-export default function CreateRunForm({ maps, nickname: initialNickname, serverError }: Props) {
-  const needsNickname = !initialNickname;
+export default function CreateRunForm({ maps, nickname: initialNickname, isVerified, serverError }: Props) {
+  const needsNickname = !initialNickname && !isVerified;
+  const verifiedNeedsRequest = !initialNickname && isVerified;
   const [nickname, setNickname] = useState("");
   const [title, setTitle] = useState("");
   const [mapId, setMapId] = useState("");
@@ -48,7 +50,9 @@ export default function CreateRunForm({ maps, nickname: initialNickname, serverE
   function validate() {
     const next: typeof errors = {};
 
-    if (needsNickname) {
+    if (verifiedNeedsRequest) {
+      next.nickname = "Request a nickname on your profile before creating a run";
+    } else if (needsNickname) {
       if (!nickname.trim()) {
         next.nickname = "Nickname is required";
       } else if (nickname.trim().length > 32) {
@@ -89,6 +93,19 @@ export default function CreateRunForm({ maps, nickname: initialNickname, serverE
 
   return (
     <form method="POST" action="/api/runs" className="space-y-5" onSubmit={handleSubmit} noValidate>
+      {verifiedNeedsRequest && (
+        <div className="rounded-xl border border-amber-400/30 bg-amber-500/10 px-4 py-3">
+          <p className="text-sm text-amber-100/90">
+            Request a nickname on your{" "}
+            <a href="/profile" className="font-medium text-white underline hover:text-purple-100">
+              profile
+            </a>{" "}
+            before creating a run.
+          </p>
+          {errors.nickname && <p className="mt-2 text-xs text-red-300">{errors.nickname}</p>}
+        </div>
+      )}
+
       {needsNickname && (
         <div className="rounded-xl border border-amber-400/30 bg-amber-500/10 px-4 py-3">
           <p className="mb-3 text-sm text-amber-100/90">

@@ -22,6 +22,7 @@ interface Props {
   isBanned: boolean;
   isOrganizer: boolean;
   nickname: string | null;
+  isVerified: boolean;
   ownStatus: Enums<"participant_status"> | null;
   organizerSeated: boolean;
   pending: PendingApplicant[];
@@ -38,6 +39,7 @@ export default function RunParticipantActions({
   isBanned,
   isOrganizer,
   nickname,
+  isVerified,
   ownStatus,
   organizerSeated,
   pending,
@@ -116,7 +118,19 @@ export default function RunParticipantActions({
         </div>
       )}
 
-      {!isBanned && !autoJoinFull && !nickname && ownStatus === null && (
+      {!isBanned && !autoJoinFull && !nickname && ownStatus === null && isVerified && (
+        <div className="rounded-xl border border-amber-400/30 bg-amber-500/10 px-4 py-3">
+          <p className="text-sm text-amber-100/90">
+            Request a nickname on your{" "}
+            <a href="/profile" className="font-medium text-white underline hover:text-purple-100">
+              profile
+            </a>{" "}
+            before applying.
+          </p>
+        </div>
+      )}
+
+      {!isBanned && !autoJoinFull && !nickname && ownStatus === null && !isVerified && (
         <form
           method="POST"
           action="/api/profile/nickname"

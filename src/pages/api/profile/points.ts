@@ -1,16 +1,14 @@
 import type { APIRoute } from "astro";
 import { createClient } from "@/lib/supabase";
-import { safeRunReturnTo } from "@/lib/safe-return-to";
-import { ProfileError, setOwnNickname } from "@/lib/services/profile";
+import { ProfileError, setOwnKogPoints } from "@/lib/services/profile";
 import { ensureOwnProfile } from "@/lib/services/runs";
 
 export const POST: APIRoute = async (context) => {
   const form = await context.request.formData();
-  const nickname = (form.get("nickname") as string | null) ?? "";
-  const runReturn = safeRunReturnTo((form.get("redirect") as string | null) ?? undefined);
-  const redirectTo = runReturn ?? "/profile";
+  const kogPoints = (form.get("kog_points") as string | null) ?? "";
 
-  const fail = (message: string) => context.redirect(`${redirectTo}?error=${encodeURIComponent(message)}`);
+  const fail = (message: string) => context.redirect(`/profile?error=${encodeURIComponent(message)}`);
+  const succeed = (message: string) => context.redirect(`/profile?notice=${encodeURIComponent(message)}`);
 
   const supabase = createClient(context.request.headers, context.cookies);
   if (!supabase) {
@@ -33,18 +31,14 @@ export const POST: APIRoute = async (context) => {
   }
 
   try {
-    await setOwnNickname(supabase, user.id, nickname);
+    await setOwnKogPoints(supabase, user.id, kogPoints);
   } catch (err) {
     if (err instanceof ProfileError) {
       return fail(err.message);
     }
-    console.error("setOwnNickname failed", err);
-    return fail("Could not save nickname");
+    console.error("setOwnKogPoints failed", err);
+    return fail("Could not save KoG points");
   }
 
-  if (runReturn) {
-    return context.redirect(runReturn);
-  }
-
-  return context.redirect(`/profile?notice=${encodeURIComponent("Nickname saved.")}`);
+  return succeed("KoG points saved.");
 };
