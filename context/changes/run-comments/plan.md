@@ -327,35 +327,35 @@ This slice **resolves PRD open question #2 / S-12 Unknown** for implementation: 
 
 #### Automated
 
-- [x] 2.1 `npm run lint` passes
-- [x] 2.2 `npm run build` passes
+- [x] 2.1 `npm run lint` passes — b004669
+- [x] 2.2 `npm run build` passes — b004669
 
 #### Manual
 
-- [x] 2.3 Confirmed participant POST comment on active run → row exists, redirect to `/runs/{id}`
-- [x] 2.4 Guest POST → sign-in with `returnTo` back to the run
-- [x] 2.5 Pending/denied or unseated organizer POST comment or like → user-facing domain error, no row
-- [x] 2.6 Like `value=true` then `value=false` toggles the unique like row; double-submit does not 500
-- [x] 2.7 Archived or past-grace POST comment/like → domain error (“no longer active” or equivalent)
-- [x] 2.8 Admin delete removes comment + likes; non-admin hitting the admin URL is redirected home
-- [x] 2.9 Banned user POST is stopped by middleware with “Your account is banned”
-- [x] 2.10 `?commentError=` never contains PostgREST/Auth raw text
+- [x] 2.3 Confirmed participant POST comment on active run → row exists, redirect to `/runs/{id}` — b004669
+- [x] 2.4 Guest POST → sign-in with `returnTo` back to the run — b004669
+- [x] 2.5 Pending/denied or unseated organizer POST comment or like → user-facing domain error, no row — b004669
+- [x] 2.6 Like `value=true` then `value=false` toggles the unique like row; double-submit does not 500 — b004669
+- [x] 2.7 Archived or past-grace POST comment/like → domain error (“no longer active” or equivalent) — b004669
+- [x] 2.8 Admin delete removes comment + likes; non-admin hitting the admin URL is redirected home — b004669
+- [x] 2.9 Banned user POST is stopped by middleware with “Your account is banned” — b004669
+- [x] 2.10 `?commentError=` never contains PostgREST/Auth raw text — b004669
 
 ### Phase 3: Run page comments UI
 
 #### Automated
 
-- [ ] 3.1 `npm run lint` passes
-- [ ] 3.2 `npm run build` passes
+- [x] 3.1 `npm run lint` passes
+- [x] 3.2 `npm run build` passes
 
 #### Manual
 
-- [ ] 3.3 Guest or pending/denied member on a public active run: no Comments section
-- [ ] 3.4 Confirmed participant on active run: sees list, can post (newlines preserved, HTML not interpreted), can toggle like (count updates after reload)
-- [ ] 3.5 Unseated organizer (not confirmed): sees list and counts, no compose, no like control
-- [ ] 3.6 Admin who is not confirmed: sees list, can delete with confirm, no compose/like unless also confirmed
-- [ ] 3.7 Archived confirmed participant: sees historical comments, no compose/like
-- [ ] 3.8 Author leaves the team (organizer leave-team): their old comments remain
-- [ ] 3.9 Author nicknames open `/players/{uuid}`
-- [ ] 3.10 Empty thread shows “No comments yet” plus compose when allowed
-- [ ] 3.11 Failed POST shows `ServerError` on the comments section (including archived admin delete)
+- [x] 3.3 Guest or pending/denied member on a public active run: no Comments section
+- [x] 3.4 Confirmed participant on active run: sees list, can post (newlines preserved, HTML not interpreted), can toggle like (count updates after reload)
+- [x] 3.5 Unseated organizer (not confirmed): sees list and counts, no compose, no like control
+- [x] 3.6 Admin who is not confirmed: sees list, can delete with confirm, no compose/like unless also confirmed
+- [x] 3.7 Archived confirmed participant: sees historical comments, no compose/like
+- [x] 3.8 Author leaves the team (organizer leave-team): their old comments remain
+- [x] 3.9 Author nicknames open `/players/{uuid}`
+- [x] 3.10 Empty thread shows “No comments yet” plus compose when allowed
+- [x] 3.11 Failed POST shows `ServerError` on the comments section (including archived admin delete)

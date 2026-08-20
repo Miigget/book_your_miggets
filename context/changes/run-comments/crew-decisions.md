@@ -20,7 +20,12 @@ Mode: **YOLO**. Crew Lead answered specialist questions; the human was asked onl
 | 2026-08-20T11:25 | 10x-plan | round-2: likes-ui=A, content=A, threading=A, author-left=A |
 | 2026-08-20T11:30 | 10x-plan | phases=A (schema → API → UI) |
 | 2026-08-20T11:35 | 10x-plan | plan.md + plan-brief.md written; S-12 planning; #45 planned |
-| 2026-08-20T11:40 | 10x-plan-review | REVISE; triage F1=A, F2=A |
+| 2026-08-20T11:40 | 10x-plan-review | REVISE; triage F1=A, F2=A → SOUND |
+| 2026-08-20T11:50 | 10x-implement p1 | Schema+RLS; commit 9e16af7; manual SQL verified |
+| 2026-08-20T12:00 | 10x-impl-review p1 | APPROVED (0 findings) |
+| 2026-08-20T12:20 | 10x-implement p2 | Service+API; commit b004669; 2.3–2.10 curl-verified |
+| 2026-08-20T12:30 | 10x-impl-review p2 | APPROVED (0 findings) |
+| 2026-08-20T12:40 | 10x-implement p3 | Run page comments UI; curl smoke vs localhost:4321 |
 
 ## Decisions the Crew Lead made (no human)
 
@@ -53,7 +58,9 @@ Mode: **YOLO**. Crew Lead answered specialist questions; the human was asked onl
 
 ## Human-action gates
 
-- (none yet)
+- Phase 1 manual: SQL-verified by implementer (YOLO)
+- Phase 2 manual: curl-verified by implementer (YOLO)
+- Phase 3 manual 3.3–3.11: smoke-tested via curl against `http://localhost:4321` (dev quick-login). Residual: `window.confirm` not clicked (curl POSTs skip JS); archived admin-delete error banner not replayed (active `?commentError=` banner verified)
 
 ## Stop / escape hatches
 
@@ -61,4 +68,4 @@ Mode: **YOLO**. Crew Lead answered specialist questions; the human was asked onl
 
 ## GitHub
 
-- change-sync: #45 events new, planned, plan_reviewed (Backlog, link-roadmap S-12)
+- change-sync: #45 events new, planned, plan_reviewed, implementing (In progress, link-roadmap S-12)
