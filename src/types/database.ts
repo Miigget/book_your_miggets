@@ -73,12 +73,56 @@ export type Database = {
         }
         Relationships: []
       }
+      nickname_change_requests: {
+        Row: {
+          created_at: string
+          id: string
+          requested_nickname: string
+          status: Database["public"]["Enums"]["nickname_change_request_status"]
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          requested_nickname: string
+          status?: Database["public"]["Enums"]["nickname_change_request_status"]
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          requested_nickname?: string
+          status?: Database["public"]["Enums"]["nickname_change_request_status"]
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "nickname_change_requests_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "nickname_change_requests_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "public_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           created_at: string
           id: string
           is_banned: boolean
           is_verified: boolean
+          kog_points: number | null
+          kog_points_verified: boolean
           nickname: string | null
           role: Database["public"]["Enums"]["user_role"]
           updated_at: string
@@ -88,6 +132,8 @@ export type Database = {
           id: string
           is_banned?: boolean
           is_verified?: boolean
+          kog_points?: number | null
+          kog_points_verified?: boolean
           nickname?: string | null
           role?: Database["public"]["Enums"]["user_role"]
           updated_at?: string
@@ -97,6 +143,8 @@ export type Database = {
           id?: string
           is_banned?: boolean
           is_verified?: boolean
+          kog_points?: number | null
+          kog_points_verified?: boolean
           nickname?: string | null
           role?: Database["public"]["Enums"]["user_role"]
           updated_at?: string
@@ -221,14 +269,23 @@ export type Database = {
       public_profiles: {
         Row: {
           id: string | null
+          is_verified: boolean | null
+          kog_points: number | null
+          kog_points_verified: boolean | null
           nickname: string | null
         }
         Insert: {
           id?: string | null
+          is_verified?: boolean | null
+          kog_points?: number | null
+          kog_points_verified?: boolean | null
           nickname?: string | null
         }
         Update: {
           id?: string | null
+          is_verified?: boolean | null
+          kog_points?: number | null
+          kog_points_verified?: boolean | null
           nickname?: string | null
         }
         Relationships: []
@@ -243,6 +300,8 @@ export type Database = {
           id: string
           is_banned: boolean
           is_verified: boolean
+          kog_points: number | null
+          kog_points_verified: boolean
           nickname: string | null
           role: Database["public"]["Enums"]["user_role"]
           updated_at: string
@@ -260,6 +319,7 @@ export type Database = {
     }
     Enums: {
       join_mode: "approval_required" | "auto_join"
+      nickname_change_request_status: "pending" | "accepted" | "denied"
       participant_status: "pending" | "confirmed" | "denied"
       user_role: "member" | "admin"
     }
@@ -393,6 +453,7 @@ export const Constants = {
   public: {
     Enums: {
       join_mode: ["approval_required", "auto_join"],
+      nickname_change_request_status: ["pending", "accepted", "denied"],
       participant_status: ["pending", "confirmed", "denied"],
       user_role: ["member", "admin"],
     },
