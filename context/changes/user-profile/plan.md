@@ -364,11 +364,11 @@ Additive: new nullable `kog_points`, flag default false, new table. Existing nic
 
 #### Automated
 
-- [x] 3.1 src/pages/players/[id].astro exists
-- [x] 3.2 playerProfileHref / NicknameLink exist; [id].astro pending/denied mapping includes userId
-- [x] 3.3 /admin index still links nicknames to /admin/users/{id} (grep)
-- [x] 3.4 npm run lint passes
-- [x] 3.5 npm run build passes
+- [x] 3.1 src/pages/players/[id].astro exists — c03c802
+- [x] 3.2 playerProfileHref / NicknameLink exist; [id].astro pending/denied mapping includes userId — c03c802
+- [x] 3.3 /admin index still links nicknames to /admin/users/{id} (grep) — c03c802
+- [x] 3.4 npm run lint passes — c03c802
+- [x] 3.5 npm run build passes — c03c802
 
 #### Manual
 
