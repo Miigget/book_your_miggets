@@ -345,17 +345,17 @@ This slice **resolves PRD open question #2 / S-12 Unknown** for implementation: 
 
 #### Automated
 
-- [x] 3.1 `npm run lint` passes
-- [x] 3.2 `npm run build` passes
+- [x] 3.1 `npm run lint` passes — ab0bd3e
+- [x] 3.2 `npm run build` passes — ab0bd3e
 
 #### Manual
 
-- [x] 3.3 Guest or pending/denied member on a public active run: no Comments section
-- [x] 3.4 Confirmed participant on active run: sees list, can post (newlines preserved, HTML not interpreted), can toggle like (count updates after reload)
-- [x] 3.5 Unseated organizer (not confirmed): sees list and counts, no compose, no like control
-- [x] 3.6 Admin who is not confirmed: sees list, can delete with confirm, no compose/like unless also confirmed
-- [x] 3.7 Archived confirmed participant: sees historical comments, no compose/like
-- [x] 3.8 Author leaves the team (organizer leave-team): their old comments remain
-- [x] 3.9 Author nicknames open `/players/{uuid}`
-- [x] 3.10 Empty thread shows “No comments yet” plus compose when allowed
-- [x] 3.11 Failed POST shows `ServerError` on the comments section (including archived admin delete)
+- [x] 3.3 Guest or pending/denied member on a public active run: no Comments section — ab0bd3e
+- [x] 3.4 Confirmed participant on active run: sees list, can post (newlines preserved, HTML not interpreted), can toggle like (count updates after reload) — ab0bd3e
+- [x] 3.5 Unseated organizer (not confirmed): sees list and counts, no compose, no like control — ab0bd3e
+- [x] 3.6 Admin who is not confirmed: sees list, can delete with confirm, no compose/like unless also confirmed — ab0bd3e
+- [x] 3.7 Archived confirmed participant: sees historical comments, no compose/like — ab0bd3e
+- [x] 3.8 Author leaves the team (organizer leave-team): their old comments remain — ab0bd3e
+- [x] 3.9 Author nicknames open `/players/{uuid}` — ab0bd3e
+- [x] 3.10 Empty thread shows “No comments yet” plus compose when allowed — ab0bd3e
+- [x] 3.11 Failed POST shows `ServerError` on the comments section (including archived admin delete) — ab0bd3e
