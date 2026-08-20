@@ -1,7 +1,7 @@
 ---
 change_id: run-comments
 title: Run comments and likes for confirmed participants
-status: implemented
+status: impl_reviewed
 created: 2026-08-20
 updated: 2026-08-20
 archived_at: null

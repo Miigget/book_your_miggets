@@ -3,7 +3,7 @@ change_id: run-comments
 mode: YOLO
 started: 2026-08-20
 updated: 2026-08-20
-status: in-progress
+status: complete
 ---
 
 # Crew decisions — run-comments
@@ -25,7 +25,8 @@ Mode: **YOLO**. Crew Lead answered specialist questions; the human was asked onl
 | 2026-08-20T12:00 | 10x-impl-review p1 | APPROVED (0 findings) |
 | 2026-08-20T12:20 | 10x-implement p2 | Service+API; commit b004669; 2.3–2.10 curl-verified |
 | 2026-08-20T12:30 | 10x-impl-review p2 | APPROVED (0 findings) |
-| 2026-08-20T12:40 | 10x-implement p3 | Run page comments UI; curl smoke vs localhost:4321 |
+| 2026-08-20T12:40 | 10x-implement p3 | UI; ab0bd3e + epilogue 8d576a4; curl smoke |
+| 2026-08-20T13:00 | 10x-impl-review | full APPROVED (0 findings); status impl_reviewed |
 
 ## Decisions the Crew Lead made (no human)
 
@@ -36,6 +37,7 @@ Mode: **YOLO**. Crew Lead answered specialist questions; the human was asked onl
 - **plan-archived** — Comments after archive. Chose **B: read on archived, post/like only while active**. Why: same mutation window as apply/leave; debrief remains visible on `/runs/history`.
 - **plan-admin-delete** — Admin safety valve. Chose **A: hard-delete any comment**. Why: UGC needs takedown without deleting the whole run; matches existing admin-delete-run pattern.
 - **plan-author-left** — Comments after author leaves roster. Chose **A: keep comments, freeze new posts**. Why: leave-team must not erase coordination history; NicknameLink still works via user_id.
+- **commits** — Phase-end and archive ritual commits. Chose **COMMIT_OK**. Why: YOLO includes ritual commits; never push.
 
 ### Non-obvious
 - **research skip** — Hire `/10x-research` before plan? Chose **skip**. Why: YOLO default when the research signal is weak; this is a known S-12 slice with a clear product seed. Plan specialist may still spawn nested Explore agents.
@@ -51,6 +53,8 @@ Mode: **YOLO**. Crew Lead answered specialist questions; the human was asked onl
 ### Obvious
 - change-id `run-comments` is kebab-case and matches roadmap S-12 → gh-change-sync 1:1 (no `--parent`).
 - Next skill after `/10x-new`: `/10x-plan` (no bug+fix / frame signal).
+- Work on `feature/run-comments` from main (trunk), not on main.
+- After targeted plan-review Fix A, treat verdict as SOUND and implement (no full re-plan).
 
 ## Decisions escalated to the human
 
@@ -58,9 +62,10 @@ Mode: **YOLO**. Crew Lead answered specialist questions; the human was asked onl
 
 ## Human-action gates
 
-- Phase 1 manual: SQL-verified by implementer (YOLO)
-- Phase 2 manual: curl-verified by implementer (YOLO)
-- Phase 3 manual 3.3–3.11: smoke-tested via curl against `http://localhost:4321` (dev quick-login). Residual: `window.confirm` not clicked (curl POSTs skip JS); archived admin-delete error banner not replayed (active `?commentError=` banner verified)
+- Phase 1 manual: SQL-verified by implementer (YOLO; residual: not PostgREST HTTP/Studio).
+- Phase 2 manual: curl-verified by implementer (YOLO).
+- Phase 3 manual 3.3–3.11: curl smoke vs `http://localhost:4321`. Residual: `window.confirm` not clicked; archived admin-delete error banner not replayed; no visual filled/empty heart click-through.
+- Full impl-review: APPROVED; same UI residuals.
 
 ## Stop / escape hatches
 
@@ -68,4 +73,4 @@ Mode: **YOLO**. Crew Lead answered specialist questions; the human was asked onl
 
 ## GitHub
 
-- change-sync: #45 events new, planned, plan_reviewed, implementing (In progress, link-roadmap S-12)
+- change-sync: #45 events new, planned, plan_reviewed, implementing, implemented (In review, link-roadmap S-12)
