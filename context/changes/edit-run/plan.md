@@ -314,33 +314,33 @@ Forward-only SQL. No backfill (every run already has an organizer seat). Rollbac
 
 #### Automated
 
-- [x] 1.1 `npx supabase db reset` applies the new migration cleanly
-- [x] 1.2 `npm run db:types` succeeds (commit generated diff if any)
-- [x] 1.3 `npm run lint` passes
+- [x] 1.1 `npx supabase db reset` applies the new migration cleanly — 8056c74
+- [x] 1.2 `npm run db:types` succeeds (commit generated diff if any) — 8056c74
+- [x] 1.3 `npm run lint` passes — 8056c74
 
 #### Manual
 
-- [x] 1.4 As organizer, SQL/PostgREST UPDATE of `title` on an upcoming run succeeds and `updated_at` changes
-- [x] 1.5 UPDATE of an organizer-owned run whose `starts_at` is past grace affects 0 rows
-- [x] 1.6 Changing `join_mode` after inserting a non-organizer participant row is rejected with `join_mode_locked`
-- [x] 1.7 Setting `max_participants` below confirmed count (organizer seat counts) is rejected with `capacity_below_confirmed`
-- [x] 1.8 Changing `join_mode` while only the organizer seat exists still succeeds
-- [x] 1.9 Updating `archived_at` or `organizer_id` as authenticated is rejected (grant and/or WITH CHECK)
+- [x] 1.4 As organizer, SQL/PostgREST UPDATE of `title` on an upcoming run succeeds and `updated_at` changes — 8056c74
+- [x] 1.5 UPDATE of an organizer-owned run whose `starts_at` is past grace affects 0 rows — 8056c74
+- [x] 1.6 Changing `join_mode` after inserting a non-organizer participant row is rejected with `join_mode_locked` — 8056c74
+- [x] 1.7 Setting `max_participants` below confirmed count (organizer seat counts) is rejected with `capacity_below_confirmed` — 8056c74
+- [x] 1.8 Changing `join_mode` while only the organizer seat exists still succeeds — 8056c74
+- [x] 1.9 Updating `archived_at` or `organizer_id` as authenticated is rejected (grant and/or WITH CHECK) — 8056c74
 
 ### Phase 2: `updateRun` service and POST `/api/runs/[id]`
 
 #### Automated
 
-- [ ] 2.1 `npx astro sync` succeeds
-- [ ] 2.2 `npm run lint` passes
+- [x] 2.1 `npx astro sync` succeeds
+- [x] 2.2 `npm run lint` passes
 
 #### Manual
 
-- [ ] 2.3 Authenticated organizer POST of valid fields redirects to `/runs/{id}` and the row changed
-- [ ] 2.4 POST with `max_participants` below confirmed count returns the capacity `RunError` copy in `?error=`, not PostgREST text
-- [ ] 2.5 POST as a different signed-in user does not change the row and does not reveal that the run exists beyond the same not-found copy
-- [ ] 2.6 POST with a `starts_at` that would leave the active window is rejected with explicit copy before/instead of a silent no-op
-- [ ] 2.7 POST that includes a new `join_mode` after a non-organizer row leaves `join_mode` unchanged (service ignore; trigger if a bug sends it)
+- [x] 2.3 Authenticated organizer POST of valid fields redirects to `/runs/{id}` and the row changed
+- [x] 2.4 POST with `max_participants` below confirmed count returns the capacity `RunError` copy in `?error=`, not PostgREST text
+- [x] 2.5 POST as a different signed-in user does not change the row and does not reveal that the run exists beyond the same not-found copy
+- [x] 2.6 POST with a `starts_at` that would leave the active window is rejected with explicit copy before/instead of a silent no-op
+- [x] 2.7 POST that includes a new `join_mode` after a non-organizer row leaves `join_mode` unchanged (service ignore; trigger if a bug sends it)
 
 ### Phase 3: Edit page, form, middleware, and entry links
 
