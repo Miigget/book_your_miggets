@@ -214,7 +214,11 @@ async function autoJoinRun(supabase: AppSupabaseClient, runId: string): Promise<
   }
 }
 
-export async function applyToRun(supabase: AppSupabaseClient, runId: string, userId: string): Promise<void> {
+export async function applyToRun(
+  supabase: AppSupabaseClient,
+  runId: string,
+  userId: string,
+): Promise<{ status: "pending" | "confirmed"; participantId: string }> {
   await ensureOwnProfile(supabase);
 
   const run = await loadActiveRunForMutation(supabase, runId);
@@ -243,14 +247,22 @@ export async function applyToRun(supabase: AppSupabaseClient, runId: string, use
 
   if (run.join_mode === "auto_join") {
     await autoJoinRun(supabase, runId);
-    return;
+    const own = await getOwnParticipation(supabase, runId, userId);
+    if (own?.status !== "confirmed") {
+      throw new ParticipantError("Could not apply to this run");
+    }
+    return { status: "confirmed", participantId: own.id };
   }
 
-  const { error } = await supabase.from("run_participants").insert({
-    run_id: runId,
-    user_id: userId,
-    status: "pending",
-  });
+  const { data, error } = await supabase
+    .from("run_participants")
+    .insert({
+      run_id: runId,
+      user_id: userId,
+      status: "pending",
+    })
+    .select("id")
+    .maybeSingle();
 
   if (error) {
     if (error.code === "23505") {
@@ -258,6 +270,12 @@ export async function applyToRun(supabase: AppSupabaseClient, runId: string, use
     }
     throw new Error(`Failed to apply: ${error.message}`);
   }
+
+  if (!data) {
+    throw new ParticipantError("Could not apply to this run");
+  }
+
+  return { status: "pending", participantId: data.id };
 }
 
 export async function withdrawApplication(supabase: AppSupabaseClient, runId: string, userId: string): Promise<void> {

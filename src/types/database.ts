@@ -151,6 +151,95 @@ export type Database = {
         }
         Relationships: []
       }
+      run_comment_likes: {
+        Row: {
+          comment_id: string
+          created_at: string
+          run_id: string
+          user_id: string
+        }
+        Insert: {
+          comment_id: string
+          created_at?: string
+          run_id: string
+          user_id: string
+        }
+        Update: {
+          comment_id?: string
+          created_at?: string
+          run_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "run_comment_likes_comment_run_fkey"
+            columns: ["comment_id", "run_id"]
+            isOneToOne: false
+            referencedRelation: "run_comments"
+            referencedColumns: ["id", "run_id"]
+          },
+          {
+            foreignKeyName: "run_comment_likes_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "run_comment_likes_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "public_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      run_comments: {
+        Row: {
+          author_id: string
+          body: string
+          created_at: string
+          id: string
+          run_id: string
+        }
+        Insert: {
+          author_id: string
+          body: string
+          created_at?: string
+          id?: string
+          run_id: string
+        }
+        Update: {
+          author_id?: string
+          body?: string
+          created_at?: string
+          id?: string
+          run_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "run_comments_author_id_fkey"
+            columns: ["author_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "run_comments_author_id_fkey"
+            columns: ["author_id"]
+            isOneToOne: false
+            referencedRelation: "public_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "run_comments_run_id_fkey"
+            columns: ["run_id"]
+            isOneToOne: false
+            referencedRelation: "runs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       run_participants: {
         Row: {
           created_at: string
@@ -316,6 +405,8 @@ export type Database = {
       is_admin: { Args: never; Returns: boolean }
       is_confirmed_participant: { Args: { p_run_id: string }; Returns: boolean }
       is_not_banned: { Args: never; Returns: boolean }
+      is_run_in_active_window: { Args: { p_run_id: string }; Returns: boolean }
+      is_run_organizer: { Args: { p_run_id: string }; Returns: boolean }
     }
     Enums: {
       join_mode: "approval_required" | "auto_join"

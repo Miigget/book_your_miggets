@@ -6,10 +6,12 @@ interface SubmitButtonProps {
   pendingText: string;
   icon: ReactNode;
   children: ReactNode;
+  busy?: boolean;
 }
 
-export function SubmitButton({ pendingText, icon, children }: SubmitButtonProps) {
-  const { pending } = useFormStatus();
+export function SubmitButton({ pendingText, icon, children, busy }: SubmitButtonProps) {
+  const { pending: formPending } = useFormStatus();
+  const pending = Boolean(busy) || formPending;
 
   return (
     <Button

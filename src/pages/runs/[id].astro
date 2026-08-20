@@ -4,9 +4,11 @@ import Banner from "@/components/Banner.astro";
 import NicknameLink from "@/components/NicknameLink.astro";
 import PageChrome from "@/components/PageChrome.astro";
 import AdminRunControls from "@/components/runs/AdminRunControls";
+import RunComments from "@/components/runs/RunComments";
 import RunParticipantActions from "@/components/runs/RunParticipantActions";
 import { formatStart } from "@/lib/format-date";
 import { createClient } from "@/lib/supabase";
+import { listCommentsForRun, type RunComment } from "@/lib/services/comments";
 import {
   getOwnParticipation,
   listConfirmedParticipants,
@@ -32,6 +34,7 @@ const supabase = createClient(Astro.request.headers, Astro.cookies);
 const { user } = Astro.locals;
 const isAdmin = Astro.locals.profile?.role === "admin";
 const serverError = Astro.url.searchParams.get("error");
+const commentError = Astro.url.searchParams.get("commentError");
 
 let run: RunDetail | ArchivedRunDetail | null = null;
 let pageError: "missing" | "config" | "load" | null = null;
@@ -42,6 +45,8 @@ let denied: PendingParticipant[] = [];
 let own: OwnParticipation | null = null;
 let nickname: string | null = null;
 let isVerified = false;
+let comments: RunComment[] = [];
+let canReadComments = false;
 
 if (!id) {
   pageError = "missing";
@@ -83,6 +88,11 @@ if (!id) {
           ]);
         }
       }
+      canReadComments =
+        own?.status === "confirmed" || archivedSource === "participant" || user?.id === run.organizerId || isAdmin;
+      if (canReadComments) {
+        comments = await listCommentsForRun(supabase, run.id, user?.id ?? null);
+      }
     }
   } catch {
     pageError = "load";
@@ -98,6 +108,7 @@ if (pageError === "missing") {
 const pageTitle = run ? `${run.displayTitle} — Book Your Miggets` : "Run — Book Your Miggets";
 const isArchived = run?.lifecyclePhase === "archived";
 const isBanned = Boolean(Astro.locals.profile?.isBanned);
+const canPostOrLike = own?.status === "confirmed" && !isArchived && !isBanned;
 const isOrganizer = Boolean(user?.id && user.id === run?.organizerId);
 const organizerSeated = isOrganizer && confirmed.some((p) => p.userId === user?.id);
 const confirmedCount = confirmed.length;
@@ -221,32 +232,34 @@ function formatReleasedOn(value: string | null): string {
             )}
 
             <section class="mb-8 rounded-xl border border-white/10 bg-white/5 px-5 py-5 backdrop-blur-xl">
-              <h2 class="mb-4 text-sm font-semibold tracking-wide text-white/80 uppercase">
-                Participants ({confirmedCount}/{run.maxParticipants})
-              </h2>
-
-              {confirmed.length === 0 ? (
-                <p class="mb-5 text-sm text-blue-100/60">No confirmed players yet.</p>
+              {isArchived ? (
+                <>
+                  <h2 class="mb-4 text-sm font-semibold tracking-wide text-white/80 uppercase">
+                    Participants ({confirmedCount}/{run.maxParticipants})
+                  </h2>
+                  {confirmed.length === 0 ? (
+                    <p class="text-sm text-blue-100/60">No confirmed players yet.</p>
+                  ) : (
+                    <ul class="space-y-2">
+                      {confirmed.map((participant) => (
+                        <li class="text-sm text-white">
+                          <NicknameLink userId={participant.userId} nickname={participant.nickname} />
+                          {run.organizerId === participant.userId && (
+                            <span class="ml-2 text-xs text-blue-100/50">(organizer)</span>
+                          )}
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </>
               ) : (
-                <ul class="mb-5 space-y-2">
-                  {confirmed.map((participant) => (
-                    <li class="text-sm text-white">
-                      <NicknameLink userId={participant.userId} nickname={participant.nickname} />
-                      {run.organizerId === participant.userId && (
-                        <span class="ml-2 text-xs text-blue-100/50">(organizer)</span>
-                      )}
-                    </li>
-                  ))}
-                </ul>
-              )}
-
-              {!isArchived && (
                 <RunParticipantActions
                   client:load
                   runId={run.id}
+                  organizerId={run.organizerId}
+                  viewerUserId={user?.id ?? null}
                   joinMode={run.joinMode}
                   maxParticipants={run.maxParticipants}
-                  confirmedCount={confirmedCount}
                   isGuest={!user}
                   isBanned={isBanned}
                   isOrganizer={isOrganizer}
@@ -254,12 +267,28 @@ function formatReleasedOn(value: string | null): string {
                   isVerified={isVerified}
                   ownStatus={own?.status ?? null}
                   organizerSeated={organizerSeated}
+                  confirmed={confirmed.map((p) => ({ id: p.id, userId: p.userId, nickname: p.nickname }))}
                   pending={pending.map((p) => ({ id: p.id, userId: p.userId, nickname: p.nickname }))}
                   denied={denied.map((p) => ({ id: p.id, userId: p.userId, nickname: p.nickname }))}
+                  commentsMounted={canReadComments}
                   serverError={serverError}
                 />
               )}
             </section>
+
+            {canReadComments && (
+              <section class="mb-8 rounded-xl border border-white/10 bg-white/5 px-5 py-5 backdrop-blur-xl">
+                <h2 class="mb-4 text-sm font-semibold tracking-wide text-white/80 uppercase">Comments</h2>
+                <RunComments
+                  client:load
+                  runId={run.id}
+                  comments={comments}
+                  canPostOrLike={canPostOrLike}
+                  isAdmin={isAdmin}
+                  commentError={commentError}
+                />
+              </section>
+            )}
 
             {isAdmin && (
               <section class="mb-8 rounded-xl border border-red-400/20 bg-red-500/5 px-5 py-5 backdrop-blur-xl">
@@ -277,3 +306,14 @@ function formatReleasedOn(value: string | null): string {
     }
   </PageChrome>
 </Layout>
+
+<script is:inline>
+  (() => {
+    const key = "bym:scroll:" + location.pathname;
+    const y = sessionStorage.getItem(key);
+    if (y == null) return;
+    sessionStorage.removeItem(key);
+    const top = Number(y);
+    if (Number.isFinite(top)) window.scrollTo(0, top);
+  })();
+</script>

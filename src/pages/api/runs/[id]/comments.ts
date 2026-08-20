@@ -1,7 +1,13 @@
 import type { APIRoute } from "astro";
-import { commentInvalidRun, commentJson, commentUnauthorized, runFail, wantsJson } from "@/lib/comment-mutation-http";
+import {
+  commentFail,
+  commentInvalidRun,
+  commentJson,
+  commentUnauthorized,
+  wantsJson,
+} from "@/lib/comment-mutation-http";
 import { createClient } from "@/lib/supabase";
-import { applyToRun, ParticipantError } from "@/lib/services/participants";
+import { CommentError, createComment } from "@/lib/services/comments";
 import { isUuid } from "@/lib/services/runs";
 
 export const POST: APIRoute = async (context) => {
@@ -11,7 +17,7 @@ export const POST: APIRoute = async (context) => {
     return commentInvalidRun(context);
   }
 
-  const fail = (message: string) => runFail(context, runId, message);
+  const fail = (message: string) => commentFail(context, runId, message);
 
   const supabase = createClient(context.request.headers, context.cookies);
   if (!supabase) {
@@ -26,17 +32,20 @@ export const POST: APIRoute = async (context) => {
     return commentUnauthorized(context, runId);
   }
 
+  const form = await context.request.formData();
+  const body = (form.get("body") as string | null) ?? "";
+
   try {
-    const outcome = await applyToRun(supabase, runId, user.id);
+    const comment = await createComment(supabase, runId, user.id, body);
     if (wantsJson(context.request)) {
-      return commentJson({ ok: true, ...outcome });
+      return commentJson({ comment });
     }
   } catch (err) {
-    if (err instanceof ParticipantError) {
+    if (err instanceof CommentError) {
       return fail(err.message);
     }
-    console.error("applyToRun failed", err);
-    return fail("Could not apply to this run");
+    console.error("createComment failed", err);
+    return fail("Could not post comment");
   }
 
   return context.redirect(`/runs/${runId}`);

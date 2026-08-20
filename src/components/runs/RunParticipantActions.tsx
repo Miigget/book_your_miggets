@@ -5,6 +5,7 @@ import { ServerError } from "@/components/auth/ServerError";
 import { SubmitButton } from "@/components/auth/SubmitButton";
 import { NicknameLink } from "@/components/NicknameLink";
 import { Button } from "@/components/ui/button";
+import { fetchFormJson, reloadKeepingScroll } from "@/lib/fetch-form-json";
 import { withReturnTo } from "@/lib/safe-return-to";
 import { cn } from "@/lib/utils";
 import type { Enums } from "@/types/database";
@@ -15,11 +16,18 @@ export interface PendingApplicant {
   nickname: string | null;
 }
 
+export interface ConfirmedPlayer {
+  id: string;
+  userId: string;
+  nickname: string | null;
+}
+
 interface Props {
   runId: string;
+  organizerId: string;
+  viewerUserId: string | null;
   joinMode: Enums<"join_mode">;
   maxParticipants: number;
-  confirmedCount: number;
   isGuest: boolean;
   isBanned: boolean;
   isOrganizer: boolean;
@@ -27,57 +35,230 @@ interface Props {
   isVerified: boolean;
   ownStatus: Enums<"participant_status"> | null;
   organizerSeated: boolean;
+  confirmed: ConfirmedPlayer[];
   pending: PendingApplicant[];
   denied: PendingApplicant[];
+  commentsMounted: boolean;
   serverError?: string | null;
 }
 
 export default function RunParticipantActions({
   runId,
+  organizerId,
+  viewerUserId,
   joinMode,
   maxParticipants,
-  confirmedCount,
   isGuest,
   isBanned,
   isOrganizer,
-  nickname,
+  nickname: initialNickname,
   isVerified,
-  ownStatus,
-  organizerSeated,
-  pending,
-  denied,
+  ownStatus: initialOwnStatus,
+  organizerSeated: initialOrganizerSeated,
+  confirmed: initialConfirmed,
+  pending: initialPending,
+  denied: initialDenied,
+  commentsMounted,
   serverError,
 }: Props) {
   const returnPath = `/runs/${runId}`;
   const [nick, setNick] = useState("");
   const [nickError, setNickError] = useState<string | undefined>();
+  const [nickname, setNickname] = useState(initialNickname);
+  const [ownStatus, setOwnStatus] = useState(initialOwnStatus);
+  const [organizerSeated, setOrganizerSeated] = useState(initialOrganizerSeated);
+  const [confirmed, setConfirmed] = useState(initialConfirmed);
+  const [pending, setPending] = useState(initialPending);
+  const [denied, setDenied] = useState(initialDenied);
+  const [error, setError] = useState(serverError ?? null);
+  const [busy, setBusy] = useState<string | null>(null);
 
-  function validateNickname(e: React.SubmitEvent<HTMLFormElement>) {
+  const confirmedCount = confirmed.length;
+  const isAutoJoin = joinMode === "auto_join";
+  const autoJoinFull = isAutoJoin && confirmedCount >= maxParticipants;
+
+  function validateNickname(): boolean {
     const trimmed = nick.trim();
     if (!trimmed) {
-      e.preventDefault();
       setNickError("Nickname is required");
-      return;
+      return false;
     }
     if (trimmed.length > 32) {
-      e.preventDefault();
       setNickError("Nickname must be 32 characters or fewer");
+      return false;
+    }
+    return true;
+  }
+
+  async function submitForm(form: HTMLFormElement, busyKey: string): Promise<boolean> {
+    setBusy(busyKey);
+    setError(null);
+    try {
+      const { response, data } = await fetchFormJson(form);
+      if (response.status === 401 && data.signIn) {
+        window.location.assign(data.signIn);
+        return false;
+      }
+      if (!response.ok) {
+        setError(data.error ?? "Could not update this run");
+        return false;
+      }
+      if (!data.ok) {
+        setError(data.error ?? "Could not update this run");
+        return false;
+      }
+      return true;
+    } catch {
+      setError("Could not update this run");
+      return false;
+    } finally {
+      setBusy(null);
     }
   }
 
-  function confirmAccept(e: React.SubmitEvent<HTMLFormElement>) {
-    if (confirmedCount >= maxParticipants) {
+  async function onApply(e: React.SubmitEvent<HTMLFormElement>) {
+    e.preventDefault();
+    const form = e.currentTarget;
+    setBusy("apply");
+    setError(null);
+    try {
+      const { response, data } = await fetchFormJson(form);
+      if (response.status === 401 && data.signIn) {
+        window.location.assign(data.signIn);
+        return;
+      }
+      if (!response.ok || !data.ok || (data.status !== "pending" && data.status !== "confirmed")) {
+        setError(data.error ?? "Could not apply to this run");
+        return;
+      }
+      setOwnStatus(data.status);
+      if (data.status === "pending" && viewerUserId && data.participantId) {
+        setPending((prev) =>
+          prev.some((row) => row.id === data.participantId)
+            ? prev
+            : [...prev, { id: data.participantId, userId: viewerUserId, nickname }],
+        );
+      }
+      if (data.status === "confirmed" && viewerUserId && data.participantId) {
+        setConfirmed((prev) =>
+          prev.some((row) => row.id === data.participantId)
+            ? prev
+            : [...prev, { id: data.participantId, userId: viewerUserId, nickname }],
+        );
+        if (isOrganizer) {
+          setOrganizerSeated(true);
+        }
+        if (!commentsMounted) {
+          reloadKeepingScroll();
+        }
+      }
+    } catch {
+      setError("Could not apply to this run");
+    } finally {
+      setBusy(null);
+    }
+  }
+
+  async function onWithdraw(e: React.SubmitEvent<HTMLFormElement>) {
+    e.preventDefault();
+    if (!(await submitForm(e.currentTarget, "withdraw"))) return;
+    setOwnStatus(null);
+    if (viewerUserId) {
+      setPending((prev) => prev.filter((row) => row.userId !== viewerUserId));
+    }
+  }
+
+  async function onLeaveTeam(e: React.SubmitEvent<HTMLFormElement>) {
+    e.preventDefault();
+    if (!(await submitForm(e.currentTarget, "leave"))) return;
+    setOrganizerSeated(false);
+    setOwnStatus(null);
+    if (viewerUserId) {
+      setConfirmed((prev) => prev.filter((row) => row.userId !== viewerUserId));
+    }
+  }
+
+  async function onSaveNickname(e: React.SubmitEvent<HTMLFormElement>) {
+    e.preventDefault();
+    if (!validateNickname()) return;
+    const form = e.currentTarget;
+    setBusy("nick");
+    setError(null);
+    try {
+      const { response, data } = await fetchFormJson(form);
+      if (response.status === 401 && data.signIn) {
+        window.location.assign(data.signIn);
+        return;
+      }
+      if (!response.ok || !data.nickname) {
+        setError(data.error ?? "Could not save nickname");
+        return;
+      }
+      setNickname(data.nickname);
+    } catch {
+      setError("Could not save nickname");
+    } finally {
+      setBusy(null);
+    }
+  }
+
+  async function onDecide(
+    e: React.SubmitEvent<HTMLFormElement>,
+    applicant: PendingApplicant,
+    nextStatus: "confirmed" | "denied",
+  ) {
+    e.preventDefault();
+    if (nextStatus === "confirmed" && confirmedCount >= maxParticipants) {
       const ok = window.confirm(
         `This run is already at capacity (${confirmedCount}/${maxParticipants}). Accept anyway?`,
       );
-      if (!ok) e.preventDefault();
+      if (!ok) return;
+    }
+    const form = e.currentTarget;
+    const busyKey = `decide:${applicant.id}`;
+    setBusy(busyKey);
+    setError(null);
+    try {
+      const { response, data } = await fetchFormJson(form);
+      if (response.status === 401 && data.signIn) {
+        window.location.assign(data.signIn);
+        return;
+      }
+      if (!response.ok || !data.ok) {
+        setError(data.error ?? "Could not update application");
+        return;
+      }
+      setPending((prev) => prev.filter((row) => row.id !== applicant.id));
+      if (nextStatus === "confirmed") {
+        setDenied((prev) => prev.filter((row) => row.id !== applicant.id));
+        setConfirmed((prev) => (prev.some((row) => row.id === applicant.id) ? prev : [...prev, applicant]));
+        if (applicant.userId === viewerUserId) {
+          setOwnStatus("confirmed");
+          if (isOrganizer) {
+            setOrganizerSeated(true);
+          }
+        }
+      } else {
+        setDenied((prev) => (prev.some((row) => row.id === applicant.id) ? prev : [...prev, applicant]));
+        if (applicant.userId === viewerUserId) {
+          setOwnStatus("denied");
+        }
+      }
+    } catch {
+      setError("Could not update application");
+    } finally {
+      setBusy(null);
     }
   }
 
   if (isGuest) {
     return (
       <div className="space-y-3">
-        <ServerError message={serverError} />
+        <h2 className="mb-4 text-sm font-semibold tracking-wide text-white/80 uppercase">
+          Participants ({confirmedCount}/{maxParticipants})
+        </h2>
+        <RosterList confirmed={confirmed} organizerId={organizerId} />
+        <ServerError message={error} />
         <p className="text-sm text-blue-100/60">Sign in to apply to this run.</p>
         <div className="flex flex-wrap gap-3">
           <a
@@ -97,12 +278,13 @@ export default function RunParticipantActions({
     );
   }
 
-  const isAutoJoin = joinMode === "auto_join";
-  const autoJoinFull = isAutoJoin && confirmedCount >= maxParticipants;
-
   return (
     <div className="space-y-5">
-      <ServerError message={serverError} />
+      <h2 className="text-sm font-semibold tracking-wide text-white/80 uppercase">
+        Participants ({confirmedCount}/{maxParticipants})
+      </h2>
+      <RosterList confirmed={confirmed} organizerId={organizerId} />
+      <ServerError message={error} />
 
       {isBanned && ownStatus === null && (
         <p className="rounded-xl border border-red-400/30 bg-red-500/10 px-4 py-3 text-sm text-red-100">
@@ -137,7 +319,10 @@ export default function RunParticipantActions({
           method="POST"
           action="/api/profile/nickname"
           className="space-y-3 rounded-xl border border-amber-400/30 bg-amber-500/10 px-4 py-3"
-          onSubmit={validateNickname}
+          onSubmit={(event) => {
+            event.preventDefault();
+            void onSaveNickname(event);
+          }}
           noValidate
         >
           <p className="text-sm text-amber-100/90">Set a public nickname before applying.</p>
@@ -154,15 +339,26 @@ export default function RunParticipantActions({
             error={nickError}
             icon={<Tag className="size-4" />}
           />
-          <SubmitButton pendingText="Saving..." icon={<Tag className="size-4" />}>
+          <SubmitButton pendingText="Saving..." icon={<Tag className="size-4" />} busy={busy === "nick"}>
             Save nickname
           </SubmitButton>
         </form>
       )}
 
       {!isBanned && !autoJoinFull && nickname && ownStatus === null && (
-        <form method="POST" action={`/api/runs/${runId}/apply`}>
-          <SubmitButton pendingText={isAutoJoin ? "Joining..." : "Applying..."} icon={<UserPlus className="size-4" />}>
+        <form
+          method="POST"
+          action={`/api/runs/${runId}/apply`}
+          onSubmit={(event) => {
+            event.preventDefault();
+            void onApply(event);
+          }}
+        >
+          <SubmitButton
+            pendingText={isAutoJoin ? "Joining..." : "Applying..."}
+            icon={<UserPlus className="size-4" />}
+            busy={busy === "apply"}
+          >
             {isAutoJoin ? "Join run" : "Apply to join"}
           </SubmitButton>
         </form>
@@ -173,8 +369,19 @@ export default function RunParticipantActions({
           <p className="text-sm text-blue-100/80">
             Status: <span className="text-amber-200">Pending approval</span>
           </p>
-          <form method="POST" action={`/api/runs/${runId}/withdraw`}>
-            <SubmitButton pendingText="Withdrawing..." icon={<UserMinus className="size-4" />}>
+          <form
+            method="POST"
+            action={`/api/runs/${runId}/withdraw`}
+            onSubmit={(event) => {
+              event.preventDefault();
+              void onWithdraw(event);
+            }}
+          >
+            <SubmitButton
+              pendingText="Withdrawing..."
+              icon={<UserMinus className="size-4" />}
+              busy={busy === "withdraw"}
+            >
               Withdraw application
             </SubmitButton>
           </form>
@@ -197,8 +404,15 @@ export default function RunParticipantActions({
       )}
 
       {isOrganizer && organizerSeated && (
-        <form method="POST" action={`/api/runs/${runId}/leave-team`}>
-          <SubmitButton pendingText="Leaving..." icon={<UserMinus className="size-4" />}>
+        <form
+          method="POST"
+          action={`/api/runs/${runId}/leave-team`}
+          onSubmit={(event) => {
+            event.preventDefault();
+            void onLeaveTeam(event);
+          }}
+        >
+          <SubmitButton pendingText="Leaving..." icon={<UserMinus className="size-4" />} busy={busy === "leave"}>
             Leave team
           </SubmitButton>
         </form>
@@ -229,24 +443,36 @@ export default function RunParticipantActions({
                     <form
                       method="POST"
                       action={`/api/runs/${runId}/participants/${applicant.id}/decide`}
-                      onSubmit={confirmAccept}
+                      onSubmit={(event) => {
+                        event.preventDefault();
+                        void onDecide(event, applicant, "confirmed");
+                      }}
                     >
                       <input type="hidden" name="status" value="confirmed" />
                       <Button
                         type="submit"
                         size="sm"
+                        disabled={busy === `decide:${applicant.id}`}
                         className="rounded-lg bg-emerald-600 text-white hover:bg-emerald-500"
                       >
                         <Check className="size-4" />
                         Accept
                       </Button>
                     </form>
-                    <form method="POST" action={`/api/runs/${runId}/participants/${applicant.id}/decide`}>
+                    <form
+                      method="POST"
+                      action={`/api/runs/${runId}/participants/${applicant.id}/decide`}
+                      onSubmit={(event) => {
+                        event.preventDefault();
+                        void onDecide(event, applicant, "denied");
+                      }}
+                    >
                       <input type="hidden" name="status" value="denied" />
                       <Button
                         type="submit"
                         size="sm"
                         variant="outline"
+                        disabled={busy === `decide:${applicant.id}`}
                         className="rounded-lg border-white/20 bg-transparent text-white hover:bg-white/10"
                       >
                         <X className="size-4" />
@@ -281,12 +507,16 @@ export default function RunParticipantActions({
                   <form
                     method="POST"
                     action={`/api/runs/${runId}/participants/${applicant.id}/decide`}
-                    onSubmit={confirmAccept}
+                    onSubmit={(event) => {
+                      event.preventDefault();
+                      void onDecide(event, applicant, "confirmed");
+                    }}
                   >
                     <input type="hidden" name="status" value="confirmed" />
                     <Button
                       type="submit"
                       size="sm"
+                      disabled={busy === `decide:${applicant.id}`}
                       className="rounded-lg bg-emerald-600 text-white hover:bg-emerald-500"
                     >
                       <Check className="size-4" />
@@ -300,5 +530,22 @@ export default function RunParticipantActions({
         </div>
       )}
     </div>
+  );
+}
+
+function RosterList({ confirmed, organizerId }: { confirmed: ConfirmedPlayer[]; organizerId: string }) {
+  if (confirmed.length === 0) {
+    return <p className="text-sm text-blue-100/60">No confirmed players yet.</p>;
+  }
+
+  return (
+    <ul className="space-y-2">
+      {confirmed.map((participant) => (
+        <li key={participant.id} className="text-sm text-white">
+          <NicknameLink userId={participant.userId} nickname={participant.nickname} />
+          {organizerId === participant.userId && <span className="ml-2 text-xs text-blue-100/50">(organizer)</span>}
+        </li>
+      ))}
+    </ul>
   );
 }

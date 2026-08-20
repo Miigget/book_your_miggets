@@ -1,4 +1,5 @@
 import type { APIRoute } from "astro";
+import { commentJson, wantsJson } from "@/lib/comment-mutation-http";
 import { createClient } from "@/lib/supabase";
 import { safeRunReturnTo } from "@/lib/safe-return-to";
 import { ProfileError, setOwnNickname } from "@/lib/services/profile";
@@ -9,8 +10,14 @@ export const POST: APIRoute = async (context) => {
   const nickname = (form.get("nickname") as string | null) ?? "";
   const runReturn = safeRunReturnTo((form.get("redirect") as string | null) ?? undefined);
   const redirectTo = runReturn ?? "/profile";
+  const json = wantsJson(context.request);
 
-  const fail = (message: string) => context.redirect(`${redirectTo}?error=${encodeURIComponent(message)}`);
+  const fail = (message: string) => {
+    if (json) {
+      return commentJson({ error: message }, 400);
+    }
+    return context.redirect(`${redirectTo}?error=${encodeURIComponent(message)}`);
+  };
 
   const supabase = createClient(context.request.headers, context.cookies);
   if (!supabase) {
@@ -22,6 +29,9 @@ export const POST: APIRoute = async (context) => {
   } = await supabase.auth.getUser();
 
   if (!user) {
+    if (json) {
+      return commentJson({ error: "Sign in required", signIn: "/auth/signin" }, 401);
+    }
     return context.redirect("/auth/signin");
   }
 
@@ -40,6 +50,11 @@ export const POST: APIRoute = async (context) => {
     }
     console.error("setOwnNickname failed", err);
     return fail("Could not save nickname");
+  }
+
+  const saved = nickname.trim();
+  if (json) {
+    return commentJson({ ok: true, nickname: saved });
   }
 
   if (runReturn) {
