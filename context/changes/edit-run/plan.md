@@ -346,16 +346,16 @@ Forward-only SQL. No backfill (every run already has an organizer seat). Rollbac
 
 #### Automated
 
-- [x] 3.1 `npx astro sync` succeeds
-- [x] 3.2 `npm run lint` passes
-- [x] 3.3 `npm run build` succeeds
+- [x] 3.1 `npx astro sync` succeeds — 02c9115
+- [x] 3.2 `npm run lint` passes — 02c9115
+- [x] 3.3 `npm run build` succeeds — 02c9115
 
 #### Manual
 
-- [x] 3.4 Organizer sees Edit on dashboard active cards and on run detail; archived/past cards have no Edit
-- [x] 3.5 Guest hitting `/runs/{id}/edit` is redirected to sign-in
-- [x] 3.6 Signed-in non-owner and archived owner see the same 404 shell as a missing run (not a form)
-- [x] 3.7 Saving title, map (including unset), min points, start (still active), and capacity (≥ confirmed) updates `/runs` and `/runs/{id}`
-- [x] 3.8 After a second account applies, join mode is a disabled select with helper; save does not change `join_mode`
-- [x] 3.9 During in-progress grace, a start time that stays inside the 1h window saves; a start that would archive is rejected
-- [x] 3.10 Banned organizer sees the banned banner; POST is blocked by middleware
+- [x] 3.4 Organizer sees Edit on dashboard active cards and on run detail; archived/past cards have no Edit — 02c9115
+- [x] 3.5 Guest hitting `/runs/{id}/edit` is redirected to sign-in — 02c9115
+- [x] 3.6 Signed-in non-owner and archived owner see the same 404 shell as a missing run (not a form) — 02c9115
+- [x] 3.7 Saving title, map (including unset), min points, start (still active), and capacity (≥ confirmed) updates `/runs` and `/runs/{id}` — 02c9115
+- [x] 3.8 After a second account applies, join mode is a disabled select with helper; save does not change `join_mode` — 02c9115
+- [x] 3.9 During in-progress grace, a start time that stays inside the 1h window saves; a start that would archive is rejected — 02c9115
+- [x] 3.10 Banned organizer sees the banned banner; POST is blocked by middleware — 02c9115
