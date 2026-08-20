@@ -72,8 +72,9 @@ export function parseKogPoints(raw: string): number | null {
 async function findProfileIdByNickname(supabase: AppSupabaseClient, nickname: string): Promise<string | null> {
   const key = nicknameKey(nickname);
   const { data, error } = await supabase
-    .from("profiles")
+    .from("public_profiles")
     .select("id, nickname")
+    .not("nickname", "is", null)
     .ilike("nickname", escapeIlikeExact(nickname.trim()))
     .maybeSingle();
 
@@ -82,7 +83,7 @@ async function findProfileIdByNickname(supabase: AppSupabaseClient, nickname: st
     throw new ProfileError("Could not check nickname");
   }
 
-  if (!data?.nickname || nicknameKey(data.nickname) !== key) {
+  if (!data?.id || !data.nickname || nicknameKey(data.nickname) !== key) {
     return null;
   }
 
