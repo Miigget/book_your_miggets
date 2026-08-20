@@ -3,7 +3,7 @@ project: "Book Your Miggets"
 version: 2
 status: draft
 created: 2026-07-27
-updated: 2026-08-19
+updated: 2026-08-20
 prd_version: 2
 main_goal: market-feedback
 top_blocker: community-launch
@@ -39,7 +39,7 @@ The King of Gores (KoG) community in TeeWorlds has no tool for organizing shared
 | S-07 | participant-archive-history | (confirmed participant) revisit archived runs they took part in | S-02, S-04 | FR-015, US-01 | done |
 | S-08 | my-runs-dashboard | (organizer) view all runs they created in one place | S-01 | FR-005 | done |
 | S-09 | admin-player-archive-view | (admin) view any player's archived run history from their profile | S-04, S-06 | FR-016 | done |
-| S-10 | user-profile | manage own profile (nickname if unverified, email, password, KoG points); open others via clickable nicknames | S-02 | FR-017, FR-018, FR-023, US-03 | ready |
+| S-10 | user-profile | manage own profile (nickname if unverified, email, password, KoG points); open others via clickable nicknames | S-02 | FR-017, FR-018, FR-023, US-03 | done |
 | S-11 | add-friends | (verified) send/accept/decline friend requests and see friends list on the profile | S-10 | FR-019, US-04 | proposed |
 | S-12 | run-comments | (confirmed participant) post comments on a run they were accepted to | S-02 | FR-020, US-05 | ready |
 | S-13 | edit-run | (organizer) edit an active run they created | S-01 | FR-021, US-06 | ready |
@@ -208,7 +208,7 @@ PRD v1 must-haves are covered. PRD v2 adds post-MVP slices S-10…S-17. Landing/
 - **Blockers:** —
 - **Unknowns:** —
 - **Risk:** this is the identity surface friends, labels, and roster links need; keep email off the public page; admin fulfillment of nickname/points lives in S-16 so this slice stays member-facing.
-- **Status:** ready
+- **Status:** done
 
 ### S-11: Add verified friends
 
@@ -366,3 +366,4 @@ PRD v1 must-haves are covered. PRD v2 adds post-MVP slices S-10…S-17. Landing/
 - **S-07: confirmed participant can view the archived runs they took part in.** — Archived 2026-08-17 → `context/archive/2026-08-17-participant-archive-history/`. Lesson: —.
 - **S-09: admin can open a player's profile and view that player's full archived run history.** — Archived 2026-08-17 → `context/archive/2026-08-17-admin-player-archive-view/`. Lesson: —.
 - **S-08: organizer can view and manage all runs they created in one place.** — Archived 2026-08-18 → `context/archive/2026-08-18-my-runs-dashboard/`. Lesson: —.
+- **S-10: user can manage their own profile (nickname if not verified, email, password, self-reported KoG points), see nickname in the top bar instead of email, and open any player's public profile by clicking a nickname anywhere in the app; a verified member cannot change nickname themselves and instead submits a change request.** — Archived 2026-08-20 → `context/archive/2026-08-20-user-profile/`. Lesson: —.
