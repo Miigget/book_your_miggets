@@ -1,4 +1,5 @@
 import type { APIRoute } from "astro";
+import { commentInvalidRun, commentJson, commentUnauthorized, runFail, wantsJson } from "@/lib/comment-mutation-http";
 import { createClient } from "@/lib/supabase";
 import { AdminError, deleteRunAsAdmin } from "@/lib/services/admin";
 import { isUuid } from "@/lib/services/runs";
@@ -7,10 +8,10 @@ export const POST: APIRoute = async (context) => {
   const runId = context.params.id ?? "";
 
   if (!isUuid(runId)) {
-    return context.redirect("/runs");
+    return commentInvalidRun(context);
   }
 
-  const fail = (message: string) => context.redirect(`/runs/${runId}?error=${encodeURIComponent(message)}`);
+  const fail = (message: string) => runFail(context, runId, message);
 
   const supabase = createClient(context.request.headers, context.cookies);
   if (!supabase) {
@@ -18,10 +19,13 @@ export const POST: APIRoute = async (context) => {
   }
 
   if (!context.locals.user) {
-    return context.redirect("/auth/signin");
+    return commentUnauthorized(context, runId);
   }
 
   if (context.locals.profile?.role !== "admin") {
+    if (wantsJson(context.request)) {
+      return commentJson({ error: "Forbidden" }, 403);
+    }
     return context.redirect("/");
   }
 
@@ -35,5 +39,10 @@ export const POST: APIRoute = async (context) => {
     return fail("Could not delete this run");
   }
 
-  return context.redirect(`/runs?notice=${encodeURIComponent("Run deleted")}`);
+  const listUrl = `/runs?notice=${encodeURIComponent("Run deleted")}`;
+  if (wantsJson(context.request)) {
+    return commentJson({ ok: true, redirect: listUrl });
+  }
+
+  return context.redirect(listUrl);
 };

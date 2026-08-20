@@ -1,4 +1,11 @@
 import type { APIRoute } from "astro";
+import {
+  commentFail,
+  commentInvalidRun,
+  commentJson,
+  commentUnauthorized,
+  wantsJson,
+} from "@/lib/comment-mutation-http";
 import { createClient } from "@/lib/supabase";
 import { CommentError, setCommentLiked } from "@/lib/services/comments";
 import { isUuid } from "@/lib/services/runs";
@@ -8,12 +15,15 @@ export const POST: APIRoute = async (context) => {
   const commentId = context.params.commentId ?? "";
 
   if (!isUuid(runId)) {
-    return context.redirect("/runs");
+    return commentInvalidRun(context);
   }
 
-  const fail = (message: string) => context.redirect(`/runs/${runId}?commentError=${encodeURIComponent(message)}`);
+  const fail = (message: string) => commentFail(context, runId, message);
 
   if (!isUuid(commentId)) {
+    if (wantsJson(context.request)) {
+      return commentJson({ error: "Invalid request" }, 400);
+    }
     return context.redirect(`/runs/${runId}`);
   }
 
@@ -27,7 +37,7 @@ export const POST: APIRoute = async (context) => {
   } = await supabase.auth.getUser();
 
   if (!user) {
-    return context.redirect(`/auth/signin?returnTo=${encodeURIComponent(`/runs/${runId}`)}`);
+    return commentUnauthorized(context, runId);
   }
 
   const form = await context.request.formData();
@@ -45,6 +55,10 @@ export const POST: APIRoute = async (context) => {
     }
     console.error("setCommentLiked failed", err);
     return fail("Could not update like");
+  }
+
+  if (wantsJson(context.request)) {
+    return commentJson({ ok: true, liked });
   }
 
   return context.redirect(`/runs/${runId}`);

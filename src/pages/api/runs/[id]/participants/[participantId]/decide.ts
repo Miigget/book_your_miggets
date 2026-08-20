@@ -1,4 +1,5 @@
 import type { APIRoute } from "astro";
+import { commentInvalidRun, commentJson, commentUnauthorized, runFail, wantsJson } from "@/lib/comment-mutation-http";
 import { createClient } from "@/lib/supabase";
 import { decideParticipant, ParticipantError } from "@/lib/services/participants";
 import { isUuid } from "@/lib/services/runs";
@@ -12,10 +13,10 @@ export const POST: APIRoute = async (context) => {
   const participantId = context.params.participantId ?? "";
 
   if (!isUuid(runId)) {
-    return context.redirect("/runs");
+    return commentInvalidRun(context);
   }
 
-  const fail = (message: string) => context.redirect(`/runs/${runId}?error=${encodeURIComponent(message)}`);
+  const fail = (message: string) => runFail(context, runId, message);
 
   if (!isUuid(participantId)) {
     return fail("Invalid participant");
@@ -31,7 +32,7 @@ export const POST: APIRoute = async (context) => {
   } = await supabase.auth.getUser();
 
   if (!user) {
-    return context.redirect(`/auth/signin?returnTo=${encodeURIComponent(`/runs/${runId}`)}`);
+    return commentUnauthorized(context, runId);
   }
 
   const form = await context.request.formData();
@@ -49,6 +50,10 @@ export const POST: APIRoute = async (context) => {
     }
     console.error("decideParticipant failed", err);
     return fail("Could not update application");
+  }
+
+  if (wantsJson(context.request)) {
+    return commentJson({ ok: true, status: statusRaw, participantId });
   }
 
   return context.redirect(`/runs/${runId}`);

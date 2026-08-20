@@ -117,16 +117,20 @@ export async function listCommentsForRun(
     }
   }
 
-  return rows.map((row) => ({
+  return rows.map((row) => mapComment(row, likeCountByComment.get(row.id) ?? 0, likedByMe.has(row.id)));
+}
+
+function mapComment(row: CommentRow, likeCount: number, likedByMe: boolean): RunComment {
+  return {
     id: row.id,
     runId: row.run_id,
     authorId: row.author_id,
     nickname: mapNickname(row),
     body: row.body,
     createdAt: row.created_at,
-    likeCount: likeCountByComment.get(row.id) ?? 0,
-    likedByMe: likedByMe.has(row.id),
-  }));
+    likeCount,
+    likedByMe,
+  };
 }
 
 export async function createComment(
@@ -134,7 +138,7 @@ export async function createComment(
   runId: string,
   userId: string,
   body: string,
-): Promise<void> {
+): Promise<RunComment> {
   const trimmed = body.trim();
   if (!trimmed) {
     throw new CommentError("Comment cannot be empty");
@@ -153,15 +157,18 @@ export async function createComment(
       author_id: userId,
       body: trimmed,
     })
-    .select("id");
+    .select(COMMENT_SELECT)
+    .maybeSingle();
 
   if (error) {
     throw new Error(`Failed to post comment: ${error.message}`);
   }
 
-  if (data.length === 0) {
+  if (!data) {
     throw new CommentError("Could not post comment");
   }
+
+  return mapComment(data, 0, false);
 }
 
 export async function setCommentLiked(
