@@ -3,7 +3,7 @@ change_id: edit-run
 mode: YOLO
 started: 2026-08-20
 updated: 2026-08-20
-status: in-progress
+status: complete
 ---
 
 # Crew decisions — edit-run
@@ -22,6 +22,17 @@ Mode: **YOLO**. Crew Lead answered specialist questions; the human was asked onl
 | 2026-08-20 | 10x-plan | plan.md + plan-brief.md written; status planned; 3 phases |
 | 2026-08-20 | gh-change-sync | --event planned → #46 Backlog |
 | 2026-08-20 | 10x-plan-review | SOUND (0 critical, 0 warnings, 2 LOW observations) |
+| 2026-08-20 | gh-change-sync | --event plan_reviewed → #46 Backlog |
+| 2026-08-20 | 10x-implement p1 | migration + trigger; commit 8056c74 on feature/edit-run |
+| 2026-08-20 | gh-change-sync | --event implementing → #46 In progress |
+| 2026-08-20 | 10x-impl-review p1 | APPROVED (0 findings) |
+| 2026-08-20 | 10x-implement p2 | RunError + updateRun + POST; commit fb2fcdb |
+| 2026-08-20 | 10x-impl-review p2 | APPROVED (1 LOW: capacity floor only when cap changes) |
+| 2026-08-20 | 10x-implement p3 | edit page + form + links; commits 02c9115 + 8581eae; status implemented |
+| 2026-08-20 | gh-change-sync | --event implemented → #46 In review |
+| 2026-08-20 | 10x-impl-review p3 | APPROVED (0 findings) |
+| 2026-08-20 | 10x-impl-review full | APPROVED (0 findings); change.md impl_reviewed |
+| 2026-08-20 | docs commit | reviews + crew-decisions + impl_reviewed stamp (pre-archive) |
 
 ## Decisions the Crew Lead made (no human)
 
@@ -41,6 +52,8 @@ Mode: **YOLO**. Crew Lead answered specialist questions; the human was asked onl
 - **q-ux-entry** — Where does the organizer edit? Chose **A: dedicated `/runs/[id]/edit` plus Edit on detail and dashboard active cards**. Why: reuses CreateRunForm shell, keeps guest detail mutation-free, isolates `?error=` from participant actions.
 - **q-field-locks** — Remaining mutability while active. Chose **A: title, map (including clear), min_points always editable**. Why: PRD candidate minus S-14/S-15; min_points is display/filter only so freezing it does not protect the roster.
 - **q-join-ui** — Locked join_mode on the form. Chose **A: disabled select + helper text; POST omits or ignores join_mode**. Why: same layout as create; trigger is the backstop against a crafted POST.
+- **p1-capacity-when** — Trigger capacity check on every UPDATE vs only when `max_participants` changes. Chose **only when capacity actually changes**. Why: S-02 Accept can soft-overfill; a title/map save must not raise `capacity_below_confirmed` on an already-overfilled run.
+- **archive-anyway** — Archive despite YOLO-skipped in-browser manuals. Chose **continue archiving**. Why: automated criteria passed; manuals were curl/SQL-verified; remaining risk is visual hydration only.
 
 ### Obvious (optional, keep short)
 
@@ -48,6 +61,8 @@ Mode: **YOLO**. Crew Lead answered specialist questions; the human was asked onl
 - Next stage `/10x-plan` (no bug+fix / unclear-scope frame signal).
 - Plan-review SOUND → implement Phase 1 (no re-plan).
 - F1/F2 LOW observations → apply during implement (datetime-local prefill; WITH CHECK error copy), not a plan rewrite.
+- Impl-review p2 F1 → apply in Phase 3: reject capacity only when posted max_participants is distinct from stored and below confirmed (align with trigger `p1-capacity-when`).
+- YOLO ritual commits: COMMIT_OK for p1/p2/p3 and archive; never push.
 
 ## Decisions escalated to the human
 
@@ -55,7 +70,8 @@ Mode: **YOLO**. Crew Lead answered specialist questions; the human was asked onl
 
 ## Human-action gates
 
-- none yet
+- Phase 2 manuals 2.3–2.7: skipped browser click-through (YOLO); specialist verified via curl against local `npm run dev`. Residual risk: CSRF/cookie/Origin edge cases a browser would show.
+- Phase 3 manuals 3.4–3.10: skipped in-browser visual (YOLO); specialist verified via curl/HTTP on local astro dev :4323. Residual risk: datetime-local hydration, disabled-select styling, real cookie session.
 
 ## Stop / escape hatches
 
@@ -63,4 +79,4 @@ Mode: **YOLO**. Crew Lead answered specialist questions; the human was asked onl
 
 ## GitHub
 
-- change-sync: #46 events new, planned (Backlog, link-roadmap S-13)
+- change-sync: #46 events new → planned → plan_reviewed (Backlog), implementing (In progress), implemented (In review); link-roadmap S-13
