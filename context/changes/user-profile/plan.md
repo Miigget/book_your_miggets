@@ -343,11 +343,11 @@ Additive: new nullable `kog_points`, flag default false, new table. Existing nic
 
 #### Automated
 
-- [x] 2.1 src/pages/profile.astro exists; /profile is in PROTECTED_ROUTES
-- [x] 2.2 Profile API routes exist (nickname-request, points, email, password)
-- [x] 2.3 Topbar does not render user.email (grep)
-- [x] 2.4 npm run lint passes
-- [x] 2.5 npm run build passes
+- [x] 2.1 src/pages/profile.astro exists; /profile is in PROTECTED_ROUTES — 54c0f06
+- [x] 2.2 Profile API routes exist (nickname-request, points, email, password) — 54c0f06
+- [x] 2.3 Topbar does not render user.email (grep) — 54c0f06
+- [x] 2.4 npm run lint passes — 54c0f06
+- [x] 2.5 npm run build passes — 54c0f06
 
 #### Manual
 
@@ -364,11 +364,11 @@ Additive: new nullable `kog_points`, flag default false, new table. Existing nic
 
 #### Automated
 
-- [ ] 3.1 src/pages/players/[id].astro exists
-- [ ] 3.2 playerProfileHref / NicknameLink exist; [id].astro pending/denied mapping includes userId
-- [ ] 3.3 /admin index still links nicknames to /admin/users/{id} (grep)
-- [ ] 3.4 npm run lint passes
-- [ ] 3.5 npm run build passes
+- [x] 3.1 src/pages/players/[id].astro exists
+- [x] 3.2 playerProfileHref / NicknameLink exist; [id].astro pending/denied mapping includes userId
+- [x] 3.3 /admin index still links nicknames to /admin/users/{id} (grep)
+- [x] 3.4 npm run lint passes
+- [x] 3.5 npm run build passes
 
 #### Manual
 
