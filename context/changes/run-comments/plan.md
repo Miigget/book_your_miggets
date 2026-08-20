@@ -310,36 +310,36 @@ This slice **resolves PRD open question #2 / S-12 Unknown** for implementation: 
 
 #### Automated
 
-- [x] 1.1 Migration applies cleanly on local Supabase (`npx supabase db reset` or `migration up`)
-- [x] 1.2 `npm run db:types` regenerates without error; `run_comments` and `run_comment_likes` appear in `src/types/database.ts`
-- [x] 1.3 `npm run lint` passes
-- [x] 1.4 `npm run build` passes
+- [x] 1.1 Migration applies cleanly on local Supabase (`npx supabase db reset` or `migration up`) — 9e16af7
+- [x] 1.2 `npm run db:types` regenerates without error; `run_comments` and `run_comment_likes` appear in `src/types/database.ts` — 9e16af7
+- [x] 1.3 `npm run lint` passes — 9e16af7
+- [x] 1.4 `npm run build` passes — 9e16af7
 
 #### Manual
 
-- [x] 1.5 As `anon`: SELECT on either table returns zero rows (no grant/policy)
-- [x] 1.6 As confirmed participant on an active run: INSERT comment (trimmed 1–1000 chars) and INSERT/DELETE own like succeed; INSERT on an archived run fails
-- [x] 1.7 As unseated organizer: SELECT comments/likes succeeds; INSERT comment or like fails
-- [x] 1.8 As admin: SELECT any comment; DELETE comment removes the row and cascaded likes
-- [x] 1.9 CHECK rejects empty/whitespace-only and bodies longer than 1000 characters
+- [x] 1.5 As `anon`: SELECT on either table returns zero rows (no grant/policy) — 9e16af7
+- [x] 1.6 As confirmed participant on an active run: INSERT comment (trimmed 1–1000 chars) and INSERT/DELETE own like succeed; INSERT on an archived run fails — 9e16af7
+- [x] 1.7 As unseated organizer: SELECT comments/likes succeeds; INSERT comment or like fails — 9e16af7
+- [x] 1.8 As admin: SELECT any comment; DELETE comment removes the row and cascaded likes — 9e16af7
+- [x] 1.9 CHECK rejects empty/whitespace-only and bodies longer than 1000 characters — 9e16af7
 
 ### Phase 2: Service and API
 
 #### Automated
 
-- [ ] 2.1 `npm run lint` passes
-- [ ] 2.2 `npm run build` passes
+- [x] 2.1 `npm run lint` passes
+- [x] 2.2 `npm run build` passes
 
 #### Manual
 
-- [ ] 2.3 Confirmed participant POST comment on active run → row exists, redirect to `/runs/{id}`
-- [ ] 2.4 Guest POST → sign-in with `returnTo` back to the run
-- [ ] 2.5 Pending/denied or unseated organizer POST comment or like → user-facing domain error, no row
-- [ ] 2.6 Like `value=true` then `value=false` toggles the unique like row; double-submit does not 500
-- [ ] 2.7 Archived or past-grace POST comment/like → domain error (“no longer active” or equivalent)
-- [ ] 2.8 Admin delete removes comment + likes; non-admin hitting the admin URL is redirected home
-- [ ] 2.9 Banned user POST is stopped by middleware with “Your account is banned”
-- [ ] 2.10 `?commentError=` never contains PostgREST/Auth raw text
+- [x] 2.3 Confirmed participant POST comment on active run → row exists, redirect to `/runs/{id}`
+- [x] 2.4 Guest POST → sign-in with `returnTo` back to the run
+- [x] 2.5 Pending/denied or unseated organizer POST comment or like → user-facing domain error, no row
+- [x] 2.6 Like `value=true` then `value=false` toggles the unique like row; double-submit does not 500
+- [x] 2.7 Archived or past-grace POST comment/like → domain error (“no longer active” or equivalent)
+- [x] 2.8 Admin delete removes comment + likes; non-admin hitting the admin URL is redirected home
+- [x] 2.9 Banned user POST is stopped by middleware with “Your account is banned”
+- [x] 2.10 `?commentError=` never contains PostgREST/Auth raw text
 
 ### Phase 3: Run page comments UI
 
