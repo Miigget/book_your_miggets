@@ -1,6 +1,7 @@
 ---
 import Layout from "@/layouts/Layout.astro";
 import Banner from "@/components/Banner.astro";
+import NicknameLink from "@/components/NicknameLink.astro";
 import PageChrome from "@/components/PageChrome.astro";
 import AdminRunControls from "@/components/runs/AdminRunControls";
 import RunParticipantActions from "@/components/runs/RunParticipantActions";
@@ -15,13 +16,13 @@ import {
   type OwnParticipation,
   type PendingParticipant,
 } from "@/lib/services/participants";
+import { getOwnProfile } from "@/lib/services/profile";
 import {
   formatJoinMode,
   getActiveRunById,
   getArchivedRunForAdmin,
   getArchivedRunForOrganizer,
   getArchivedRunForParticipant,
-  getOwnNickname,
   type ArchivedRunDetail,
   type RunDetail,
 } from "@/lib/services/runs";
@@ -40,6 +41,7 @@ let pending: PendingParticipant[] = [];
 let denied: PendingParticipant[] = [];
 let own: OwnParticipation | null = null;
 let nickname: string | null = null;
+let isVerified = false;
 
 if (!id) {
   pageError = "missing";
@@ -67,10 +69,13 @@ if (!id) {
       const archived = run.lifecyclePhase === "archived";
       if (user && !archived) {
         const isOrganizer = user.id === run.organizerId;
-        [own, nickname] = await Promise.all([
+        const [ownRow, ownProfile] = await Promise.all([
           getOwnParticipation(supabase, run.id, user.id),
-          getOwnNickname(supabase, user.id),
+          getOwnProfile(supabase, user.id),
         ]);
+        own = ownRow;
+        nickname = ownProfile.nickname;
+        isVerified = ownProfile.isVerified;
         if (isOrganizer) {
           [pending, denied] = await Promise.all([
             listPendingParticipants(supabase, run.id),
@@ -148,11 +153,9 @@ function formatReleasedOn(value: string | null): string {
                   Status: <span class="text-blue-100/90">Archived</span>
                 </p>
               )}
-              {run.organizerNickname && (
-                <p class="mt-2 text-sm text-blue-100/60">
-                  Organized by <span class="text-blue-100/90">{run.organizerNickname}</span>
-                </p>
-              )}
+              <p class="mt-2 text-sm text-blue-100/60">
+                Organized by <NicknameLink userId={run.organizerId} nickname={run.organizerNickname} />
+              </p>
             </header>
 
             <section class="mb-8 rounded-xl border border-white/10 bg-white/5 px-5 py-5 backdrop-blur-xl">
@@ -228,7 +231,7 @@ function formatReleasedOn(value: string | null): string {
                 <ul class="mb-5 space-y-2">
                   {confirmed.map((participant) => (
                     <li class="text-sm text-white">
-                      {participant.nickname ?? "Unknown player"}
+                      <NicknameLink userId={participant.userId} nickname={participant.nickname} />
                       {run.organizerId === participant.userId && (
                         <span class="ml-2 text-xs text-blue-100/50">(organizer)</span>
                       )}
@@ -248,10 +251,11 @@ function formatReleasedOn(value: string | null): string {
                   isBanned={isBanned}
                   isOrganizer={isOrganizer}
                   nickname={nickname}
+                  isVerified={isVerified}
                   ownStatus={own?.status ?? null}
                   organizerSeated={organizerSeated}
-                  pending={pending.map((p) => ({ id: p.id, nickname: p.nickname }))}
-                  denied={denied.map((p) => ({ id: p.id, nickname: p.nickname }))}
+                  pending={pending.map((p) => ({ id: p.id, userId: p.userId, nickname: p.nickname }))}
+                  denied={denied.map((p) => ({ id: p.id, userId: p.userId, nickname: p.nickname }))}
                   serverError={serverError}
                 />
               )}

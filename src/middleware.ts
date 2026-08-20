@@ -1,7 +1,7 @@
 import { defineMiddleware } from "astro:middleware";
 import { createClient } from "@/lib/supabase";
 
-const PROTECTED_ROUTES = ["/dashboard", "/runs/new", "/admin", "/runs/history"];
+const PROTECTED_ROUTES = ["/dashboard", "/runs/new", "/admin", "/runs/history", "/profile"];
 
 /** Same-origin Referer pathname, else "/" — the open-redirect guard for the banned-POST gate. */
 function bannedRedirectTarget(referer: string | null, requestOrigin: string): string {
@@ -30,13 +30,17 @@ export const onRequest = defineMiddleware(async (context, next) => {
     context.locals.user = user ?? null;
 
     if (user) {
-      const { data, error } = await supabase.from("profiles").select("role, is_banned").eq("id", user.id).maybeSingle();
+      const { data, error } = await supabase
+        .from("profiles")
+        .select("role, is_banned, nickname")
+        .eq("id", user.id)
+        .maybeSingle();
 
       if (error) {
         // Fail closed for /admin, open for the ban gate — RLS remains the backstop.
         console.error("Failed to load profile in middleware", error);
       } else if (data) {
-        context.locals.profile = { role: data.role, isBanned: data.is_banned };
+        context.locals.profile = { role: data.role, isBanned: data.is_banned, nickname: data.nickname };
       }
     }
   }

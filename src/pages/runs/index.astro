@@ -1,6 +1,7 @@
 ---
 import Layout from "@/layouts/Layout.astro";
 import Banner from "@/components/Banner.astro";
+import NicknameLink from "@/components/NicknameLink.astro";
 import RunListFilters from "@/components/runs/RunListFilters.astro";
 import PageChrome from "@/components/PageChrome.astro";
 import { formatStart } from "@/lib/format-date";
@@ -110,13 +111,12 @@ if (!supabase) {
         <ul class="flex flex-col gap-3">
           {runs.map((run) => (
             <li>
-              <a
-                href={`/runs/${run.id}`}
-                class="block rounded-xl border border-white/10 bg-white/5 px-5 py-4 transition-colors hover:border-white/20 hover:bg-white/10"
-              >
+              <div class="rounded-xl border border-white/10 bg-white/5 px-5 py-4 transition-colors hover:border-white/20 hover:bg-white/10">
                 <div class="flex flex-col gap-1 sm:flex-row sm:items-baseline sm:justify-between">
                   <h2 class="text-lg font-semibold text-white">
-                    {run.displayTitle}
+                    <a href={`/runs/${run.id}`} class="transition-colors hover:text-purple-100 hover:underline">
+                      {run.displayTitle}
+                    </a>
                     {run.lifecyclePhase === "in_progress" && (
                       <span class="ml-2 text-sm font-medium text-amber-200">In progress</span>
                     )}
@@ -152,14 +152,14 @@ if (!supabase) {
                       </dd>
                     </div>
                   )}
-                  {run.organizerNickname && (
-                    <div>
-                      <dt class="inline">Organizer: </dt>
-                      <dd class="inline text-blue-100/90">{run.organizerNickname}</dd>
-                    </div>
-                  )}
+                  <div>
+                    <dt class="inline">Organizer: </dt>
+                    <dd class="inline text-blue-100/90">
+                      <NicknameLink userId={run.organizerId} nickname={run.organizerNickname} />
+                    </dd>
+                  </div>
                 </dl>
-              </a>
+              </div>
             </li>
           ))}
         </ul>

@@ -1,0 +1,27 @@
+---
+import { playerProfileHref } from "@/lib/profile-href";
+import { cn } from "@/lib/utils";
+
+interface Props {
+  userId?: string | null;
+  nickname: string | null;
+  class?: string;
+}
+
+const { userId, nickname, class: className } = Astro.props;
+const label = nickname?.trim() ? nickname.trim() : "Unknown player";
+const href = userId ? playerProfileHref(userId) : null;
+---
+
+{
+  href ? (
+    <a
+      href={href}
+      class:list={[cn("text-purple-300 transition-colors hover:text-purple-100 hover:underline", className)]}
+    >
+      {label}
+    </a>
+  ) : (
+    <span class:list={[className]}>{label}</span>
+  )
+}

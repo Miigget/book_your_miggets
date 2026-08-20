@@ -1,6 +1,7 @@
 import type { APIRoute } from "astro";
 import { createClient } from "@/lib/supabase";
-import { ensureOwnProfile, getOwnNickname, isJoinMode, isUuid } from "@/lib/services/runs";
+import { ProfileError, getOwnProfile, setOwnNickname } from "@/lib/services/profile";
+import { ensureOwnProfile, isJoinMode, isUuid } from "@/lib/services/runs";
 
 function formString(form: FormData, key: string, fallback = ""): string {
   return ((form.get(key) as string | null) ?? fallback).trim();
@@ -34,25 +35,36 @@ export const POST: APIRoute = async (context) => {
   try {
     await ensureOwnProfile(supabase);
   } catch (err) {
-    return fail(err instanceof Error ? err.message : "Could not prepare your profile");
+    console.error("ensureOwnProfile failed", err);
+    return fail("Could not prepare your profile");
   }
 
-  const existingNickname = await getOwnNickname(supabase, user.id);
+  let ownProfile: Awaited<ReturnType<typeof getOwnProfile>>;
+  try {
+    ownProfile = await getOwnProfile(supabase, user.id);
+  } catch (err) {
+    if (err instanceof ProfileError) {
+      return fail(err.message);
+    }
+    console.error("getOwnProfile failed", err);
+    return fail("Could not load your profile");
+  }
 
-  if (!existingNickname) {
+  if (!ownProfile.nickname) {
+    if (ownProfile.isVerified) {
+      return fail("Verified nicknames are locked. Request a change on your profile.");
+    }
     if (!nicknameRaw) {
       return fail("Set a nickname before creating a run");
     }
-    if (nicknameRaw.length > 32) {
-      return fail("Nickname must be 32 characters or fewer");
-    }
-
-    const { error: nickError } = await supabase.from("profiles").update({ nickname: nicknameRaw }).eq("id", user.id);
-
-    if (nickError) {
-      const message =
-        nickError.code === "23505" ? "That nickname is already taken" : `Could not save nickname: ${nickError.message}`;
-      return fail(message);
+    try {
+      await setOwnNickname(supabase, user.id, nicknameRaw);
+    } catch (err) {
+      if (err instanceof ProfileError) {
+        return fail(err.message);
+      }
+      console.error("setOwnNickname failed", err);
+      return fail("Could not save nickname");
     }
   }
 

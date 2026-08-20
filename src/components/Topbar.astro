@@ -1,6 +1,8 @@
 ---
 const { user } = Astro.locals;
 const isAdmin = Astro.locals.profile?.role === "admin";
+const rawNick = Astro.locals.profile?.nickname?.trim();
+const nickname = rawNick !== undefined && rawNick.length > 0 ? rawNick : null;
 ---
 
 <div
@@ -15,7 +17,12 @@ const isAdmin = Astro.locals.profile?.role === "admin";
   {
     user ? (
       <div class="flex min-w-0 flex-wrap items-center justify-end gap-3">
-        <span class="truncate text-blue-100/70">{user.email}</span>
+        <a
+          href="/profile"
+          class="max-w-[12rem] truncate text-blue-100/70 transition-colors hover:text-purple-100 hover:underline"
+        >
+          {nickname ?? "Set nickname"}
+        </a>
         <a href="/runs" class="text-purple-300 transition-colors hover:text-purple-100 hover:underline">
           Runs
         </a>

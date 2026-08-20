@@ -3,6 +3,7 @@ import { Check, Tag, UserMinus, UserPlus, X } from "lucide-react";
 import { FormField } from "@/components/auth/FormField";
 import { ServerError } from "@/components/auth/ServerError";
 import { SubmitButton } from "@/components/auth/SubmitButton";
+import { NicknameLink } from "@/components/NicknameLink";
 import { Button } from "@/components/ui/button";
 import { withReturnTo } from "@/lib/safe-return-to";
 import { cn } from "@/lib/utils";
@@ -10,6 +11,7 @@ import type { Enums } from "@/types/database";
 
 export interface PendingApplicant {
   id: string;
+  userId: string;
   nickname: string | null;
 }
 
@@ -22,6 +24,7 @@ interface Props {
   isBanned: boolean;
   isOrganizer: boolean;
   nickname: string | null;
+  isVerified: boolean;
   ownStatus: Enums<"participant_status"> | null;
   organizerSeated: boolean;
   pending: PendingApplicant[];
@@ -38,6 +41,7 @@ export default function RunParticipantActions({
   isBanned,
   isOrganizer,
   nickname,
+  isVerified,
   ownStatus,
   organizerSeated,
   pending,
@@ -116,7 +120,19 @@ export default function RunParticipantActions({
         </div>
       )}
 
-      {!isBanned && !autoJoinFull && !nickname && ownStatus === null && (
+      {!isBanned && !autoJoinFull && !nickname && ownStatus === null && isVerified && (
+        <div className="rounded-xl border border-amber-400/30 bg-amber-500/10 px-4 py-3">
+          <p className="text-sm text-amber-100/90">
+            Request a nickname on your{" "}
+            <a href="/profile" className="font-medium text-white underline hover:text-purple-100">
+              profile
+            </a>{" "}
+            before applying.
+          </p>
+        </div>
+      )}
+
+      {!isBanned && !autoJoinFull && !nickname && ownStatus === null && !isVerified && (
         <form
           method="POST"
           action="/api/profile/nickname"
@@ -206,7 +222,9 @@ export default function RunParticipantActions({
                     "flex flex-col gap-2 rounded-lg border border-white/10 bg-white/5 px-3 py-3 sm:flex-row sm:items-center sm:justify-between",
                   )}
                 >
-                  <span className="text-sm text-white">{applicant.nickname ?? "Unknown player"}</span>
+                  <span className="text-sm text-white">
+                    <NicknameLink userId={applicant.userId} nickname={applicant.nickname} />
+                  </span>
                   <div className="flex gap-2">
                     <form
                       method="POST"
@@ -257,7 +275,9 @@ export default function RunParticipantActions({
                     "flex flex-col gap-2 rounded-lg border border-white/10 bg-white/5 px-3 py-3 sm:flex-row sm:items-center sm:justify-between",
                   )}
                 >
-                  <span className="text-sm text-white">{applicant.nickname ?? "Unknown player"}</span>
+                  <span className="text-sm text-white">
+                    <NicknameLink userId={applicant.userId} nickname={applicant.nickname} />
+                  </span>
                   <form
                     method="POST"
                     action={`/api/runs/${runId}/participants/${applicant.id}/decide`}
