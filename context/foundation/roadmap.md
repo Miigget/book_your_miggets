@@ -41,7 +41,7 @@ The King of Gores (KoG) community in TeeWorlds has no tool for organizing shared
 | S-09 | admin-player-archive-view | (admin) view any player's archived run history from their profile | S-04, S-06 | FR-016 | done |
 | S-10 | user-profile | manage own profile (nickname if unverified, email, password, KoG points); open others via clickable nicknames | S-02 | FR-017, FR-018, FR-023, US-03 | done |
 | S-11 | add-friends | (verified) send/accept/decline friend requests and see friends list on the profile | S-10 | FR-019, US-04 | proposed |
-| S-12 | run-comments | (confirmed participant) post comments on a run they were accepted to | S-02 | FR-020, US-05 | in-progress |
+| S-12 | run-comments | (confirmed participant) post comments on a run they were accepted to | S-02 | FR-020, US-05 | done |
 | S-13 | edit-run | (organizer) edit an active run they created | S-01 | FR-021, US-06 | ready |
 | S-14 | category-only-runs | create a run with a map category and no specific map; category shows on the card | S-01 | FR-022, US-07 | ready |
 | S-15 | restricted-run-visibility | create friends-only or invite-only runs; hidden from everyone else | S-01, S-11 | FR-027, FR-028, US-08, US-09 | proposed |
@@ -233,7 +233,7 @@ PRD v1 must-haves are covered. PRD v2 adds post-MVP slices S-10…S-17. Landing/
 - **Unknowns:**
   - Are comments readable by anyone who can view the run, or only by confirmed participants? — Owner: user. Block: no. Candidate default: same visibility as the run page.
 - **Risk:** in-app comments substitute the Discord-bot comment sync parked for v2+; posting must stay confirmed-participant-only so random guests cannot spam a roster.
-- **Status:** in-progress
+- **Status:** done
 
 ### S-13: Edit an active run
 
@@ -367,3 +367,4 @@ PRD v1 must-haves are covered. PRD v2 adds post-MVP slices S-10…S-17. Landing/
 - **S-09: admin can open a player's profile and view that player's full archived run history.** — Archived 2026-08-17 → `context/archive/2026-08-17-admin-player-archive-view/`. Lesson: —.
 - **S-08: organizer can view and manage all runs they created in one place.** — Archived 2026-08-18 → `context/archive/2026-08-18-my-runs-dashboard/`. Lesson: —.
 - **S-10: user can manage their own profile (nickname if not verified, email, password, self-reported KoG points), see nickname in the top bar instead of email, and open any player's public profile by clicking a nickname anywhere in the app; a verified member cannot change nickname themselves and instead submits a change request.** — Archived 2026-08-20 → `context/archive/2026-08-20-user-profile/`. Lesson: —.
+- **S-12: confirmed participant can post comments on a run they were accepted to.** — Archived 2026-08-20 → `context/archive/2026-08-20-run-comments/`. Lesson: —.
