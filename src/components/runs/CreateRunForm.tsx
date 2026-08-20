@@ -4,36 +4,68 @@ import { FormField } from "@/components/auth/FormField";
 import { ServerError } from "@/components/auth/ServerError";
 import { SubmitButton } from "@/components/auth/SubmitButton";
 import { MapPicker } from "@/components/runs/MapPicker";
+import { isRunActive } from "@/lib/run-lifecycle";
 import { cn } from "@/lib/utils";
 import type { MapPickerItem } from "@/lib/services/runs";
 
 const selectClass =
   "w-full rounded-lg border border-white/20 bg-white/10 px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-purple-400";
 
+export type CreateRunFormJoinMode = "approval_required" | "auto_join";
+
+export interface CreateRunFormEditValues {
+  runId: string;
+  title: string;
+  mapId: string;
+  startsAt: string;
+  maxParticipants: number;
+  minPoints: number;
+  joinMode: CreateRunFormJoinMode;
+  confirmedCount: number;
+  joinModeLocked: boolean;
+}
+
 interface Props {
   maps: MapPickerItem[];
   nickname: string | null;
   isVerified: boolean;
   serverError?: string | null;
+  edit?: CreateRunFormEditValues;
+}
+
+function pad2(n: number): string {
+  return String(n).padStart(2, "0");
+}
+
+function formatLocalDatetimeValue(d: Date): string {
+  return `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}T${pad2(d.getHours())}:${pad2(d.getMinutes())}`;
 }
 
 function defaultLocalStartsAt(): string {
   const d = new Date(Date.now() + 60 * 60 * 1000);
   d.setSeconds(0, 0);
-  const pad = (n: number) => String(n).padStart(2, "0");
-  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+  return formatLocalDatetimeValue(d);
 }
 
-export default function CreateRunForm({ maps, nickname: initialNickname, isVerified, serverError }: Props) {
-  const needsNickname = !initialNickname && !isVerified;
-  const verifiedNeedsRequest = !initialNickname && isVerified;
+function startsAtToLocalDatetime(iso: string): string {
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return "";
+  return formatLocalDatetimeValue(d);
+}
+
+export default function CreateRunForm({ maps, nickname: initialNickname, isVerified, serverError, edit }: Props) {
+  const isEdit = Boolean(edit);
+  const needsNickname = !isEdit && !initialNickname && !isVerified;
+  const verifiedNeedsRequest = !isEdit && !initialNickname && isVerified;
   const [nickname, setNickname] = useState("");
-  const [title, setTitle] = useState("");
-  const [mapId, setMapId] = useState("");
-  const [startsAtLocal, setStartsAtLocal] = useState(defaultLocalStartsAt);
-  const [maxParticipants, setMaxParticipants] = useState("2");
-  const [minPoints, setMinPoints] = useState("0");
-  const [joinMode, setJoinMode] = useState<"approval_required" | "auto_join">("approval_required");
+  const [title, setTitle] = useState(edit?.title ?? "");
+  const [mapId, setMapId] = useState(edit?.mapId ?? "");
+  const [startsAtLocal, setStartsAtLocal] = useState(() =>
+    edit ? startsAtToLocalDatetime(edit.startsAt) : defaultLocalStartsAt(),
+  );
+  const [maxParticipants, setMaxParticipants] = useState(edit ? String(edit.maxParticipants) : "2");
+  const [minPoints, setMinPoints] = useState(edit ? String(edit.minPoints) : "0");
+  const [joinMode, setJoinMode] = useState<CreateRunFormJoinMode>(edit?.joinMode ?? "approval_required");
   const [errors, setErrors] = useState<{
     nickname?: string;
     starts_at?: string;
@@ -66,6 +98,10 @@ export default function CreateRunForm({ maps, nickname: initialNickname, isVerif
       const d = new Date(startsAtLocal);
       if (Number.isNaN(d.getTime())) {
         next.starts_at = "Start time is invalid";
+      } else if (isEdit) {
+        if (!isRunActive(d, null)) {
+          next.starts_at = "Start time must keep the run active";
+        }
       } else if (d.getTime() <= Date.now()) {
         next.starts_at = "Start time must be in the future";
       }
@@ -74,6 +110,8 @@ export default function CreateRunForm({ maps, nickname: initialNickname, isVerif
     const capacity = Number.parseInt(maxParticipants, 10);
     if (!Number.isFinite(capacity) || capacity <= 0) {
       next.max_participants = "Must be a whole number greater than 0";
+    } else if (edit && capacity !== edit.maxParticipants && capacity < edit.confirmedCount) {
+      next.max_participants = "Capacity cannot be below the confirmed roster";
     }
 
     const points = Number.parseInt(minPoints, 10);
@@ -92,7 +130,13 @@ export default function CreateRunForm({ maps, nickname: initialNickname, isVerif
   }
 
   return (
-    <form method="POST" action="/api/runs" className="space-y-5" onSubmit={handleSubmit} noValidate>
+    <form
+      method="POST"
+      action={edit ? `/api/runs/${edit.runId}` : "/api/runs"}
+      className="space-y-5"
+      onSubmit={handleSubmit}
+      noValidate
+    >
       {verifiedNeedsRequest && (
         <div className="rounded-xl border border-amber-400/30 bg-amber-500/10 px-4 py-3">
           <p className="text-sm text-amber-100/90">
@@ -127,7 +171,7 @@ export default function CreateRunForm({ maps, nickname: initialNickname, isVerif
         </div>
       )}
 
-      {!needsNickname && initialNickname && (
+      {!isEdit && !needsNickname && initialNickname && (
         <p className="text-sm text-blue-100/60">
           Creating as <span className="text-white">{initialNickname}</span>
         </p>
@@ -204,12 +248,13 @@ export default function CreateRunForm({ maps, nickname: initialNickname, isVerif
         </label>
         <select
           id="join_mode"
-          name="join_mode"
+          name={edit?.joinModeLocked ? undefined : "join_mode"}
           value={joinMode}
+          disabled={Boolean(edit?.joinModeLocked)}
           onChange={(e) => {
-            setJoinMode(e.target.value as "approval_required" | "auto_join");
+            setJoinMode(e.target.value as CreateRunFormJoinMode);
           }}
-          className={selectClass}
+          className={cn(selectClass, edit?.joinModeLocked && "cursor-not-allowed opacity-60")}
         >
           <option value="approval_required" className="bg-slate-900">
             Approval required
@@ -218,12 +263,15 @@ export default function CreateRunForm({ maps, nickname: initialNickname, isVerif
             Auto join
           </option>
         </select>
+        {edit?.joinModeLocked && (
+          <p className="mt-1 text-xs text-blue-100/50">Join mode cannot be changed after someone has applied.</p>
+        )}
       </div>
 
       <ServerError message={serverError} />
 
-      <SubmitButton pendingText="Creating…" icon={<CalendarClock className="size-4" />}>
-        Create run
+      <SubmitButton pendingText={isEdit ? "Saving…" : "Creating…"} icon={<CalendarClock className="size-4" />}>
+        {isEdit ? "Save changes" : "Create run"}
       </SubmitButton>
     </form>
   );

@@ -73,6 +73,12 @@ const hasCreatedRuns = active.length > 0 || archived.length > 0;
                           {run.lifecyclePhase === "in_progress" && (
                             <span class="ml-2 text-sm font-medium text-amber-200">In progress</span>
                           )}
+                          <a
+                            href={`/runs/${run.id}/edit`}
+                            class="ml-3 text-sm font-medium text-purple-300 transition-colors hover:text-purple-100 hover:underline"
+                          >
+                            Edit
+                          </a>
                         </h3>
                         <time class="shrink-0 text-sm text-blue-100/70" datetime={run.startsAt}>
                           {formatStart(run.startsAt)}

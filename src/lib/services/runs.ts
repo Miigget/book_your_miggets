@@ -285,6 +285,34 @@ export async function getActiveRunById(supabase: AppSupabaseClient, id: string):
 }
 
 /**
+ * Owner-only loader for `/runs/{id}/edit`. Do not use `getActiveRunById` as the gate —
+ * that would pass for any signed-in viewer of a public active run.
+ */
+export async function getOwnedActiveRunForEdit(
+  supabase: AppSupabaseClient,
+  runId: string,
+  userId: string,
+): Promise<RunDetail | null> {
+  if (!isUuid(runId)) return null;
+
+  const now = Date.now();
+  const { data, error } = await supabase
+    .from("runs")
+    .select(RUN_SELECT)
+    .eq("id", runId)
+    .eq("organizer_id", userId)
+    .maybeSingle();
+
+  if (error) {
+    throw new Error(`Failed to load run: ${error.message}`);
+  }
+  if (!data) return null;
+  if (!isRunActive(data.starts_at, data.archived_at, now)) return null;
+
+  return mapRunRow(data, 0, now);
+}
+
+/**
  * Personal organizer inventory by ownership (`organizer_id`), not participation.
  * Leave-team does not hide created runs. Do not reuse `listArchivedRunsForParticipant`.
  */
@@ -551,7 +579,7 @@ export async function updateRun(
 
   const { data: existing, error: loadError } = await supabase
     .from("runs")
-    .select("id")
+    .select("id, max_participants")
     .eq("id", runId)
     .eq("organizer_id", userId)
     .is("archived_at", null)
@@ -618,7 +646,7 @@ export async function updateRun(
     throw new Error(`Failed to count participants: ${otherParticipants.error.message}`);
   }
 
-  if (maxParticipants < confirmedCount) {
+  if (maxParticipants !== existing.max_participants && maxParticipants < confirmedCount) {
     throw new RunError("Capacity cannot be below the confirmed roster");
   }
 

@@ -331,31 +331,31 @@ Forward-only SQL. No backfill (every run already has an organizer seat). Rollbac
 
 #### Automated
 
-- [x] 2.1 `npx astro sync` succeeds
-- [x] 2.2 `npm run lint` passes
+- [x] 2.1 `npx astro sync` succeeds — fb2fcdb
+- [x] 2.2 `npm run lint` passes — fb2fcdb
 
 #### Manual
 
-- [x] 2.3 Authenticated organizer POST of valid fields redirects to `/runs/{id}` and the row changed
-- [x] 2.4 POST with `max_participants` below confirmed count returns the capacity `RunError` copy in `?error=`, not PostgREST text
-- [x] 2.5 POST as a different signed-in user does not change the row and does not reveal that the run exists beyond the same not-found copy
-- [x] 2.6 POST with a `starts_at` that would leave the active window is rejected with explicit copy before/instead of a silent no-op
-- [x] 2.7 POST that includes a new `join_mode` after a non-organizer row leaves `join_mode` unchanged (service ignore; trigger if a bug sends it)
+- [x] 2.3 Authenticated organizer POST of valid fields redirects to `/runs/{id}` and the row changed — fb2fcdb
+- [x] 2.4 POST with `max_participants` below confirmed count returns the capacity `RunError` copy in `?error=`, not PostgREST text — fb2fcdb
+- [x] 2.5 POST as a different signed-in user does not change the row and does not reveal that the run exists beyond the same not-found copy — fb2fcdb
+- [x] 2.6 POST with a `starts_at` that would leave the active window is rejected with explicit copy before/instead of a silent no-op — fb2fcdb
+- [x] 2.7 POST that includes a new `join_mode` after a non-organizer row leaves `join_mode` unchanged (service ignore; trigger if a bug sends it) — fb2fcdb
 
 ### Phase 3: Edit page, form, middleware, and entry links
 
 #### Automated
 
-- [ ] 3.1 `npx astro sync` succeeds
-- [ ] 3.2 `npm run lint` passes
-- [ ] 3.3 `npm run build` succeeds
+- [x] 3.1 `npx astro sync` succeeds
+- [x] 3.2 `npm run lint` passes
+- [x] 3.3 `npm run build` succeeds
 
 #### Manual
 
-- [ ] 3.4 Organizer sees Edit on dashboard active cards and on run detail; archived/past cards have no Edit
-- [ ] 3.5 Guest hitting `/runs/{id}/edit` is redirected to sign-in
-- [ ] 3.6 Signed-in non-owner and archived owner see the same 404 shell as a missing run (not a form)
-- [ ] 3.7 Saving title, map (including unset), min points, start (still active), and capacity (≥ confirmed) updates `/runs` and `/runs/{id}`
-- [ ] 3.8 After a second account applies, join mode is a disabled select with helper; save does not change `join_mode`
-- [ ] 3.9 During in-progress grace, a start time that stays inside the 1h window saves; a start that would archive is rejected
-- [ ] 3.10 Banned organizer sees the banned banner; POST is blocked by middleware
+- [x] 3.4 Organizer sees Edit on dashboard active cards and on run detail; archived/past cards have no Edit
+- [x] 3.5 Guest hitting `/runs/{id}/edit` is redirected to sign-in
+- [x] 3.6 Signed-in non-owner and archived owner see the same 404 shell as a missing run (not a form)
+- [x] 3.7 Saving title, map (including unset), min points, start (still active), and capacity (≥ confirmed) updates `/runs` and `/runs/{id}`
+- [x] 3.8 After a second account applies, join mode is a disabled select with helper; save does not change `join_mode`
+- [x] 3.9 During in-progress grace, a start time that stays inside the 1h window saves; a start that would archive is rejected
+- [x] 3.10 Banned organizer sees the banned banner; POST is blocked by middleware
