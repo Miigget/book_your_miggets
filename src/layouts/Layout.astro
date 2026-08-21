@@ -36,6 +36,17 @@ const { title = "Book Your Miggets" } = Astro.props;
       ))
     }
     <slot />
+    <script is:inline>
+      (function () {
+        document.querySelectorAll("time[datetime]").forEach(function (el) {
+          var iso = el.getAttribute("datetime");
+          if (!iso) return;
+          var date = new Date(iso);
+          if (isNaN(date.getTime())) return;
+          el.textContent = date.toLocaleString("en-US", { dateStyle: "medium", timeStyle: "short" });
+        });
+      })();
+    </script>
   </body>
 </html>
 

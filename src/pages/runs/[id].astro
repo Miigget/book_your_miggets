@@ -184,7 +184,7 @@ function formatReleasedOn(value: string | null): string {
                 <div>
                   <dt class="text-blue-100/50">Starts</dt>
                   <dd class="mt-0.5 text-white">
-                    <time datetime={run.startsAt}>{formatStart(run.startsAt)}</time>
+                    <time datetime={run.startsAt}>{formatStart(run.startsAt, Astro.locals.timeZone)}</time>
                   </dd>
                 </div>
                 <div>
@@ -300,6 +300,7 @@ function formatReleasedOn(value: string | null): string {
                   canPostOrLike={canPostOrLike}
                   isAdmin={isAdmin}
                   commentError={commentError}
+                  timeZone={Astro.locals.timeZone}
                 />
               </section>
             )}

@@ -4,6 +4,7 @@ import { FormField } from "@/components/auth/FormField";
 import { ServerError } from "@/components/auth/ServerError";
 import { SubmitButton } from "@/components/auth/SubmitButton";
 import { MapPicker } from "@/components/runs/MapPicker";
+import { formatLocalDatetimeValue, parseLocalDatetime } from "@/lib/format-date";
 import { isRunActive } from "@/lib/run-lifecycle";
 import { cn } from "@/lib/utils";
 import type { MapPickerItem } from "@/lib/services/runs";
@@ -32,14 +33,6 @@ interface Props {
   isVerified: boolean;
   serverError?: string | null;
   edit?: CreateRunFormEditValues;
-}
-
-function pad2(n: number): string {
-  return String(n).padStart(2, "0");
-}
-
-function formatLocalDatetimeValue(d: Date): string {
-  return `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}T${pad2(d.getHours())}:${pad2(d.getMinutes())}`;
 }
 
 function defaultLocalStartsAt(): string {
@@ -76,8 +69,8 @@ export default function CreateRunForm({ maps, nickname: initialNickname, isVerif
 
   const startsAtIso = useMemo(() => {
     if (!startsAtLocal) return "";
-    const d = new Date(startsAtLocal);
-    return Number.isNaN(d.getTime()) ? "" : d.toISOString();
+    const d = parseLocalDatetime(startsAtLocal);
+    return d ? d.toISOString() : "";
   }, [startsAtLocal]);
 
   function validate() {
@@ -96,8 +89,8 @@ export default function CreateRunForm({ maps, nickname: initialNickname, isVerif
     if (!startsAtLocal) {
       next.starts_at = "Start time is required";
     } else {
-      const d = new Date(startsAtLocal);
-      if (Number.isNaN(d.getTime())) {
+      const d = parseLocalDatetime(startsAtLocal);
+      if (!d) {
         next.starts_at = "Start time is invalid";
       } else if (isEdit) {
         if (!isRunActive(d, null)) {
