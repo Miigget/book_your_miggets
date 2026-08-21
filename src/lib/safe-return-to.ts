@@ -1,4 +1,5 @@
 const RUN_RETURN_TO_RE = /^\/runs\/([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})$/i;
+const PLAYER_PATH_RE = /^\/players\/([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})$/i;
 
 /** Allow only `/runs/{uuid}` relative paths (blocks open redirects). */
 export function safeRunReturnTo(value: string | null | undefined): string | null {
@@ -9,8 +10,29 @@ export function safeRunReturnTo(value: string | null | undefined): string | null
   return `/runs/${match[1]}`;
 }
 
+/** Post-login `?returnTo=` — `/runs/{uuid}` or `/players/{uuid}` only. Do not allow `/profile`. */
+export function safeAuthReturnTo(value: string | null | undefined): string | null {
+  if (!value) return null;
+  const trimmed = value.trim();
+  const run = RUN_RETURN_TO_RE.exec(trimmed);
+  if (run) return `/runs/${run[1]}`;
+  const player = PLAYER_PATH_RE.exec(trimmed);
+  if (player) return `/players/${player[1]}`;
+  return null;
+}
+
+/** Friend mutation bounce — `/profile` or `/players/{uuid}` only. */
+export function safeFriendRedirect(value: string | null | undefined): string | null {
+  if (!value) return null;
+  const trimmed = value.trim();
+  if (trimmed === "/profile") return "/profile";
+  const player = PLAYER_PATH_RE.exec(trimmed);
+  if (player) return `/players/${player[1]}`;
+  return null;
+}
+
 export function withReturnTo(path: string, returnTo: string | null | undefined): string {
-  const safe = safeRunReturnTo(returnTo);
+  const safe = safeAuthReturnTo(returnTo);
   if (!safe) return path;
   const url = new URL(path, "http://local.invalid");
   url.searchParams.set("returnTo", safe);
@@ -24,7 +46,7 @@ export function authErrorRedirect(
 ): string {
   const url = new URL(basePath, "http://local.invalid");
   url.searchParams.set("error", message);
-  const safe = safeRunReturnTo(returnTo);
+  const safe = safeAuthReturnTo(returnTo);
   if (safe) url.searchParams.set("returnTo", safe);
   return `${url.pathname}${url.search}`;
 }

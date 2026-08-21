@@ -5,7 +5,7 @@ import {
   createLocalServiceRoleClient,
   resolveDevQuickLoginAccount,
 } from "@/lib/dev-quick-login-server";
-import { authErrorRedirect, safeRunReturnTo } from "@/lib/safe-return-to";
+import { authErrorRedirect, safeAuthReturnTo } from "@/lib/safe-return-to";
 import { createClient } from "@/lib/supabase";
 import { ensureOwnProfile } from "@/lib/services/runs";
 
@@ -17,7 +17,7 @@ export const POST: APIRoute = async (context) => {
   }
 
   const form = await context.request.formData();
-  const returnTo = safeRunReturnTo((form.get("returnTo") as string | null) ?? undefined);
+  const returnTo = safeAuthReturnTo((form.get("returnTo") as string | null) ?? undefined);
   const accountId = resolveDevQuickLoginAccount(form.get("account"));
   if (!accountId) {
     return context.redirect(authErrorRedirect("/auth/signin", "Unknown dev account", returnTo));

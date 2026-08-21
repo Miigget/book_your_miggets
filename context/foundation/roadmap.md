@@ -40,7 +40,7 @@ The King of Gores (KoG) community in TeeWorlds has no tool for organizing shared
 | S-08 | my-runs-dashboard | (organizer) view all runs they created in one place | S-01 | FR-005 | done |
 | S-09 | admin-player-archive-view | (admin) view any player's archived run history from their profile | S-04, S-06 | FR-016 | done |
 | S-10 | user-profile | manage own profile (nickname if unverified, email, password, KoG points); open others via clickable nicknames | S-02 | FR-017, FR-018, FR-023, US-03 | done |
-| S-11 | add-friends | (verified) send/accept/decline friend requests and see friends list on the profile | S-10 | FR-019, US-04 | ready |
+| S-11 | add-friends | (verified) send/accept/decline friend requests and see friends list on the profile | S-10 | FR-019, US-04 | done |
 | S-12 | run-comments | (confirmed participant) post comments on a run they were accepted to | S-02 | FR-020, US-05 | done |
 | S-13 | edit-run | (organizer) edit an active run they created | S-01 | FR-021, US-06 | done |
 | S-14 | category-only-runs | create a run with a map category and no specific map; category shows on the card | S-01 | FR-022, US-07 | done |
@@ -220,7 +220,7 @@ PRD v1 must-haves are covered. Remaining PRD v2 slices: S-11, S-15…S-17. Landi
 - **Blockers:** —
 - **Unknowns:** —
 - **Risk:** sequenced after S-10 so a request has a public profile to live on; unverified accounts stay out of the graph so S-15 private runs cannot leak through fake friends.
-- **Status:** ready
+- **Status:** done
 
 ### S-12: Comments on runs you were accepted to
 
@@ -374,3 +374,4 @@ PRD v1 must-haves are covered. Remaining PRD v2 slices: S-11, S-15…S-17. Landi
 - **S-12: confirmed participant can post comments on a run they were accepted to.** — Archived 2026-08-20 → `context/archive/2026-08-20-run-comments/`. Lesson: —.
 - **S-13: organizer can edit an active run they created.** — Archived 2026-08-20 → `context/archive/2026-08-20-edit-run/`. Lesson: —.
 - **S-14: organizer can create a run with a map category and no specific map; that category shows on the run card.** — Archived 2026-08-21 → `context/archive/2026-08-21-category-only-runs/`. Lesson: —.
+- **S-11: verified user can send, accept, or decline friend requests to other verified members and see the friends list on the profile (including Add friend on someone else's public profile).** — Archived 2026-08-21 → `context/archive/2026-08-21-add-friends/`. Lesson: —.

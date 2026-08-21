@@ -1,9 +1,9 @@
 ---
 import Layout from "@/layouts/Layout.astro";
-import { safeRunReturnTo, withReturnTo } from "@/lib/safe-return-to";
+import { safeAuthReturnTo, withReturnTo } from "@/lib/safe-return-to";
 
 const isAutoConfirmed = import.meta.env.DEV;
-const returnTo = safeRunReturnTo(Astro.url.searchParams.get("returnTo"));
+const returnTo = safeAuthReturnTo(Astro.url.searchParams.get("returnTo"));
 const signInHref = withReturnTo("/auth/signin", returnTo);
 
 const content = isAutoConfirmed

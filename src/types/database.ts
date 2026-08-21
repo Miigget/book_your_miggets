@@ -34,6 +34,62 @@ export type Database = {
   }
   public: {
     Tables: {
+      friend_requests: {
+        Row: {
+          created_at: string
+          id: string
+          receiver_id: string
+          sender_id: string
+          status: Database["public"]["Enums"]["friend_request_status"]
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          receiver_id: string
+          sender_id: string
+          status?: Database["public"]["Enums"]["friend_request_status"]
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          receiver_id?: string
+          sender_id?: string
+          status?: Database["public"]["Enums"]["friend_request_status"]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "friend_requests_receiver_id_fkey"
+            columns: ["receiver_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "friend_requests_receiver_id_fkey"
+            columns: ["receiver_id"]
+            isOneToOne: false
+            referencedRelation: "public_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "friend_requests_sender_id_fkey"
+            columns: ["sender_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "friend_requests_sender_id_fkey"
+            columns: ["sender_id"]
+            isOneToOne: false
+            referencedRelation: "public_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       maps: {
         Row: {
           created_at: string
@@ -358,6 +414,13 @@ export type Database = {
       }
     }
     Views: {
+      public_friendships: {
+        Row: {
+          friend_id: string | null
+          user_id: string | null
+        }
+        Relationships: []
+      }
       public_profiles: {
         Row: {
           id: string | null
@@ -384,6 +447,7 @@ export type Database = {
       }
     }
     Functions: {
+      are_friends: { Args: { a: string; b: string }; Returns: boolean }
       auto_join_run: { Args: { p_run_id: string }; Returns: string }
       ensure_own_profile: {
         Args: never
@@ -412,6 +476,7 @@ export type Database = {
       is_run_organizer: { Args: { p_run_id: string }; Returns: boolean }
     }
     Enums: {
+      friend_request_status: "pending" | "accepted" | "declined"
       join_mode: "approval_required" | "auto_join"
       nickname_change_request_status: "pending" | "accepted" | "denied"
       participant_status: "pending" | "confirmed" | "denied"
@@ -546,6 +611,7 @@ export const Constants = {
   },
   public: {
     Enums: {
+      friend_request_status: ["pending", "accepted", "declined"],
       join_mode: ["approval_required", "auto_join"],
       nickname_change_request_status: ["pending", "accepted", "denied"],
       participant_status: ["pending", "confirmed", "denied"],

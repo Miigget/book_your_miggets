@@ -1,9 +1,12 @@
 # book_your_miggets
+
 Team Finder / Run Scheduler for gores
 
 ## Profile
 
 Signed-in members open **Profile** in the top bar (`/profile`) to manage nickname, email, password, and self-reported KoG points. The top bar shows nickname (or “Set nickname”), never email. Email stays off public pages.
+
+Verified members add friends from another player's public profile (`/players/{id}`). Incoming and outgoing requests live on **Profile**. Guests can still see accepted friends on public profiles.
 
 ## Admin access
 
