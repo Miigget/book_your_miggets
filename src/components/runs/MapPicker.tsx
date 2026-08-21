@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
 import { Map as MapIcon, Search, X } from "lucide-react";
+import { MAP_CATEGORIES } from "@/lib/map-categories";
 import { cn } from "@/lib/utils";
 import type { MapPickerItem } from "@/lib/services/runs";
 
@@ -11,16 +12,14 @@ interface MapPickerProps {
   selectedId: string;
   onSelect: (id: string) => void;
   error?: string;
+  initialDifficulty?: string;
 }
 
-export function MapPicker({ maps, selectedId, onSelect, error }: MapPickerProps) {
+export function MapPicker({ maps, selectedId, onSelect, error, initialDifficulty = "" }: MapPickerProps) {
   const [query, setQuery] = useState("");
-  const [difficulty, setDifficulty] = useState("");
-
-  const difficulties = useMemo(() => {
-    const set = new Set(maps.map((m) => m.difficulty));
-    return Array.from(set).sort((a, b) => a.localeCompare(b));
-  }, [maps]);
+  const [difficulty, setDifficulty] = useState(() =>
+    (MAP_CATEGORIES as readonly string[]).includes(initialDifficulty) ? initialDifficulty : "",
+  );
 
   const selected = maps.find((m) => m.id === selectedId) ?? null;
 
@@ -38,7 +37,9 @@ export function MapPicker({ maps, selectedId, onSelect, error }: MapPickerProps)
   return (
     <div className="space-y-3">
       <div className="flex items-center justify-between gap-2">
-        <label className="text-sm text-blue-100/80">Map (optional)</label>
+        <label htmlFor="map-search" className="text-sm text-blue-100/80">
+          Map (optional)
+        </label>
         {selected && (
           <button
             type="button"
@@ -67,16 +68,18 @@ export function MapPicker({ maps, selectedId, onSelect, error }: MapPickerProps)
         </div>
       ) : (
         <p className="text-xs text-blue-100/50">
-          No map selected — pick a run category below, or title/nickname will name the run.
+          No map selected — the difficulty filter below is the run category if you pick one.
         </p>
       )}
 
       <input type="hidden" name="map_id" value={selectedId} />
+      <input type="hidden" name="map_category" value={selectedId ? "" : difficulty} />
 
       <div className="grid grid-cols-1 gap-2 sm:grid-cols-[1fr_auto]">
         <div className="relative">
           <Search className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-white/40" />
           <input
+            id="map-search"
             type="search"
             value={query}
             onChange={(e) => {
@@ -88,23 +91,27 @@ export function MapPicker({ maps, selectedId, onSelect, error }: MapPickerProps)
           />
         </div>
         <select
+          id="map-difficulty"
           value={difficulty}
           onChange={(e) => {
             setDifficulty(e.target.value);
           }}
           className={cn(fieldClass, "sm:min-w-40")}
-          aria-label="Filter by difficulty"
+          aria-label="Difficulty"
         >
           <option value="" className="bg-slate-900">
             All difficulties
           </option>
-          {difficulties.map((d) => (
+          {MAP_CATEGORIES.map((d) => (
             <option key={d} value={d} className="bg-slate-900">
               {d}
             </option>
           ))}
         </select>
       </div>
+      <p className="text-xs text-blue-100/40">
+        Filters the map list. Optional — with no map, this is stored as the run category.
+      </p>
 
       <ul
         className={cn(

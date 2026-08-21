@@ -4,7 +4,6 @@ import { FormField } from "@/components/auth/FormField";
 import { ServerError } from "@/components/auth/ServerError";
 import { SubmitButton } from "@/components/auth/SubmitButton";
 import { MapPicker } from "@/components/runs/MapPicker";
-import { MAP_CATEGORIES } from "@/lib/map-categories";
 import { isRunActive } from "@/lib/run-lifecycle";
 import { cn } from "@/lib/utils";
 import type { MapPickerItem } from "@/lib/services/runs";
@@ -62,7 +61,6 @@ export default function CreateRunForm({ maps, nickname: initialNickname, isVerif
   const [nickname, setNickname] = useState("");
   const [title, setTitle] = useState(edit?.title ?? "");
   const [mapId, setMapId] = useState(edit?.mapId ?? "");
-  const [category, setCategory] = useState(edit?.mapCategory ?? "");
   const [startsAtLocal, setStartsAtLocal] = useState(() =>
     edit ? startsAtToLocalDatetime(edit.startsAt) : defaultLocalStartsAt(),
   );
@@ -71,7 +69,6 @@ export default function CreateRunForm({ maps, nickname: initialNickname, isVerif
   const [joinMode, setJoinMode] = useState<CreateRunFormJoinMode>(edit?.joinMode ?? "approval_required");
   const [errors, setErrors] = useState<{
     nickname?: string;
-    map_category?: string;
     starts_at?: string;
     max_participants?: string;
     min_points?: string;
@@ -109,10 +106,6 @@ export default function CreateRunForm({ maps, nickname: initialNickname, isVerif
       } else if (d.getTime() <= Date.now()) {
         next.starts_at = "Start time must be in the future";
       }
-    }
-
-    if (!mapId && !category) {
-      next.map_category = "Pick a map or a category";
     }
 
     const capacity = Number.parseInt(maxParticipants, 10);
@@ -194,47 +187,7 @@ export default function CreateRunForm({ maps, nickname: initialNickname, isVerif
         icon={<Tag className="size-4" />}
       />
 
-      <MapPicker
-        maps={maps}
-        selectedId={mapId}
-        onSelect={(id) => {
-          setMapId(id);
-          if (id) {
-            setCategory("");
-          }
-          if (errors.map_category) setErrors((prev) => ({ ...prev, map_category: undefined }));
-        }}
-      />
-
-      <input type="hidden" name="map_category" value={mapId ? "" : category} />
-
-      {!mapId && (
-        <div>
-          <label htmlFor="run_category" className="mb-1 block text-sm text-blue-100/80">
-            Run category
-          </label>
-          <select
-            id="run_category"
-            value={category}
-            onChange={(e) => {
-              setCategory(e.target.value);
-              if (errors.map_category) setErrors((prev) => ({ ...prev, map_category: undefined }));
-            }}
-            className={cn(selectClass, errors.map_category ? "border-red-400/60 focus:ring-red-400" : undefined)}
-          >
-            <option value="" className="bg-slate-900">
-              Select a category
-            </option>
-            {MAP_CATEGORIES.map((c) => (
-              <option key={c} value={c} className="bg-slate-900">
-                {c}
-              </option>
-            ))}
-          </select>
-          <p className="mt-1 text-xs text-blue-100/40">Required when no map.</p>
-          {errors.map_category && <p className="mt-1 text-xs text-red-300">{errors.map_category}</p>}
-        </div>
-      )}
+      <MapPicker maps={maps} selectedId={mapId} initialDifficulty={edit?.mapCategory ?? ""} onSelect={setMapId} />
 
       <div>
         <label htmlFor="starts_at_local" className="mb-1 block text-sm text-blue-100/80">

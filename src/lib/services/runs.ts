@@ -557,7 +557,7 @@ export function normalizeRunMapAndCategory(
   }
 
   if (category === null) {
-    throw new RunError("Pick a map or a category");
+    return { mapId: null, mapCategory: null };
   }
 
   if (!isMapCategory(category)) {
@@ -585,9 +585,6 @@ interface PostgrestErrorBlob {
 
 export function mapRunMapCategoryConstraintError(error: PostgrestErrorBlob): RunError | null {
   const blob = `${error.message} ${error.details ?? ""} ${error.hint ?? ""}`;
-  if (blob.includes("runs_map_or_category_required")) {
-    return new RunError("Pick a map or a category");
-  }
   if (blob.includes("runs_map_category_catalog")) {
     return new RunError("Category is invalid");
   }
