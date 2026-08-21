@@ -295,6 +295,7 @@ export type Database = {
           created_at: string
           id: string
           join_mode: Database["public"]["Enums"]["join_mode"]
+          map_category: string | null
           map_id: string | null
           max_participants: number
           min_points: number
@@ -308,6 +309,7 @@ export type Database = {
           created_at?: string
           id?: string
           join_mode?: Database["public"]["Enums"]["join_mode"]
+          map_category?: string | null
           map_id?: string | null
           max_participants: number
           min_points?: number
@@ -321,6 +323,7 @@ export type Database = {
           created_at?: string
           id?: string
           join_mode?: Database["public"]["Enums"]["join_mode"]
+          map_category?: string | null
           map_id?: string | null
           max_participants?: number
           min_points?: number
