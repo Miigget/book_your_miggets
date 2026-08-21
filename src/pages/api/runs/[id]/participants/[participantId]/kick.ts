@@ -1,17 +1,22 @@
 import type { APIRoute } from "astro";
 import { commentInvalidRun, commentJson, commentUnauthorized, runFail, wantsJson } from "@/lib/comment-mutation-http";
 import { createClient } from "@/lib/supabase";
-import { leaveTeam, ParticipantError } from "@/lib/services/participants";
+import { kickParticipant, ParticipantError } from "@/lib/services/participants";
 import { isUuid } from "@/lib/services/runs";
 
 export const POST: APIRoute = async (context) => {
   const runId = context.params.id ?? "";
+  const participantId = context.params.participantId ?? "";
 
   if (!isUuid(runId)) {
     return commentInvalidRun(context);
   }
 
   const fail = (message: string) => runFail(context, runId, message);
+
+  if (!isUuid(participantId)) {
+    return fail("Invalid participant");
+  }
 
   const supabase = createClient(context.request.headers, context.cookies);
   if (!supabase) {
@@ -27,17 +32,17 @@ export const POST: APIRoute = async (context) => {
   }
 
   try {
-    await leaveTeam(supabase, runId, user.id);
+    await kickParticipant(supabase, runId, participantId, user.id);
   } catch (err) {
     if (err instanceof ParticipantError) {
       return fail(err.message);
     }
-    console.error("leaveTeam failed", err);
-    return fail("Could not leave the team");
+    console.error("kickParticipant failed", err);
+    return fail("Could not remove this player");
   }
 
   if (wantsJson(context.request)) {
-    return commentJson({ ok: true });
+    return commentJson({ ok: true, participantId });
   }
 
   return context.redirect(`/runs/${runId}`);

@@ -110,7 +110,6 @@ const isArchived = run?.lifecyclePhase === "archived";
 const isBanned = Boolean(Astro.locals.profile?.isBanned);
 const canPostOrLike = own?.status === "confirmed" && !isArchived && !isBanned;
 const isOrganizer = Boolean(user?.id && user.id === run?.organizerId);
-const organizerSeated = isOrganizer && confirmed.some((p) => p.userId === user?.id);
 const confirmedCount = confirmed.length;
 const archivedBackHref =
   archivedSource === "organizer" ? "/dashboard" : archivedSource === "admin" ? "/admin" : "/runs/history";
@@ -276,7 +275,6 @@ function formatReleasedOn(value: string | null): string {
                   nickname={nickname}
                   isVerified={isVerified}
                   ownStatus={own?.status ?? null}
-                  organizerSeated={organizerSeated}
                   confirmed={confirmed.map((p) => ({ id: p.id, userId: p.userId, nickname: p.nickname }))}
                   pending={pending.map((p) => ({ id: p.id, userId: p.userId, nickname: p.nickname }))}
                   denied={denied.map((p) => ({ id: p.id, userId: p.userId, nickname: p.nickname }))}
