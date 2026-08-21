@@ -298,15 +298,15 @@ Production may already have `map_id` null rows. XOR must be `NOT VALID` so `supa
 
 #### Automated
 
-- [x] 3.1 `npm run lint` passes
-- [x] 3.2 `npx astro sync` and `npm run build` succeed
+- [x] 3.1 `npm run lint` passes — 597633e
+- [x] 3.2 `npx astro sync` and `npm run build` succeed — 597633e
 
 #### Manual
 
-- [x] 3.3 Active list card and `/runs/{id}` show `Category: Insane` (or the chosen value) with **no** map name for a category-only run
-- [x] 3.4 Dashboard (active + past), `/runs/history`, home Recent Runs, and admin player archive show the same Category line
-- [x] 3.5 A mapped run still shows Map: name · difficulty · points and **no** extra Category line
-- [x] 3.6 A grandfathered map-less run (if present) still has neither Map nor Category
-- [x] 3.7 `?map=insane` includes the category-only Insane run; title remains `{nick} run` when no custom title
-- [x] 3.8 MapPicker “All difficulties” still only filters the catalog; creating without clicking a map requires Run category
-- [x] 3.9 Edit via the form: mapped run → clear map, pick a category, save; category-only run → pick a map (category control hidden/cleared, Map row returns)
+- [x] 3.3 Active list card and `/runs/{id}` show `Category: Insane` (or the chosen value) with **no** map name for a category-only run — 597633e
+- [x] 3.4 Dashboard (active + past), `/runs/history`, home Recent Runs, and admin player archive show the same Category line — 597633e
+- [x] 3.5 A mapped run still shows Map: name · difficulty · points and **no** extra Category line — 597633e
+- [x] 3.6 A grandfathered map-less run (if present) still has neither Map nor Category — 597633e
+- [x] 3.7 `?map=insane` includes the category-only Insane run; title remains `{nick} run` when no custom title — 597633e
+- [x] 3.8 MapPicker “All difficulties” still only filters the catalog; creating without clicking a map requires Run category — 597633e
+- [x] 3.9 Edit via the form: mapped run → clear map, pick a category, save; category-only run → pick a map (category control hidden/cleared, Map row returns) — 597633e
