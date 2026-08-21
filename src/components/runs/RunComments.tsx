@@ -15,9 +15,10 @@ interface Props {
   canPostOrLike: boolean;
   isAdmin: boolean;
   commentError?: string | null;
+  timeZone?: string;
 }
 
-export default function RunComments({ runId, comments, canPostOrLike, isAdmin, commentError }: Props) {
+export default function RunComments({ runId, comments, canPostOrLike, isAdmin, commentError, timeZone }: Props) {
   const [items, setItems] = useState(comments);
   const [error, setError] = useState(commentError ?? null);
   const [posting, setPosting] = useState(false);
@@ -123,7 +124,7 @@ export default function RunComments({ runId, comments, canPostOrLike, isAdmin, c
                     <NicknameLink userId={comment.authorId} nickname={comment.nickname} />
                   </p>
                   <p className="mt-0.5 text-xs text-blue-100/50">
-                    <time dateTime={comment.createdAt}>{formatStart(comment.createdAt)}</time>
+                    <time dateTime={comment.createdAt}>{formatStart(comment.createdAt, timeZone)}</time>
                   </p>
                 </div>
                 <div className="flex shrink-0 items-start gap-1">

@@ -92,9 +92,12 @@ if (supabase) {
 
   <section class="overflow-hidden px-4 py-20">
     <div class="mx-auto max-w-5xl">
-      <h2 class="mb-12 text-center text-3xl font-bold text-white">
-        How It{" "}
-        <span class="bg-gradient-to-r from-blue-200 to-purple-200 bg-clip-text text-transparent">Works</span>
+      <h2 class="mb-12 text-center text-3xl font-bold">
+        <span
+          class="inline-block bg-gradient-to-r from-blue-200 via-purple-200 to-pink-200 bg-clip-text py-[0.12em] leading-[1.2] text-transparent"
+        >
+          How It Works
+        </span>
       </h2>
       <div class="grid grid-cols-1 gap-6 md:grid-cols-3">
         <div class="rounded-xl border border-white/10 bg-white/5 p-6 text-center backdrop-blur-xl">
@@ -234,7 +237,7 @@ if (supabase) {
                   ) : null}
                 </div>
                 <time class="mt-auto border-t border-white/10 pt-3 text-xs text-blue-100/60" datetime={run.startsAt}>
-                  {formatStart(run.startsAt)}
+                  {formatStart(run.startsAt, Astro.locals.timeZone)}
                 </time>
               </div>
             ))}

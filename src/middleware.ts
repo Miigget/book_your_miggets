@@ -1,4 +1,5 @@
 import { defineMiddleware } from "astro:middleware";
+import { getRequestTimeZone } from "@/lib/format-date";
 import { createClient } from "@/lib/supabase";
 
 const PROTECTED_ROUTES = ["/dashboard", "/runs/new", "/admin", "/runs/history", "/profile"];
@@ -23,6 +24,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
 
   context.locals.user = null;
   context.locals.profile = null;
+  context.locals.timeZone = getRequestTimeZone(context.request);
 
   if (supabase) {
     const {
