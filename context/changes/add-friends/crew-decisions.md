@@ -3,7 +3,7 @@ change_id: add-friends
 mode: YOLO
 started: 2026-08-21
 updated: 2026-08-21
-status: in-progress
+status: complete
 ---
 
 # Crew decisions — add-friends
@@ -25,6 +25,15 @@ Mode: **YOLO**. Crew Lead answered specialist questions; the human was asked onl
 | 2026-08-21T13:25 | 10x-plan | REVISE pass applied F1–F4; status planned |
 | 2026-08-21T13:30 | 10x-plan-review | SOUND (0C 0W); status plan_reviewed |
 | 2026-08-21T13:31 | gh-change-sync | --event plan_reviewed → #44 Backlog |
+| 2026-08-21T13:45 | 10x-implement p1 | schema/RLS/view/are_friends; commit 44e3f49 |
+| 2026-08-21T13:50 | gh-change-sync | --event implementing → #44 In progress |
+| 2026-08-21T13:55 | 10x-impl-review p1 | APPROVED; keep extra UPDATE status-machine trigger |
+| 2026-08-21T14:10 | 10x-implement p2 | service+APIs+/profile inbox; commit 40ce641 |
+| 2026-08-21T14:20 | 10x-impl-review p2 | APPROVED; keep friend-mutation-http.ts |
+| 2026-08-21T14:35 | 10x-implement p3 | public list + CTAs + safeAuthReturnTo; commit a894374 |
+| 2026-08-21T14:45 | 10x-impl-review p3 | APPROVED; manuals residual |
+| 2026-08-21T14:55 | 10x-impl-review | full APPROVED; status impl_reviewed |
+| 2026-08-21T14:56 | gh-change-sync | --event implemented → #44 In review |
 
 ## Decisions the Crew Lead made (no human)
 
@@ -33,6 +42,7 @@ Mode: **YOLO**. Crew Lead answered specialist questions; the human was asked onl
 - **q-list-visibility** — Who sees the accepted friends list. Chose **A public on `/players/{id}` (requests stay private)**. Why: US-04/FR-018 put the list on the profile and every nickname is already a public link; friendship is a trust signal, not a secret.
 - **q-unfriend** — Include Remove friend in S-11. Chose **A yes**. Why: S-15 assumes a live graph; a mistaken accept with no undo is worse than one extra mutation.
 - **q-unverify** — What happens when admin unverifies a friend. Chose **A keep rows; live graph requires both currently verified**. Why: no destructive trigger on S-06; re-verify restores edges; S-15 can reuse the same helper. C would leak unverified accounts into private runs later.
+- **commits** — Phase-end and archive ritual commits. Chose **COMMIT_OK**. Why: user chose YOLO for the full loop.
 
 ### Non-obvious
 - **research-skip** — Whether to hire `/10x-research` before plan. Chose **skip**. Why: YOLO default when the signal is weak; `/10x-plan` will map profile/RLS itself. S-10 (user-profile) is already archived.
@@ -44,15 +54,14 @@ Mode: **YOLO**. Crew Lead answered specialist questions; the human was asked onl
 - **plan-review-F1** — Auth returnTo for `/players/{uuid}`. Chose **Fix A `safeAuthReturnTo`**. Why: Phase 2 forbids widening `safeRunReturnTo`; a friend-only helper does not survive the sign-in page; Fix B would break criterion 2.3.
 - **plan-review-F2** — Public Accept missing `request_id`. Chose **Fix A `getRelationship` returns `{ status, requestId }`**. Why: three public buttons stay on three endpoints; same DTO as inbox rows; Fix B would split Accept across surfaces.
 
-### Obvious (optional, keep short)
-- **intent** — Empty user intent in YOLO → seed from roadmap S-11 (FR-019, US-04), not a bare slug humanization.
+### Obvious
+- **intent** — Empty user intent in YOLO → seed from roadmap S-11 (FR-019, US-04).
 - **gh-parent** — change-id `add-friends` equals roadmap Change ID → 1:1 link, no `--parent`.
 - **plan-review-F3** — Align Phase 2 body/Progress headings (drop backticks).
 - **plan-review-F4** — Phase 3: viewer `isVerified` from `getOwnProfile`; do not extend `locals.profile`. Island `ServerError` + `reloadKeepingScroll` (no new Banner on `[id].astro`).
-
-### Obvious
-- **intent** — Empty user intent in YOLO → seed from roadmap S-11 (FR-019, US-04), not a bare slug humanization.
-- **gh-parent** — change-id `add-friends` equals roadmap Change ID → 1:1 link, no `--parent`.
+- **impl-p1-F1** — Extra BEFORE UPDATE status-machine guards. Chose **keep**. Why: PERMISSIVE UPDATE policies OR-compose; without the trigger a declined receiver could jump to accepted.
+- **impl-p2-F1** — Extra `src/lib/friend-mutation-http.ts`. Chose **keep**. Why: same DRY pattern as `comment-mutation-http`.
+- **archive-despite-manuals** — Progress still has unchecked manual UI rows. Chose **continue archiving**. Why: YOLO auto-archive when only manual Progress rows remain.
 
 ## Decisions escalated to the human
 
@@ -60,12 +69,13 @@ Mode: **YOLO**. Crew Lead answered specialist questions; the human was asked onl
 
 ## Human-action gates
 
-- none yet
+- Phase 2 manuals 2.6–2.11 (`/profile` inbox send/accept/decline/cancel/unfriend): skipped (YOLO residual risk)
+- Phase 3 manuals 3.7–3.15 (public list, Add vs Accept vs Remove, auth returnTo, unverify hide): skipped (YOLO residual risk)
 
 ## Stop / escape hatches
 
-- none
+- none (plan-review REVISE applied via re-plan; no frame)
 
 ## GitHub
 
-- change-sync: #44 events new → Backlog; planned → Backlog (link-roadmap S-11)
+- change-sync: #44 events new → Backlog; planned → Backlog; plan_reviewed → Backlog; implementing → In progress; implemented → In review (link-roadmap S-11)

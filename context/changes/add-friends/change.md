@@ -1,7 +1,7 @@
 ---
 change_id: add-friends
 title: Friend requests between verified members
-status: implementing
+status: impl_reviewed
 created: 2026-08-21
 updated: 2026-08-21
 archived_at: null

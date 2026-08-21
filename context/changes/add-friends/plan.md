@@ -400,12 +400,12 @@ Additive: new enum, table, view, function. No backfill. Existing users have zero
 
 #### Automated
 
-- [x] 3.1 /players/[id].astro renders a Friends section and does not SELECT friend_requests for the public list
-- [x] 3.2 FriendActions exists; guest/unverified/own-public paths do not mount Add friend
-- [x] 3.3 /players is still absent from PROTECTED_ROUTES
-- [x] 3.4 withReturnTo, authErrorRedirect, and the six auth pages/routes use safeAuthReturnTo; nickname.ts still uses safeRunReturnTo
-- [x] 3.5 npm run lint passes
-- [x] 3.6 npm run build passes
+- [x] 3.1 /players/[id].astro renders a Friends section and does not SELECT friend_requests for the public list — a894374
+- [x] 3.2 FriendActions exists; guest/unverified/own-public paths do not mount Add friend — a894374
+- [x] 3.3 /players is still absent from PROTECTED_ROUTES — a894374
+- [x] 3.4 withReturnTo, authErrorRedirect, and the six auth pages/routes use safeAuthReturnTo; nickname.ts still uses safeRunReturnTo — a894374
+- [x] 3.5 npm run lint passes — a894374
+- [x] 3.6 npm run build passes — a894374
 
 #### Manual
 
