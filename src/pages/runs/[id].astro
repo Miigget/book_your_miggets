@@ -201,10 +201,16 @@ function formatReleasedOn(value: string | null): string {
                   <dt class="text-blue-100/50">Join mode</dt>
                   <dd class="mt-0.5 text-white">{formatJoinMode(run.joinMode)}</dd>
                 </div>
+                {!run.map && run.mapCategory ? (
+                  <div>
+                    <dt class="text-blue-100/50">Category</dt>
+                    <dd class="mt-0.5 text-white">{run.mapCategory}</dd>
+                  </div>
+                ) : null}
               </dl>
             </section>
 
-            {run.map && (
+            {run.map ? (
               <section class="mb-8 rounded-xl border border-white/10 bg-white/5 px-5 py-5 backdrop-blur-xl">
                 <h2 class="mb-4 text-sm font-semibold tracking-wide text-white/80 uppercase">Map</h2>
                 <dl class="grid grid-cols-1 gap-3 text-sm sm:grid-cols-2">
@@ -238,7 +244,7 @@ function formatReleasedOn(value: string | null): string {
                   </div>
                 </dl>
               </section>
-            )}
+            ) : null}
 
             <section class="mb-8 rounded-xl border border-white/10 bg-white/5 px-5 py-5 backdrop-blur-xl">
               {isArchived ? (

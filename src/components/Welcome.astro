@@ -216,7 +216,7 @@ if (supabase) {
                   <div>
                     Join: <span class="text-blue-100/90">{formatJoinMode(run.joinMode)}</span>
                   </div>
-                  {run.map && (
+                  {run.map ? (
                     <div class="col-span-2">
                       Map:{" "}
                       <span class="text-blue-100/90">
@@ -227,7 +227,11 @@ if (supabase) {
                         </span>
                       </span>
                     </div>
-                  )}
+                  ) : run.mapCategory ? (
+                    <div class="col-span-2">
+                      Category: <span class="text-blue-100/90">{run.mapCategory}</span>
+                    </div>
+                  ) : null}
                 </div>
                 <time class="mt-auto border-t border-white/10 pt-3 text-xs text-blue-100/60" datetime={run.startsAt}>
                   {formatStart(run.startsAt)}

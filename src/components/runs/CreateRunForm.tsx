@@ -17,6 +17,7 @@ export interface CreateRunFormEditValues {
   runId: string;
   title: string;
   mapId: string;
+  mapCategory: string;
   startsAt: string;
   maxParticipants: number;
   minPoints: number;
@@ -186,7 +187,7 @@ export default function CreateRunForm({ maps, nickname: initialNickname, isVerif
         icon={<Tag className="size-4" />}
       />
 
-      <MapPicker maps={maps} selectedId={mapId} onSelect={setMapId} />
+      <MapPicker maps={maps} selectedId={mapId} initialDifficulty={edit?.mapCategory ?? ""} onSelect={setMapId} />
 
       <div>
         <label htmlFor="starts_at_local" className="mb-1 block text-sm text-blue-100/80">

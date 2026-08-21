@@ -105,7 +105,7 @@ const hasCreatedRuns = active.length > 0 || archived.length > 0;
                             <dd class="inline text-blue-100/90">{run.pendingCount}</dd>
                           </div>
                         )}
-                        {run.map && (
+                        {run.map ? (
                           <div>
                             <dt class="inline">Map: </dt>
                             <dd class="inline text-blue-100/90">
@@ -116,7 +116,12 @@ const hasCreatedRuns = active.length > 0 || archived.length > 0;
                               </span>
                             </dd>
                           </div>
-                        )}
+                        ) : run.mapCategory ? (
+                          <div>
+                            <dt class="inline">Category: </dt>
+                            <dd class="inline text-blue-100/90">{run.mapCategory}</dd>
+                          </div>
+                        ) : null}
                         <div>
                           <dt class="inline">Organizer: </dt>
                           <dd class="inline text-blue-100/90">
@@ -166,7 +171,7 @@ const hasCreatedRuns = active.length > 0 || archived.length > 0;
                           <dt class="inline">Join: </dt>
                           <dd class="inline text-blue-100/90">{formatJoinMode(run.joinMode)}</dd>
                         </div>
-                        {run.map && (
+                        {run.map ? (
                           <div>
                             <dt class="inline">Map: </dt>
                             <dd class="inline text-blue-100/90">
@@ -177,7 +182,12 @@ const hasCreatedRuns = active.length > 0 || archived.length > 0;
                               </span>
                             </dd>
                           </div>
-                        )}
+                        ) : run.mapCategory ? (
+                          <div>
+                            <dt class="inline">Category: </dt>
+                            <dd class="inline text-blue-100/90">{run.mapCategory}</dd>
+                          </div>
+                        ) : null}
                         <div>
                           <dt class="inline">Organizer: </dt>
                           <dd class="inline text-blue-100/90">

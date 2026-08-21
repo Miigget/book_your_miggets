@@ -3,7 +3,7 @@ project: "Book Your Miggets"
 version: 2
 status: draft
 created: 2026-07-27
-updated: 2026-08-20
+updated: 2026-08-21
 prd_version: 2
 main_goal: market-feedback
 top_blocker: community-launch
@@ -40,13 +40,13 @@ The King of Gores (KoG) community in TeeWorlds has no tool for organizing shared
 | S-08 | my-runs-dashboard | (organizer) view all runs they created in one place | S-01 | FR-005 | done |
 | S-09 | admin-player-archive-view | (admin) view any player's archived run history from their profile | S-04, S-06 | FR-016 | done |
 | S-10 | user-profile | manage own profile (nickname if unverified, email, password, KoG points); open others via clickable nicknames | S-02 | FR-017, FR-018, FR-023, US-03 | done |
-| S-11 | add-friends | (verified) send/accept/decline friend requests and see friends list on the profile | S-10 | FR-019, US-04 | proposed |
+| S-11 | add-friends | (verified) send/accept/decline friend requests and see friends list on the profile | S-10 | FR-019, US-04 | ready |
 | S-12 | run-comments | (confirmed participant) post comments on a run they were accepted to | S-02 | FR-020, US-05 | done |
 | S-13 | edit-run | (organizer) edit an active run they created | S-01 | FR-021, US-06 | done |
-| S-14 | category-only-runs | create a run with a map category and no specific map; category shows on the card | S-01 | FR-022, US-07 | ready |
+| S-14 | category-only-runs | create a run with a map category and no specific map; category shows on the card | S-01 | FR-022, US-07 | done |
 | S-15 | restricted-run-visibility | create friends-only or invite-only runs; hidden from everyone else | S-01, S-11 | FR-027, FR-028, US-08, US-09 | proposed |
-| S-16 | admin-profile-edits | (admin) edit player nickname/points, verify points, handle nickname-change requests | S-09, S-10 | FR-023, FR-024, US-10 | proposed |
-| S-17 | player-labels | (admin) maintain label dictionary (name + color) and assign labels shown on public profiles | S-09, S-10 | FR-029, FR-030, US-11 | proposed |
+| S-16 | admin-profile-edits | (admin) edit player nickname/points, verify points, handle nickname-change requests | S-09, S-10 | FR-023, FR-024, US-10 | ready |
+| S-17 | player-labels | (admin) maintain label dictionary (name + color) and assign labels shown on public profiles | S-09, S-10 | FR-029, FR-030, US-11 | ready |
 
 ## Streams
 
@@ -62,14 +62,14 @@ Navigation aid — groups items that share a Prerequisites chain. Canonical orde
 
 ## Baseline
 
-What's already in place in the codebase as of `2026-08-19` (MVP slices F-01 + S-01…S-09 all shipped; live `v0.1.10`). Earlier tags: S-09 `v0.1.9`, S-07 `v0.1.8`, S-03 `v0.1.7`, S-05+S-06 `v0.1.6`, S-04 `v0.1.5`, north-star S-02 `v0.1.3`, F-01+S-01 `v0.1.1` (+ `v0.1.2`).
-PRD v1 must-haves are covered. PRD v2 adds post-MVP slices S-10…S-17. Landing/chrome polish is tracked as GitHub issues, not slices — do not open a new foundation just to re-scaffold what is below.
+What's already in place in the codebase as of `2026-08-21` (MVP slices F-01 + S-01…S-09 plus post-MVP S-10 / S-12 / S-13 shipped; live `v0.1.15`). S-14 (`category-only-runs`) is implemented and archived on `feature/category-only-runs`, not tagged yet. Earlier tags: S-13 `v0.1.15`, S-12 `v0.1.14`, S-10 `v0.1.13`, landing/filter chrome `v0.1.12`/`v0.1.11`, S-08 `v0.1.10`, S-09 `v0.1.9`, S-07 `v0.1.8`, S-03 `v0.1.7`, S-05+S-06 `v0.1.6`, S-04 `v0.1.5`, north-star S-02 `v0.1.3`, F-01+S-01 `v0.1.1` (+ `v0.1.2`).
+PRD v1 must-haves are covered. Remaining PRD v2 slices: S-11, S-15…S-17. Landing/chrome polish is tracked as GitHub issues, not slices — do not open a new foundation just to re-scaffold what is below.
 
-- **Frontend:** present — Astro SSR + React islands + Tailwind/shadcn; public run list/detail (search/filter, filled/capacity, in-progress labels, apply/approve/leave-team, auto-join); organizer `/dashboard` (created active + past); participant `/runs/history`; admin moderation + `/admin/users/{id}` archive; auth-gated create (`/runs`, `/runs/[id]`, `/runs/new`, `/admin`).
-- **Backend / API:** present — SSR on Cloudflare Workers; auth endpoints; `POST /api/runs`, `POST /api/profile/nickname`, participant mutations (`apply` / `withdraw` / `leave-team` / `decide` with race-safe auto-join), admin moderation APIs; middleware gates `/dashboard`, `/runs/new`, `/runs/history`, `/admin`; active list/detail/mutations enforce the FR-013 active window; banned users are blocked from mutations; archived detail loaders for participant / organizer-owner / admin.
-- **Data:** present — migrations for `profiles`, `runs`, `run_participants`, `maps`; organizer auto-seat trigger + DELETE withdraw/leave policies; `ensure_own_profile` + race-safe `auto_join_run` RPCs; KoGmaps seed/import; RLS active-window SELECT for guest/member plus organizer/admin archive visibility; generated `src/types/database.ts`.
-- **Auth:** present — Supabase email/password end-to-end: signup/signin/signout routes, cookie sessions, protected-route middleware, auth pages, safe `returnTo` back to `/runs/{uuid}` for the guest→apply path. FR-001/FR-002 are exercised inside the participation flow; admin role gating for moderation.
-- **Deploy / infra:** present — Cloudflare Workers via wrangler; CI (lint/build on PR/`main`); production Deploy on tag `v*` runs Supabase `db push`, seeds `kog-maps.sql` only when that file changed since the previous tag, then deploys the Worker (`.github/workflows/deploy.yml`); live at [https://book-your-miggets.bookyourmiggets.workers.dev](https://book-your-miggets.bookyourmiggets.workers.dev) (`v0.1.10`).
+- **Frontend:** present — Astro SSR + React islands + Tailwind/shadcn; public run list/detail (search/filter behind a toggle, filled/capacity, in-progress labels, apply/approve/leave/kick, auto-join, comments+likes for confirmed readers, organizer Edit); organizer `/dashboard` (created active + past); participant `/runs/history`; member `/profile` + public `/players/{id}`; clickable nicknames; admin moderation + `/admin/users/{id}` archive; auth-gated create/edit (`/runs/new`, `/runs/{id}/edit`, `/dashboard`, `/runs/history`, `/profile`, `/admin`).
+- **Backend / API:** present — SSR on Cloudflare Workers; auth endpoints; `POST /api/runs` + `POST /api/runs/{id}` (edit); profile APIs (nickname / nickname-request / email / password / points); participant mutations (`apply` / `withdraw` / `leave-team` / `kick` / `decide` with race-safe auto-join); comment post/like + admin comment-delete; admin moderation APIs; middleware gates `/dashboard`, `/runs/new`, `/runs/{id}/edit`, `/runs/history`, `/profile`, `/admin`; active list/detail/mutations enforce the FR-013 active window; banned users are blocked from mutations; archived detail loaders for participant / organizer-owner / admin.
+- **Data:** present — migrations for `profiles`, `runs`, `run_participants`, `maps`, `nickname_change_requests`, `run_comments`, `run_comment_likes`; `kog_points` / `kog_points_verified` on profiles; organizer auto-seat trigger + DELETE withdraw/leave/kick policies; UPDATE invariants on active runs (join-mode lock, capacity floor); `ensure_own_profile` + race-safe `auto_join_run` RPCs; KoGmaps seed/import; RLS active-window SELECT for guest/member plus organizer/admin archive visibility; comment ACL (confirmed / admin / unseated organizer read); generated `src/types/database.ts`.
+- **Auth:** present — Supabase email/password end-to-end: signup/signin/signout routes, cookie sessions, protected-route middleware, auth pages, member email/password change from `/profile`, safe `returnTo` back to `/runs/{uuid}` for the guest→apply path. FR-001/FR-002 are exercised inside the participation flow; admin role gating for moderation.
+- **Deploy / infra:** present — Cloudflare Workers via wrangler; CI (lint/build on PR/`main`); production Deploy on tag `v*` runs Supabase `db push`, seeds `kog-maps.sql` only when that file changed since the previous tag, then deploys the Worker (`.github/workflows/deploy.yml`); live at [https://book-your-miggets.bookyourmiggets.workers.dev](https://book-your-miggets.bookyourmiggets.workers.dev) (`v0.1.15`).
 - **Observability:** partial — Workers observability enabled in `wrangler.jsonc`; no app-level logging or error tracking. No NFR gates launch on this, so no foundation is opened for it.
 
 ## Foundations
@@ -220,7 +220,7 @@ PRD v1 must-haves are covered. PRD v2 adds post-MVP slices S-10…S-17. Landing/
 - **Blockers:** —
 - **Unknowns:** —
 - **Risk:** sequenced after S-10 so a request has a public profile to live on; unverified accounts stay out of the graph so S-15 private runs cannot leak through fake friends.
-- **Status:** proposed
+- **Status:** ready
 
 ### S-12: Comments on runs you were accepted to
 
@@ -231,7 +231,7 @@ PRD v1 must-haves are covered. PRD v2 adds post-MVP slices S-10…S-17. Landing/
 - **Parallel with:** S-10, S-13, S-14
 - **Blockers:** —
 - **Unknowns:**
-  - Are comments readable by anyone who can view the run, or only by confirmed participants? — Owner: user. Block: no. Candidate default: same visibility as the run page.
+  - Are comments readable by anyone who can view the run, or only by confirmed participants? — **Resolved (S-12 planning):** read is confirmed participants, admins, and unseated organizers — not guests/pending/denied. Posting and likes stay confirmed-participant-only on active runs.
 - **Risk:** in-app comments substitute the Discord-bot comment sync parked for v2+; posting must stay confirmed-participant-only so random guests cannot spam a roster.
 - **Status:** done
 
@@ -244,7 +244,7 @@ PRD v1 must-haves are covered. PRD v2 adds post-MVP slices S-10…S-17. Landing/
 - **Parallel with:** S-10, S-12, S-14
 - **Blockers:** —
 - **Unknowns:**
-  - After players have applied or been confirmed, which fields may still change? — Owner: user. Block: no. Candidate default: title, start time, map/category, min points, capacity not below confirmed roster, invite list / visibility; lock join mode after the first confirmation.
+  - After players have applied or been confirmed, which fields may still change? — **Resolved (S-13 planning):** title, start time, map, min points, capacity not below confirmed roster (including organizer auto-seat); lock `join_mode` after any non-organizer participant row (pending/confirmed/denied). Organizer auto-seat means "first confirmation" is not a useful lock trigger.
 - **Risk:** join-mode or capacity edits can desync the pending/confirmed machine from S-02/S-05; lock the dangerous fields rather than invent a migration of existing applications.
 - **Status:** done
 
@@ -258,7 +258,7 @@ PRD v1 must-haves are covered. PRD v2 adds post-MVP slices S-10…S-17. Landing/
 - **Blockers:** —
 - **Unknowns:** —
 - **Risk:** map is already optional, so the failure mode is a card with neither map nor category; store category on the run (catalog difficulty values) rather than inferring it from a missing map.
-- **Status:** ready
+- **Status:** done
 
 ### S-15: Friends-only and invite-only runs
 
@@ -284,7 +284,7 @@ PRD v1 must-haves are covered. PRD v2 adds post-MVP slices S-10…S-17. Landing/
 - **Blockers:** —
 - **Unknowns:** —
 - **Risk:** extends the S-09 admin player page rather than adding a second profile; without this slice, S-10's nickname-change request and points self-report have nowhere to be trusted.
-- **Status:** proposed
+- **Status:** ready
 
 ### S-17: Player labels
 
@@ -296,7 +296,7 @@ PRD v1 must-haves are covered. PRD v2 adds post-MVP slices S-10…S-17. Landing/
 - **Blockers:** —
 - **Unknowns:** —
 - **Risk:** keep it a small admin dictionary, not player-authored tags; assignment belongs on the same admin player page as S-16 — coordinate if both are in flight, but they do not depend on each other.
-- **Status:** proposed
+- **Status:** ready
 
 ## Backlog Handoff
 
@@ -312,21 +312,21 @@ PRD v1 must-haves are covered. PRD v2 adds post-MVP slices S-10…S-17. Landing/
 | S-07 | participant-archive-history | Participant archive history | — | Done in `v0.1.8`; archived → `context/archive/2026-08-17-participant-archive-history/` |
 | S-08 | my-runs-dashboard | My-runs dashboard | — | Done in `v0.1.10`; archived → `context/archive/2026-08-18-my-runs-dashboard/` |
 | S-09 | admin-player-archive-view | Admin view of player archived run history | — | Done in `v0.1.9`; archived → `context/archive/2026-08-17-admin-player-archive-view/` |
-| S-10 | user-profile | Own + public profile, clickable nicknames, email/password/points | yes | Run `/10x-plan user-profile` |
-| S-11 | add-friends | Friend requests between verified members (from profile) | no | Waits on S-10 |
-| S-12 | run-comments | Comments on runs you were accepted to | yes | Run `/10x-plan run-comments` |
-| S-13 | edit-run | Organizer edits an active run | yes | Run `/10x-plan edit-run` |
-| S-14 | category-only-runs | Category-only run (no specific map) | yes | Run `/10x-plan category-only-runs` |
+| S-10 | user-profile | Own + public profile, clickable nicknames, email/password/points | — | Done in `v0.1.13`; archived → `context/archive/2026-08-20-user-profile/` |
+| S-11 | add-friends | Friend requests between verified members (from profile) | yes | Run `/10x-plan add-friends` |
+| S-12 | run-comments | Comments on runs you were accepted to | — | Done in `v0.1.14`; archived → `context/archive/2026-08-20-run-comments/` |
+| S-13 | edit-run | Organizer edits an active run | — | Done in `v0.1.15`; archived → `context/archive/2026-08-20-edit-run/` |
+| S-14 | category-only-runs | Category-only run (no specific map) | — | Implemented on `feature/category-only-runs`; archived → `context/archive/2026-08-21-category-only-runs/` (tag pending `/gh-ship`) |
 | S-15 | restricted-run-visibility | Friends-only and invite-only runs | no | Waits on S-11 |
-| S-16 | admin-profile-edits | Admin edits nickname/points; nickname-change requests | no | Waits on S-10 (S-09 already done) |
-| S-17 | player-labels | Admin label dictionary + assign to public profiles | no | Waits on S-10 (S-09 already done) |
+| S-16 | admin-profile-edits | Admin edits nickname/points; nickname-change requests | yes | Run `/10x-plan admin-profile-edits` |
+| S-17 | player-labels | Admin label dictionary + assign to public profiles | yes | Run `/10x-plan player-labels` |
 
 ## Open Roadmap Questions
 
 1. **Where does the KoG map catalog come from — a manually seeded static list, or imported from existing KoG map data?** — **Resolved (S-01 planning):** import from [KoGmaps `mapinfo.txt`](https://github.com/Gamer12120/KoGmaps/blob/main/mapinfo.txt); vendor a snapshot + offline loader for seed; automate GitHub re-pulls later. Unparseable DATE strings stored as null.
-2. **What is the minimum slice set before announcing to the KoG community?** — Owner: user. **Suggested floor is now met** (S-02 + S-04 + S-06, plus the rest of PRD v1 through S-09 / `v0.1.10`). Block: none — this is the remaining product call, not a missing slice. Landing/chrome polish (starter copy, logo, filter collapse, tee background) is tracked as GitHub issues, not slices.
-3. **After players have applied or been confirmed, which run fields may the organizer still change?** — Owner: user. Block: S-13 (planning not blocked; candidate default in the slice Unknowns).
-4. **Are run comments readable by anyone who can view the run, or only by confirmed participants?** — Owner: user. Block: S-12 (planning not blocked; candidate default in the slice Unknowns).
+2. **What is the minimum slice set before announcing to the KoG community?** — Owner: user. **Suggested floor is now met** (S-02 + S-04 + S-06, plus the rest of PRD v1 through S-09 / `v0.1.10`, and post-MVP S-10 / S-12 / S-13 / `v0.1.15`). Block: none — this is the remaining product call, not a missing slice. Landing/chrome polish (starter copy, logo, filter collapse, tee background) shipped as GitHub issues in `v0.1.11`/`v0.1.12`, not slices.
+3. **After players have applied or been confirmed, which run fields may the organizer still change?** — **Resolved (S-13):** title, start time, map, min points, capacity not below confirmed roster; lock `join_mode` after any non-organizer participant row.
+4. **Are run comments readable by anyone who can view the run, or only by confirmed participants?** — **Resolved (S-12):** confirmed participants, admins, and unseated organizers only; guests/pending/denied do not see the thread.
 5. **Friends-only list presentation — separate section vs highlight in the same list?** — Owner: user. Block: S-15 (planning not blocked; candidate default: distinct sections).
 6. **If two friends unfriend after an invite-only run was created, does the invitee keep access?** — Owner: user. Block: S-15 (planning not blocked; candidate default: invite snapshot).
 
@@ -355,6 +355,10 @@ PRD v1 must-haves are covered. PRD v2 adds post-MVP slices S-10…S-17. Landing/
 | S-07 | participant-archive-history | `v0.1.8` | Confirmed-participant `/runs/history` + archived detail; archived 2026-08-17 |
 | S-09 | admin-player-archive-view | `v0.1.9` | Admin `/admin/users/{id}` + archived-detail bypass; archived 2026-08-17 |
 | S-08 | my-runs-dashboard | `v0.1.10` | Organizer `/dashboard` (created active + past) + owner archived-detail; archived 2026-08-18 |
+| S-10 | user-profile | `v0.1.13` | Own `/profile` + public `/players/{id}` + clickable nicknames + email/password/points + nickname-change requests; archived 2026-08-20 |
+| S-12 | run-comments | `v0.1.14` | Confirmed-participant comments + likes; admin delete; in-place run-page actions; archived 2026-08-20 |
+| S-13 | edit-run | `v0.1.15` | Organizer `/runs/{id}/edit` + UPDATE invariants; extras in the same tag: member leave + organizer kick + clickable cards; archived 2026-08-20 |
+| S-14 | category-only-runs | (tag pending) | Category-only create/edit + Category on cards; archived 2026-08-21 → `context/archive/2026-08-21-category-only-runs/` |
 
 - **F-01: (foundation) the first migration lands: minimal tables for user profiles (role, `is_verified`, ban flag), runs, and join applications/participations with per-role RLS policies, plus the migration workflow proven locally and in deploy. Downstream slices extend this contract with their own migrations — this foundation does not pre-build every column.** — Archived 2026-08-07 → `context/archive/2026-07-29-run-domain-schema/`. Lesson: —.
 - **S-01: user can create a run (map from list/search, date/time, max participants, minimum points threshold, join mode) and any guest can browse the public active-runs list without logging in.** — Archived 2026-08-07 → `context/archive/2026-07-29-create-and-list-runs/`. Lesson: —.
@@ -369,3 +373,4 @@ PRD v1 must-haves are covered. PRD v2 adds post-MVP slices S-10…S-17. Landing/
 - **S-10: user can manage their own profile (nickname if not verified, email, password, self-reported KoG points), see nickname in the top bar instead of email, and open any player's public profile by clicking a nickname anywhere in the app; a verified member cannot change nickname themselves and instead submits a change request.** — Archived 2026-08-20 → `context/archive/2026-08-20-user-profile/`. Lesson: —.
 - **S-12: confirmed participant can post comments on a run they were accepted to.** — Archived 2026-08-20 → `context/archive/2026-08-20-run-comments/`. Lesson: —.
 - **S-13: organizer can edit an active run they created.** — Archived 2026-08-20 → `context/archive/2026-08-20-edit-run/`. Lesson: —.
+- **S-14: organizer can create a run with a map category and no specific map; that category shows on the run card.** — Archived 2026-08-21 → `context/archive/2026-08-21-category-only-runs/`. Lesson: —.
