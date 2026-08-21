@@ -16,6 +16,7 @@ export const POST: APIRoute = async (context) => {
   const form = await context.request.formData();
   const titleRaw = formString(form, "title");
   const mapIdRaw = formString(form, "map_id");
+  const mapCategoryRaw = formString(form, "map_category");
   const startsAtRaw = formString(form, "starts_at");
   const maxParticipantsRaw = formString(form, "max_participants");
   const minPointsRaw = formString(form, "min_points", "0");
@@ -40,6 +41,7 @@ export const POST: APIRoute = async (context) => {
     await updateRun(supabase, user.id, runId, {
       title: titleRaw,
       mapId: mapIdRaw,
+      mapCategory: mapCategoryRaw,
       startsAt: startsAtRaw,
       maxParticipants: maxParticipantsRaw,
       minPoints: minPointsRaw,

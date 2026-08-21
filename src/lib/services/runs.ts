@@ -1,4 +1,5 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
+import { isMapCategory } from "@/lib/map-categories";
 import {
   activeWindowStartsAfter,
   getRunLifecyclePhase,
@@ -25,6 +26,7 @@ export interface RunListItem {
   joinMode: Enums<"join_mode">;
   displayTitle: string;
   map: RunMap | null;
+  mapCategory: string | null;
   organizerId: string;
   organizerNickname: string | null;
   confirmedCount: number;
@@ -57,6 +59,7 @@ const RUN_SELECT = `
   join_mode,
   created_at,
   organizer_id,
+  map_category,
   map:maps (
     id,
     name,
@@ -82,6 +85,7 @@ interface RunRow {
   join_mode: Enums<"join_mode">;
   created_at: string;
   organizer_id: string;
+  map_category: string | null;
   map: RunMap | null;
   organizer: { nickname: string | null } | null;
 }
@@ -133,6 +137,7 @@ function runFieldsFromRow(row: RunRow, confirmedCount: number) {
     joinMode: row.join_mode,
     createdAt: row.created_at,
     map,
+    mapCategory: row.map_category,
     organizerId: row.organizer_id,
     organizerNickname,
     confirmedCount,
@@ -161,7 +166,8 @@ function matchesMapOrOrganizer(row: RunRow, query: string): boolean {
   const needle = query.toLowerCase();
   const mapName = row.map?.name.toLowerCase() ?? "";
   const nickname = row.organizer?.nickname?.toLowerCase() ?? "";
-  return mapName.includes(needle) || nickname.includes(needle);
+  const category = row.map_category?.toLowerCase() ?? "";
+  return mapName.includes(needle) || nickname.includes(needle) || category.includes(needle);
 }
 
 async function confirmedCountsForRuns(supabase: AppSupabaseClient, runIds: string[]): Promise<Map<string, number>> {
@@ -539,20 +545,59 @@ export class RunError extends Error {
   }
 }
 
+export function normalizeRunMapAndCategory(
+  mapIdRaw: string,
+  categoryRaw: string,
+): { mapId: string | null; mapCategory: string | null } {
+  const mapId = mapIdRaw.trim().length > 0 ? mapIdRaw.trim() : null;
+  const category = categoryRaw.trim().length > 0 ? categoryRaw.trim() : null;
+
+  if (mapId !== null) {
+    return { mapId, mapCategory: null };
+  }
+
+  if (category === null) {
+    throw new RunError("Pick a map or a category");
+  }
+
+  if (!isMapCategory(category)) {
+    throw new RunError("Category is invalid");
+  }
+
+  return { mapId: null, mapCategory: category };
+}
+
 export interface UpdateRunInput {
   title: string;
   mapId: string;
+  mapCategory: string;
   startsAt: string;
   maxParticipants: string;
   minPoints: string;
   joinMode: string;
 }
 
-function mapRunUpdateTriggerError(error: {
+interface PostgrestErrorBlob {
   message: string;
   details?: string | null;
   hint?: string | null;
-}): RunError | null {
+}
+
+export function mapRunMapCategoryConstraintError(error: PostgrestErrorBlob): RunError | null {
+  const blob = `${error.message} ${error.details ?? ""} ${error.hint ?? ""}`;
+  if (blob.includes("runs_map_or_category_required")) {
+    return new RunError("Pick a map or a category");
+  }
+  if (blob.includes("runs_map_category_catalog")) {
+    return new RunError("Category is invalid");
+  }
+  return null;
+}
+
+function mapRunUpdateTriggerError(error: PostgrestErrorBlob): RunError | null {
+  const mappedCategory = mapRunMapCategoryConstraintError(error);
+  if (mappedCategory) return mappedCategory;
+
   const blob = `${error.message} ${error.details ?? ""} ${error.hint ?? ""}`;
   if (blob.includes("join_mode_locked")) {
     return new RunError("Join mode cannot be changed after someone has applied");
@@ -594,8 +639,7 @@ export async function updateRun(
   }
 
   const title = input.title.trim().length > 0 ? input.title.trim() : null;
-  const mapIdRaw = input.mapId.trim();
-  const mapId = mapIdRaw.length > 0 ? mapIdRaw : null;
+  const { mapId, mapCategory } = normalizeRunMapAndCategory(input.mapId, input.mapCategory);
 
   if (mapId !== null) {
     if (!isUuid(mapId)) {
@@ -654,6 +698,7 @@ export async function updateRun(
   const patch: {
     title: string | null;
     map_id: string | null;
+    map_category: string | null;
     starts_at: string;
     max_participants: number;
     min_points: number;
@@ -661,6 +706,7 @@ export async function updateRun(
   } = {
     title,
     map_id: mapId,
+    map_category: mapCategory,
     starts_at: startsAt.toISOString(),
     max_participants: maxParticipants,
     min_points: minPoints,

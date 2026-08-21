@@ -1,7 +1,14 @@
 import type { APIRoute } from "astro";
 import { createClient } from "@/lib/supabase";
 import { ProfileError, getOwnProfile, setOwnNickname } from "@/lib/services/profile";
-import { ensureOwnProfile, isJoinMode, isUuid } from "@/lib/services/runs";
+import {
+  ensureOwnProfile,
+  isJoinMode,
+  isUuid,
+  mapRunMapCategoryConstraintError,
+  normalizeRunMapAndCategory,
+  RunError,
+} from "@/lib/services/runs";
 
 function formString(form: FormData, key: string, fallback = ""): string {
   return ((form.get(key) as string | null) ?? fallback).trim();
@@ -11,6 +18,7 @@ export const POST: APIRoute = async (context) => {
   const form = await context.request.formData();
   const titleRaw = formString(form, "title");
   const mapIdRaw = formString(form, "map_id");
+  const mapCategoryRaw = formString(form, "map_category");
   const startsAtRaw = formString(form, "starts_at");
   const maxParticipantsRaw = formString(form, "max_participants");
   const minPointsRaw = formString(form, "min_points", "0");
@@ -69,7 +77,16 @@ export const POST: APIRoute = async (context) => {
   }
 
   const title = titleRaw.length > 0 ? titleRaw : null;
-  const mapId = mapIdRaw.length > 0 ? mapIdRaw : null;
+  let mapId: string | null;
+  let mapCategory: string | null;
+  try {
+    ({ mapId, mapCategory } = normalizeRunMapAndCategory(mapIdRaw, mapCategoryRaw));
+  } catch (err) {
+    if (err instanceof RunError) {
+      return fail(err.message);
+    }
+    throw err;
+  }
 
   if (mapId !== null) {
     if (!isUuid(mapId)) {
@@ -77,7 +94,8 @@ export const POST: APIRoute = async (context) => {
     }
     const { data: mapRow, error: mapError } = await supabase.from("maps").select("id").eq("id", mapId).maybeSingle();
     if (mapError) {
-      return fail(`Could not validate map: ${mapError.message}`);
+      console.error("create run map lookup failed", mapError);
+      return fail("Could not create this run");
     }
     if (!mapRow) {
       return fail("Selected map was not found");
@@ -116,6 +134,7 @@ export const POST: APIRoute = async (context) => {
       organizer_id: user.id,
       title,
       map_id: mapId,
+      map_category: mapCategory,
       starts_at: startsAt.toISOString(),
       max_participants: maxParticipants,
       min_points: minPoints,
@@ -126,7 +145,12 @@ export const POST: APIRoute = async (context) => {
     .single();
 
   if (insertError) {
-    return fail(insertError.message);
+    console.error("create run insert failed", insertError);
+    const mapped = mapRunMapCategoryConstraintError(insertError);
+    if (mapped) {
+      return fail(mapped.message);
+    }
+    return fail("Could not create this run");
   }
 
   return context.redirect(`/runs/${run.id}`);

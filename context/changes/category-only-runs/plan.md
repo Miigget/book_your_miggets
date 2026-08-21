@@ -270,29 +270,29 @@ Production may already have `map_id` null rows. XOR must be `NOT VALID` so `supa
 
 #### Automated
 
-- [x] 1.1 Migration applies on local reset (`npx supabase db reset`) without error
-- [x] 1.2 `npm run db:types` regenerates; `runs.Row` / Insert / Update include `map_category: string | null`
-- [x] 1.3 `npm run lint` passes
+- [x] 1.1 Migration applies on local reset (`npx supabase db reset`) without error — 5d4f02c
+- [x] 1.2 `npm run db:types` regenerates; `runs.Row` / Insert / Update include `map_category: string | null` — 5d4f02c
+- [x] 1.3 `npm run lint` passes — 5d4f02c
 
 #### Manual
 
-- [x] 1.4 SQL smoke: INSERT both-null fails; map-only succeeds with `map_category` null; category-only (`map_category = 'Insane'`) succeeds with `map_id` null; both set fails; `map_category = 'insnae'` fails
-- [x] 1.5 Confirm `runs_map_or_category_required` is `NOT VALID` (`pg_constraint.convalidated` is false)
+- [x] 1.4 SQL smoke: INSERT both-null fails; map-only succeeds with `map_category` null; category-only (`map_category = 'Insane'`) succeeds with `map_id` null; both set fails; `map_category = 'insnae'` fails — 5d4f02c
+- [x] 1.5 Confirm `runs_map_or_category_required` is `NOT VALID` (`pg_constraint.convalidated` is false) — 5d4f02c
 
 ### Phase 2: Normalize, APIs, and list DTO
 
 #### Automated
 
-- [ ] 2.1 `npm run lint` passes
-- [ ] 2.2 `npx astro sync` and `npm run build` succeed
+- [x] 2.1 `npm run lint` passes
+- [x] 2.2 `npx astro sync` and `npm run build` succeed
 
 #### Manual
 
-- [ ] 2.3 Existing create form still publishes a mapped run; DB `map_category` is null
-- [ ] 2.4 Crafted `POST /api/runs` with empty `map_id` and `map_category=Insane` inserts XOR; the same POST with both empty redirects with the domain `?error=` (not PostgREST)
-- [ ] 2.5 Crafted POST with both a map and a category stores map only (`map_category` null)
-- [ ] 2.6 Crafted `POST /api/runs/:id`: mapped run + empty map + `map_category=Easy` stores category-only; category-only run + a `map_id` clears `map_category`
-- [ ] 2.7 Crafted edit of a both-null row (if one exists) without map or category is rejected; a valid XOR save afterward succeeds
+- [x] 2.3 Existing create form still publishes a mapped run; DB `map_category` is null
+- [x] 2.4 Crafted `POST /api/runs` with empty `map_id` and `map_category=Insane` inserts XOR; the same POST with both empty redirects with the domain `?error=` (not PostgREST)
+- [x] 2.5 Crafted POST with both a map and a category stores map only (`map_category` null)
+- [x] 2.6 Crafted `POST /api/runs/:id`: mapped run + empty map + `map_category=Easy` stores category-only; category-only run + a `map_id` clears `map_category`
+- [x] 2.7 Crafted edit of a both-null row (if one exists) without map or category is rejected; a valid XOR save afterward succeeds
 
 ### Phase 3: Form UX and card/detail display
 
