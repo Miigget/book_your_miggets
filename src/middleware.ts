@@ -2,6 +2,7 @@ import { defineMiddleware } from "astro:middleware";
 import { createClient } from "@/lib/supabase";
 
 const PROTECTED_ROUTES = ["/dashboard", "/runs/new", "/admin", "/runs/history", "/profile"];
+const EDIT_RUN_PATH = /^\/runs\/[^/]+\/edit\/?$/;
 
 /** Same-origin Referer pathname, else "/" — the open-redirect guard for the banned-POST gate. */
 function bannedRedirectTarget(referer: string | null, requestOrigin: string): string {
@@ -47,7 +48,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
 
   const pathname = context.url.pathname;
 
-  if (PROTECTED_ROUTES.some((route) => pathname.startsWith(route))) {
+  if (PROTECTED_ROUTES.some((route) => pathname.startsWith(route)) || EDIT_RUN_PATH.test(pathname)) {
     if (!context.locals.user) {
       return context.redirect("/auth/signin");
     }

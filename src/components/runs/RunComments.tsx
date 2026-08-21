@@ -117,7 +117,7 @@ export default function RunComments({ runId, comments, canPostOrLike, isAdmin, c
         <ul className="space-y-4">
           {items.map((comment) => (
             <li key={comment.id} className="rounded-lg border border-white/10 bg-white/5 px-3 py-3">
-              <div className="flex flex-wrap items-start justify-between gap-2">
+              <div className="flex items-start justify-between gap-2">
                 <div className="min-w-0">
                   <p className="text-sm text-white">
                     <NicknameLink userId={comment.authorId} nickname={comment.nickname} />
@@ -126,65 +126,64 @@ export default function RunComments({ runId, comments, canPostOrLike, isAdmin, c
                     <time dateTime={comment.createdAt}>{formatStart(comment.createdAt)}</time>
                   </p>
                 </div>
-                {isAdmin && (
-                  <form
-                    method="POST"
-                    action={`/api/admin/runs/${runId}/comments/${comment.id}/delete`}
-                    onSubmit={(event) => {
-                      event.preventDefault();
-                      void onDelete(event, comment.id);
-                    }}
-                  >
-                    <Button
-                      type="submit"
-                      variant="destructive"
-                      size="sm"
-                      className="rounded-lg"
-                      disabled={deletingId === comment.id}
+                <div className="flex shrink-0 items-start gap-1">
+                  {canPostOrLike ? (
+                    <form
+                      method="POST"
+                      action={`/api/runs/${runId}/comments/${comment.id}/like`}
+                      onSubmit={(event) => {
+                        event.preventDefault();
+                        void onLike(event, comment);
+                      }}
                     >
-                      <Trash2 className="size-4" />
-                      Delete
-                    </Button>
-                  </form>
-                )}
+                      <input type="hidden" name="value" value={comment.likedByMe ? "false" : "true"} />
+                      <Button
+                        type="submit"
+                        size="sm"
+                        variant="ghost"
+                        disabled={likingId === comment.id}
+                        className={cn("rounded-lg text-white hover:bg-white/10", comment.likedByMe && "text-pink-300")}
+                        aria-pressed={comment.likedByMe}
+                        aria-label={comment.likedByMe ? "Unlike comment" : "Like comment"}
+                      >
+                        <Heart className={cn("size-4", comment.likedByMe && "fill-current")} />
+                        <span>{comment.likeCount}</span>
+                      </Button>
+                    </form>
+                  ) : (
+                    <p
+                      className="flex items-center gap-1.5 px-2 py-1 text-sm text-blue-100/60"
+                      aria-label={`${comment.likeCount} likes`}
+                    >
+                      <Heart className="size-4" />
+                      <span>{comment.likeCount}</span>
+                    </p>
+                  )}
+                  {isAdmin && (
+                    <form
+                      method="POST"
+                      action={`/api/admin/runs/${runId}/comments/${comment.id}/delete`}
+                      onSubmit={(event) => {
+                        event.preventDefault();
+                        void onDelete(event, comment.id);
+                      }}
+                    >
+                      <Button
+                        type="submit"
+                        variant="destructive"
+                        size="sm"
+                        className="rounded-lg"
+                        disabled={deletingId === comment.id}
+                      >
+                        <Trash2 className="size-4" />
+                        Delete
+                      </Button>
+                    </form>
+                  )}
+                </div>
               </div>
 
               <p className={cn("mt-3 text-sm whitespace-pre-wrap text-white")}>{comment.body}</p>
-
-              <div className="mt-3">
-                {canPostOrLike ? (
-                  <form
-                    method="POST"
-                    action={`/api/runs/${runId}/comments/${comment.id}/like`}
-                    onSubmit={(event) => {
-                      event.preventDefault();
-                      void onLike(event, comment);
-                    }}
-                  >
-                    <input type="hidden" name="value" value={comment.likedByMe ? "false" : "true"} />
-                    <Button
-                      type="submit"
-                      size="sm"
-                      variant="ghost"
-                      disabled={likingId === comment.id}
-                      className={cn("rounded-lg text-white hover:bg-white/10", comment.likedByMe && "text-pink-300")}
-                      aria-pressed={comment.likedByMe}
-                      aria-label={comment.likedByMe ? "Unlike comment" : "Like comment"}
-                    >
-                      <Heart className={cn("size-4", comment.likedByMe && "fill-current")} />
-                      <span>{comment.likeCount}</span>
-                    </Button>
-                  </form>
-                ) : (
-                  <p
-                    className="flex items-center gap-1.5 text-sm text-blue-100/60"
-                    aria-label={`${comment.likeCount} likes`}
-                  >
-                    <Heart className="size-4" />
-                    <span>{comment.likeCount}</span>
-                  </p>
-                )}
-              </div>
             </li>
           ))}
         </ul>

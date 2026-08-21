@@ -110,7 +110,6 @@ const isArchived = run?.lifecyclePhase === "archived";
 const isBanned = Boolean(Astro.locals.profile?.isBanned);
 const canPostOrLike = own?.status === "confirmed" && !isArchived && !isBanned;
 const isOrganizer = Boolean(user?.id && user.id === run?.organizerId);
-const organizerSeated = isOrganizer && confirmed.some((p) => p.userId === user?.id);
 const confirmedCount = confirmed.length;
 const archivedBackHref =
   archivedSource === "organizer" ? "/dashboard" : archivedSource === "admin" ? "/admin" : "/runs/history";
@@ -167,6 +166,16 @@ function formatReleasedOn(value: string | null): string {
               <p class="mt-2 text-sm text-blue-100/60">
                 Organized by <NicknameLink userId={run.organizerId} nickname={run.organizerNickname} />
               </p>
+              {isOrganizer && !isArchived && (
+                <p class="mt-3">
+                  <a
+                    href={`/runs/${run.id}/edit`}
+                    class="text-sm text-purple-300 transition-colors hover:text-purple-100 hover:underline"
+                  >
+                    Edit
+                  </a>
+                </p>
+              )}
             </header>
 
             <section class="mb-8 rounded-xl border border-white/10 bg-white/5 px-5 py-5 backdrop-blur-xl">
@@ -266,7 +275,6 @@ function formatReleasedOn(value: string | null): string {
                   nickname={nickname}
                   isVerified={isVerified}
                   ownStatus={own?.status ?? null}
-                  organizerSeated={organizerSeated}
                   confirmed={confirmed.map((p) => ({ id: p.id, userId: p.userId, nickname: p.nickname }))}
                   pending={pending.map((p) => ({ id: p.id, userId: p.userId, nickname: p.nickname }))}
                   denied={denied.map((p) => ({ id: p.id, userId: p.userId, nickname: p.nickname }))}

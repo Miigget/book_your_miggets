@@ -6,7 +6,7 @@ import {
   type ActiveRunLifecyclePhase,
 } from "@/lib/run-lifecycle";
 import { utcDayRange, type RunListFilters } from "@/lib/run-list-filters";
-import { getOwnParticipation } from "@/lib/services/participants";
+import { countConfirmedParticipants, getOwnParticipation } from "@/lib/services/participants";
 import type { Database, Enums, Tables } from "@/types/database";
 
 export type AppSupabaseClient = SupabaseClient<Database>;
@@ -285,6 +285,34 @@ export async function getActiveRunById(supabase: AppSupabaseClient, id: string):
 }
 
 /**
+ * Owner-only loader for `/runs/{id}/edit`. Do not use `getActiveRunById` as the gate —
+ * that would pass for any signed-in viewer of a public active run.
+ */
+export async function getOwnedActiveRunForEdit(
+  supabase: AppSupabaseClient,
+  runId: string,
+  userId: string,
+): Promise<RunDetail | null> {
+  if (!isUuid(runId)) return null;
+
+  const now = Date.now();
+  const { data, error } = await supabase
+    .from("runs")
+    .select(RUN_SELECT)
+    .eq("id", runId)
+    .eq("organizer_id", userId)
+    .maybeSingle();
+
+  if (error) {
+    throw new Error(`Failed to load run: ${error.message}`);
+  }
+  if (!data) return null;
+  if (!isRunActive(data.starts_at, data.archived_at, now)) return null;
+
+  return mapRunRow(data, 0, now);
+}
+
+/**
  * Personal organizer inventory by ownership (`organizer_id`), not participation.
  * Leave-team does not hide created runs. Do not reuse `listArchivedRunsForParticipant`.
  */
@@ -502,4 +530,164 @@ export const JOIN_MODES = ["approval_required", "auto_join"] as const satisfies 
 
 export function isJoinMode(value: string): value is Enums<"join_mode"> {
   return (JOIN_MODES as readonly string[]).includes(value);
+}
+
+export class RunError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "RunError";
+  }
+}
+
+export interface UpdateRunInput {
+  title: string;
+  mapId: string;
+  startsAt: string;
+  maxParticipants: string;
+  minPoints: string;
+  joinMode: string;
+}
+
+function mapRunUpdateTriggerError(error: {
+  message: string;
+  details?: string | null;
+  hint?: string | null;
+}): RunError | null {
+  const blob = `${error.message} ${error.details ?? ""} ${error.hint ?? ""}`;
+  if (blob.includes("join_mode_locked")) {
+    return new RunError("Join mode cannot be changed after someone has applied");
+  }
+  if (blob.includes("capacity_below_confirmed")) {
+    return new RunError("Capacity cannot be below the confirmed roster");
+  }
+  return null;
+}
+
+/**
+ * Organizer-only update of an active run. Do not use `getActiveRunById` as the owner gate.
+ * Join mode is omitted from the patch when any non-organizer participant row exists.
+ */
+export async function updateRun(
+  supabase: AppSupabaseClient,
+  userId: string,
+  runId: string,
+  input: UpdateRunInput,
+): Promise<void> {
+  if (!isUuid(runId)) {
+    throw new RunError("Run not found or no longer active");
+  }
+
+  const { data: existing, error: loadError } = await supabase
+    .from("runs")
+    .select("id, max_participants")
+    .eq("id", runId)
+    .eq("organizer_id", userId)
+    .is("archived_at", null)
+    .gt("starts_at", activeWindowStartsAfter())
+    .maybeSingle();
+
+  if (loadError) {
+    throw new Error(`Failed to load run: ${loadError.message}`);
+  }
+  if (!existing) {
+    throw new RunError("Run not found or no longer active");
+  }
+
+  const title = input.title.trim().length > 0 ? input.title.trim() : null;
+  const mapIdRaw = input.mapId.trim();
+  const mapId = mapIdRaw.length > 0 ? mapIdRaw : null;
+
+  if (mapId !== null) {
+    if (!isUuid(mapId)) {
+      throw new RunError("Invalid map selection");
+    }
+    const { data: mapRow, error: mapError } = await supabase.from("maps").select("id").eq("id", mapId).maybeSingle();
+    if (mapError) {
+      console.error("updateRun map lookup failed", mapError);
+      throw new RunError("Could not save this run");
+    }
+    if (!mapRow) {
+      throw new RunError("Selected map was not found");
+    }
+  }
+
+  const startsAtRaw = input.startsAt.trim();
+  if (!startsAtRaw) {
+    throw new RunError("Start time is required");
+  }
+  const startsAt = new Date(startsAtRaw);
+  if (Number.isNaN(startsAt.getTime())) {
+    throw new RunError("Start time is invalid");
+  }
+  if (!isRunActive(startsAt, null)) {
+    throw new RunError("Start time must keep the run active");
+  }
+
+  const maxParticipants = Number.parseInt(input.maxParticipants, 10);
+  if (!Number.isFinite(maxParticipants) || maxParticipants <= 0) {
+    throw new RunError("Capacity must be a whole number greater than 0");
+  }
+
+  const minPoints = Number.parseInt(input.minPoints, 10);
+  if (!Number.isFinite(minPoints) || minPoints < 0) {
+    throw new RunError("Min points must be 0 or greater");
+  }
+
+  const [confirmedCount, otherParticipants] = await Promise.all([
+    countConfirmedParticipants(supabase, runId),
+    supabase
+      .from("run_participants")
+      .select("id", { count: "exact", head: true })
+      .eq("run_id", runId)
+      .neq("user_id", userId),
+  ]);
+
+  if (otherParticipants.error) {
+    throw new Error(`Failed to count participants: ${otherParticipants.error.message}`);
+  }
+
+  if (maxParticipants !== existing.max_participants && maxParticipants < confirmedCount) {
+    throw new RunError("Capacity cannot be below the confirmed roster");
+  }
+
+  const joinModeLocked = (otherParticipants.count ?? 0) > 0;
+  const patch: {
+    title: string | null;
+    map_id: string | null;
+    starts_at: string;
+    max_participants: number;
+    min_points: number;
+    join_mode?: Enums<"join_mode">;
+  } = {
+    title,
+    map_id: mapId,
+    starts_at: startsAt.toISOString(),
+    max_participants: maxParticipants,
+    min_points: minPoints,
+  };
+
+  if (!joinModeLocked) {
+    if (!isJoinMode(input.joinMode)) {
+      throw new RunError("Join mode is invalid");
+    }
+    patch.join_mode = input.joinMode;
+  }
+
+  const { data: updated, error: updateError } = await supabase
+    .from("runs")
+    .update(patch)
+    .eq("id", runId)
+    .select("id")
+    .maybeSingle();
+
+  if (updateError) {
+    console.error("updateRun failed", updateError);
+    const mapped = mapRunUpdateTriggerError(updateError);
+    if (mapped) throw mapped;
+    throw new RunError("Could not save this run");
+  }
+
+  if (!updated) {
+    throw new RunError("Run not found or no longer active");
+  }
 }

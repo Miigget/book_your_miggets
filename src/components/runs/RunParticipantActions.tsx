@@ -34,7 +34,6 @@ interface Props {
   nickname: string | null;
   isVerified: boolean;
   ownStatus: Enums<"participant_status"> | null;
-  organizerSeated: boolean;
   confirmed: ConfirmedPlayer[];
   pending: PendingApplicant[];
   denied: PendingApplicant[];
@@ -54,7 +53,6 @@ export default function RunParticipantActions({
   nickname: initialNickname,
   isVerified,
   ownStatus: initialOwnStatus,
-  organizerSeated: initialOrganizerSeated,
   confirmed: initialConfirmed,
   pending: initialPending,
   denied: initialDenied,
@@ -66,7 +64,6 @@ export default function RunParticipantActions({
   const [nickError, setNickError] = useState<string | undefined>();
   const [nickname, setNickname] = useState(initialNickname);
   const [ownStatus, setOwnStatus] = useState(initialOwnStatus);
-  const [organizerSeated, setOrganizerSeated] = useState(initialOrganizerSeated);
   const [confirmed, setConfirmed] = useState(initialConfirmed);
   const [pending, setPending] = useState(initialPending);
   const [denied, setDenied] = useState(initialDenied);
@@ -145,9 +142,6 @@ export default function RunParticipantActions({
             ? prev
             : [...prev, { id: data.participantId, userId: viewerUserId, nickname }],
         );
-        if (isOrganizer) {
-          setOrganizerSeated(true);
-        }
         if (!commentsMounted) {
           reloadKeepingScroll();
         }
@@ -171,11 +165,25 @@ export default function RunParticipantActions({
   async function onLeaveTeam(e: React.SubmitEvent<HTMLFormElement>) {
     e.preventDefault();
     if (!(await submitForm(e.currentTarget, "leave"))) return;
-    setOrganizerSeated(false);
     setOwnStatus(null);
     if (viewerUserId) {
       setConfirmed((prev) => prev.filter((row) => row.userId !== viewerUserId));
     }
+    if (commentsMounted) {
+      reloadKeepingScroll();
+    }
+  }
+
+  async function onKick(e: React.SubmitEvent<HTMLFormElement>, player: ConfirmedPlayer) {
+    e.preventDefault();
+    const label = player.nickname?.trim() ? player.nickname.trim() : "This player";
+    const ok = window.confirm(
+      `${label} will be removed from the run and cannot rejoin unless you accept them again. Continue?`,
+    );
+    if (!ok) return;
+    if (!(await submitForm(e.currentTarget, `kick:${player.id}`))) return;
+    setConfirmed((prev) => prev.filter((row) => row.id !== player.id));
+    setDenied((prev) => (prev.some((row) => row.id === player.id) ? prev : [...prev, player]));
   }
 
   async function onSaveNickname(e: React.SubmitEvent<HTMLFormElement>) {
@@ -234,9 +242,6 @@ export default function RunParticipantActions({
         setConfirmed((prev) => (prev.some((row) => row.id === applicant.id) ? prev : [...prev, applicant]));
         if (applicant.userId === viewerUserId) {
           setOwnStatus("confirmed");
-          if (isOrganizer) {
-            setOrganizerSeated(true);
-          }
         }
       } else {
         setDenied((prev) => (prev.some((row) => row.id === applicant.id) ? prev : [...prev, applicant]));
@@ -257,7 +262,14 @@ export default function RunParticipantActions({
         <h2 className="mb-4 text-sm font-semibold tracking-wide text-white/80 uppercase">
           Participants ({confirmedCount}/{maxParticipants})
         </h2>
-        <RosterList confirmed={confirmed} organizerId={organizerId} />
+        <RosterList
+          confirmed={confirmed}
+          organizerId={organizerId}
+          isOrganizer={false}
+          runId={runId}
+          busy={busy}
+          onKick={onKick}
+        />
         <ServerError message={error} />
         <p className="text-sm text-blue-100/60">Sign in to apply to this run.</p>
         <div className="flex flex-wrap gap-3">
@@ -283,7 +295,14 @@ export default function RunParticipantActions({
       <h2 className="text-sm font-semibold tracking-wide text-white/80 uppercase">
         Participants ({confirmedCount}/{maxParticipants})
       </h2>
-      <RosterList confirmed={confirmed} organizerId={organizerId} />
+      <RosterList
+        confirmed={confirmed}
+        organizerId={organizerId}
+        isOrganizer={isOrganizer}
+        runId={runId}
+        busy={busy}
+        onKick={onKick}
+      />
       <ServerError message={error} />
 
       {isBanned && ownStatus === null && (
@@ -397,25 +416,26 @@ export default function RunParticipantActions({
         </p>
       )}
 
-      {ownStatus === "confirmed" && !isOrganizer && (
-        <p className="text-sm text-blue-100/80">
-          Status: <span className="text-emerald-300">Confirmed</span>
-        </p>
-      )}
-
-      {isOrganizer && organizerSeated && (
-        <form
-          method="POST"
-          action={`/api/runs/${runId}/leave-team`}
-          onSubmit={(event) => {
-            event.preventDefault();
-            void onLeaveTeam(event);
-          }}
-        >
-          <SubmitButton pendingText="Leaving..." icon={<UserMinus className="size-4" />} busy={busy === "leave"}>
-            Leave team
-          </SubmitButton>
-        </form>
+      {ownStatus === "confirmed" && (
+        <div className="space-y-3">
+          {!isOrganizer && (
+            <p className="text-sm text-blue-100/80">
+              Status: <span className="text-emerald-300">Confirmed</span>
+            </p>
+          )}
+          <form
+            method="POST"
+            action={`/api/runs/${runId}/leave-team`}
+            onSubmit={(event) => {
+              event.preventDefault();
+              void onLeaveTeam(event);
+            }}
+          >
+            <SubmitButton pendingText="Leaving..." icon={<UserMinus className="size-4" />} busy={busy === "leave"}>
+              Leave team
+            </SubmitButton>
+          </form>
+        </div>
       )}
 
       {isOrganizer && ownStatus === null && joinMode === "approval_required" && nickname && (
@@ -533,7 +553,21 @@ export default function RunParticipantActions({
   );
 }
 
-function RosterList({ confirmed, organizerId }: { confirmed: ConfirmedPlayer[]; organizerId: string }) {
+function RosterList({
+  confirmed,
+  organizerId,
+  isOrganizer,
+  runId,
+  busy,
+  onKick,
+}: {
+  confirmed: ConfirmedPlayer[];
+  organizerId: string;
+  isOrganizer: boolean;
+  runId: string;
+  busy: string | null;
+  onKick: (event: React.SubmitEvent<HTMLFormElement>, player: ConfirmedPlayer) => Promise<void>;
+}) {
   if (confirmed.length === 0) {
     return <p className="text-sm text-blue-100/60">No confirmed players yet.</p>;
   }
@@ -541,9 +575,35 @@ function RosterList({ confirmed, organizerId }: { confirmed: ConfirmedPlayer[]; 
   return (
     <ul className="space-y-2">
       {confirmed.map((participant) => (
-        <li key={participant.id} className="text-sm text-white">
-          <NicknameLink userId={participant.userId} nickname={participant.nickname} />
-          {organizerId === participant.userId && <span className="ml-2 text-xs text-blue-100/50">(organizer)</span>}
+        <li
+          key={participant.id}
+          className={cn("flex flex-col gap-2 text-sm text-white sm:flex-row sm:items-center sm:justify-between")}
+        >
+          <span>
+            <NicknameLink userId={participant.userId} nickname={participant.nickname} />
+            {organizerId === participant.userId && <span className="ml-2 text-xs text-blue-100/50">(organizer)</span>}
+          </span>
+          {isOrganizer && participant.userId !== organizerId && (
+            <form
+              method="POST"
+              action={`/api/runs/${runId}/participants/${participant.id}/kick`}
+              onSubmit={(event) => {
+                event.preventDefault();
+                void onKick(event, participant);
+              }}
+            >
+              <Button
+                type="submit"
+                size="sm"
+                variant="outline"
+                disabled={busy === `kick:${participant.id}`}
+                className="rounded-lg border-white/20 bg-transparent text-white hover:bg-white/10"
+              >
+                <UserMinus className="size-4" />
+                Kick
+              </Button>
+            </form>
+          )}
         </li>
       ))}
     </ul>

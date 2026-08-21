@@ -42,7 +42,7 @@ The King of Gores (KoG) community in TeeWorlds has no tool for organizing shared
 | S-10 | user-profile | manage own profile (nickname if unverified, email, password, KoG points); open others via clickable nicknames | S-02 | FR-017, FR-018, FR-023, US-03 | done |
 | S-11 | add-friends | (verified) send/accept/decline friend requests and see friends list on the profile | S-10 | FR-019, US-04 | proposed |
 | S-12 | run-comments | (confirmed participant) post comments on a run they were accepted to | S-02 | FR-020, US-05 | done |
-| S-13 | edit-run | (organizer) edit an active run they created | S-01 | FR-021, US-06 | ready |
+| S-13 | edit-run | (organizer) edit an active run they created | S-01 | FR-021, US-06 | done |
 | S-14 | category-only-runs | create a run with a map category and no specific map; category shows on the card | S-01 | FR-022, US-07 | ready |
 | S-15 | restricted-run-visibility | create friends-only or invite-only runs; hidden from everyone else | S-01, S-11 | FR-027, FR-028, US-08, US-09 | proposed |
 | S-16 | admin-profile-edits | (admin) edit player nickname/points, verify points, handle nickname-change requests | S-09, S-10 | FR-023, FR-024, US-10 | proposed |
@@ -246,7 +246,7 @@ PRD v1 must-haves are covered. PRD v2 adds post-MVP slices S-10…S-17. Landing/
 - **Unknowns:**
   - After players have applied or been confirmed, which fields may still change? — Owner: user. Block: no. Candidate default: title, start time, map/category, min points, capacity not below confirmed roster, invite list / visibility; lock join mode after the first confirmation.
 - **Risk:** join-mode or capacity edits can desync the pending/confirmed machine from S-02/S-05; lock the dangerous fields rather than invent a migration of existing applications.
-- **Status:** ready
+- **Status:** done
 
 ### S-14: Category-only runs
 
@@ -368,3 +368,4 @@ PRD v1 must-haves are covered. PRD v2 adds post-MVP slices S-10…S-17. Landing/
 - **S-08: organizer can view and manage all runs they created in one place.** — Archived 2026-08-18 → `context/archive/2026-08-18-my-runs-dashboard/`. Lesson: —.
 - **S-10: user can manage their own profile (nickname if not verified, email, password, self-reported KoG points), see nickname in the top bar instead of email, and open any player's public profile by clicking a nickname anywhere in the app; a verified member cannot change nickname themselves and instead submits a change request.** — Archived 2026-08-20 → `context/archive/2026-08-20-user-profile/`. Lesson: —.
 - **S-12: confirmed participant can post comments on a run they were accepted to.** — Archived 2026-08-20 → `context/archive/2026-08-20-run-comments/`. Lesson: —.
+- **S-13: organizer can edit an active run they created.** — Archived 2026-08-20 → `context/archive/2026-08-20-edit-run/`. Lesson: —.

@@ -305,12 +305,8 @@ export async function withdrawApplication(supabase: AppSupabaseClient, runId: st
   }
 }
 
-export async function leaveTeamAsOrganizer(supabase: AppSupabaseClient, runId: string, userId: string): Promise<void> {
-  const run = await loadActiveRunForMutation(supabase, runId);
-
-  if (run.organizer_id !== userId) {
-    throw new ParticipantError("Only the organizer can leave the team this way");
-  }
+export async function leaveTeam(supabase: AppSupabaseClient, runId: string, userId: string): Promise<void> {
+  await loadActiveRunForMutation(supabase, runId);
 
   const own = await getOwnParticipation(supabase, runId, userId);
   if (own?.status !== "confirmed") {
@@ -331,6 +327,66 @@ export async function leaveTeamAsOrganizer(supabase: AppSupabaseClient, runId: s
   if (!count) {
     throw new ParticipantError("You are not seated on this run");
   }
+}
+
+export async function kickParticipant(
+  supabase: AppSupabaseClient,
+  runId: string,
+  participantId: string,
+  organizerId: string,
+): Promise<{ userId: string }> {
+  const run = await loadActiveRunForMutation(supabase, runId);
+
+  if (run.organizer_id !== organizerId) {
+    throw new ParticipantError("Only the organizer can remove a player from this run");
+  }
+
+  if (!isUuid(participantId)) {
+    throw new ParticipantError("Invalid participant");
+  }
+
+  const { data: row, error: loadError } = await supabase
+    .from("run_participants")
+    .select("id, status, user_id")
+    .eq("id", participantId)
+    .eq("run_id", runId)
+    .maybeSingle();
+
+  if (loadError) {
+    throw new Error(`Failed to load participant: ${loadError.message}`);
+  }
+
+  if (!row) {
+    throw new ParticipantError("Participant not found");
+  }
+
+  if (row.user_id === organizerId) {
+    throw new ParticipantError("The organizer cannot be removed this way");
+  }
+
+  if (row.status !== "confirmed") {
+    throw new ParticipantError("Only a confirmed player can be removed from the roster");
+  }
+
+  const { data: updated, error } = await supabase
+    .from("run_participants")
+    .update({ status: "denied", updated_at: new Date().toISOString() })
+    .eq("id", participantId)
+    .eq("run_id", runId)
+    .eq("status", "confirmed")
+    .neq("user_id", organizerId)
+    .select("id, user_id")
+    .maybeSingle();
+
+  if (error) {
+    throw new Error(`Failed to remove participant: ${error.message}`);
+  }
+
+  if (!updated) {
+    throw new ParticipantError("Could not remove this player");
+  }
+
+  return { userId: updated.user_id };
 }
 
 export async function decideParticipant(
