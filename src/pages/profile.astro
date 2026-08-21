@@ -2,8 +2,11 @@
 import Layout from "@/layouts/Layout.astro";
 import Banner from "@/components/Banner.astro";
 import PageChrome from "@/components/PageChrome.astro";
+import FriendsInbox from "@/components/profile/FriendsInbox.astro";
 import OwnProfileForm from "@/components/profile/OwnProfileForm";
+import { playerProfileHref } from "@/lib/profile-href";
 import { createClient } from "@/lib/supabase";
+import { listIncomingPending, listOutgoingPending, type FriendInboxRow } from "@/lib/services/friends";
 import { getOwnProfile, getPendingNicknameRequest } from "@/lib/services/profile";
 import { ensureOwnProfile } from "@/lib/services/runs";
 
@@ -17,6 +20,8 @@ let isVerified = false;
 let kogPoints: number | null = null;
 let kogPointsVerified = false;
 let pendingRequestedNickname: string | null = null;
+let incoming: FriendInboxRow[] = [];
+let outgoing: FriendInboxRow[] = [];
 let loadError: string | null = null;
 
 if (!supabase) {
@@ -35,6 +40,14 @@ if (!supabase) {
     kogPoints = own.kogPoints;
     kogPointsVerified = own.kogPointsVerified;
     pendingRequestedNickname = pending?.requestedNickname ?? null;
+    if (own.isVerified) {
+      const [incomingRows, outgoingRows] = await Promise.all([
+        listIncomingPending(supabase, user.id),
+        listOutgoingPending(supabase, user.id),
+      ]);
+      incoming = incomingRows;
+      outgoing = outgoingRows;
+    }
   } catch (err) {
     console.error("own profile page load failed", err);
     loadError = "Could not prepare your profile";
@@ -45,7 +58,7 @@ const sessionEmail = user?.email ?? "";
 ---
 
 <Layout title="Profile — Book Your Miggets">
-  <PageChrome contentClass="max-w-xl">
+  <PageChrome contentClass="max-w-2xl">
     {
       notice && (
         <div class="mb-6 overflow-hidden rounded-lg">
@@ -74,17 +87,25 @@ const sessionEmail = user?.email ?? "";
       loadError ? (
         <p class="rounded-lg border border-red-400/30 bg-red-500/10 px-4 py-3 text-sm text-red-100">{loadError}</p>
       ) : (
-        <div class="rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur-xl">
-          <OwnProfileForm
-            client:load
-            email={sessionEmail}
-            nickname={nickname}
-            isVerified={isVerified}
-            kogPoints={kogPoints}
-            kogPointsVerified={kogPointsVerified}
-            pendingRequestedNickname={pendingRequestedNickname}
+        <>
+          <div class="rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur-xl">
+            <OwnProfileForm
+              client:load
+              email={sessionEmail}
+              nickname={nickname}
+              isVerified={isVerified}
+              kogPoints={kogPoints}
+              kogPointsVerified={kogPointsVerified}
+              pendingRequestedNickname={pendingRequestedNickname}
+            />
+          </div>
+          <FriendsInbox
+            verified={isVerified}
+            incoming={incoming}
+            outgoing={outgoing}
+            publicProfileHref={user ? playerProfileHref(user.id) : null}
           />
-        </div>
+        </>
       )
     }
   </PageChrome>

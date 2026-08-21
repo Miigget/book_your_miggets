@@ -359,33 +359,33 @@ Additive: new enum, table, view, function. No backfill. Existing users have zero
 
 #### Automated
 
-- [x] 1.1 Migration exists under supabase/migrations/ with RLS per operation, no anon grant on friend_requests, view column list only user_id + friend_id
-- [x] 1.2 npx supabase db reset (or project-equivalent apply) succeeds locally
-- [x] 1.3 npm run db:types includes friend_requests, public_friendships, friend_request_status, are_friends
-- [x] 1.4 npm run lint passes
-- [x] 1.5 npm run build passes
+- [x] 1.1 Migration exists under supabase/migrations/ with RLS per operation, no anon grant on friend_requests, view column list only user_id + friend_id — 44e3f49
+- [x] 1.2 npx supabase db reset (or project-equivalent apply) succeeds locally — 44e3f49
+- [x] 1.3 npm run db:types includes friend_requests, public_friendships, friend_request_status, are_friends — 44e3f49
+- [x] 1.4 npm run lint passes — 44e3f49
+- [x] 1.5 npm run build passes — 44e3f49
 
 #### Manual
 
-- [x] 1.6 SQL: verified sender INSERT pending succeeds; unverified sender or unverified receiver INSERT fails RLS
-- [x] 1.7 SQL: self-request fails the check constraint
-- [x] 1.8 SQL: second live row for the same unordered pair fails the unique index
-- [x] 1.9 SQL: receiver can UPDATE pending to accepted or declined; sender cannot accept their own row
-- [x] 1.10 SQL: sender DELETE pending succeeds; receiver cannot DELETE pending
-- [x] 1.11 SQL: either party DELETE accepted succeeds; UPDATE accepted fails the trigger
-- [x] 1.12 SQL: declined row UPDATE to pending with swapped sender succeeds; INSERT of a second pair row fails unique
-- [x] 1.13 SQL: anon SELECT friend_requests fails; anon SELECT public_friendships returns only accepted pairs where both are verified
-- [x] 1.14 SQL: after unverify of one party, public_friendships and are_friends hide that edge; the friend_requests accepted row still exists
+- [x] 1.6 SQL: verified sender INSERT pending succeeds; unverified sender or unverified receiver INSERT fails RLS — 44e3f49
+- [x] 1.7 SQL: self-request fails the check constraint — 44e3f49
+- [x] 1.8 SQL: second live row for the same unordered pair fails the unique index — 44e3f49
+- [x] 1.9 SQL: receiver can UPDATE pending to accepted or declined; sender cannot accept their own row — 44e3f49
+- [x] 1.10 SQL: sender DELETE pending succeeds; receiver cannot DELETE pending — 44e3f49
+- [x] 1.11 SQL: either party DELETE accepted succeeds; UPDATE accepted fails the trigger — 44e3f49
+- [x] 1.12 SQL: declined row UPDATE to pending with swapped sender succeeds; INSERT of a second pair row fails unique — 44e3f49
+- [x] 1.13 SQL: anon SELECT friend_requests fails; anon SELECT public_friendships returns only accepted pairs where both are verified — 44e3f49
+- [x] 1.14 SQL: after unverify of one party, public_friendships and are_friends hide that edge; the friend_requests accepted row still exists — 44e3f49
 
 ### Phase 2: Friends service, POST APIs, /profile inbox
 
 #### Automated
 
-- [ ] 2.1 src/lib/services/friends.ts and the five POST /api/friends/* routes exist
-- [ ] 2.2 /profile loads inbox queries only for verified viewers
-- [ ] 2.3 safeRunReturnTo still only allows /runs/{uuid} (friend mutation redirect is safeFriendRedirect; safeAuthReturnTo exists but auth hops are switched in Phase 3)
-- [ ] 2.4 npm run lint passes
-- [ ] 2.5 npm run build passes
+- [x] 2.1 src/lib/services/friends.ts and the five POST /api/friends/* routes exist
+- [x] 2.2 /profile loads inbox queries only for verified viewers
+- [x] 2.3 safeRunReturnTo still only allows /runs/{uuid} (friend mutation redirect is safeFriendRedirect; safeAuthReturnTo exists but auth hops are switched in Phase 3)
+- [x] 2.4 npm run lint passes
+- [x] 2.5 npm run build passes
 
 #### Manual
 
