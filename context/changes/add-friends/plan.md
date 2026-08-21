@@ -381,11 +381,11 @@ Additive: new enum, table, view, function. No backfill. Existing users have zero
 
 #### Automated
 
-- [x] 2.1 src/lib/services/friends.ts and the five POST /api/friends/* routes exist
-- [x] 2.2 /profile loads inbox queries only for verified viewers
-- [x] 2.3 safeRunReturnTo still only allows /runs/{uuid} (friend mutation redirect is safeFriendRedirect; safeAuthReturnTo exists but auth hops are switched in Phase 3)
-- [x] 2.4 npm run lint passes
-- [x] 2.5 npm run build passes
+- [x] 2.1 src/lib/services/friends.ts and the five POST /api/friends/* routes exist — 40ce641
+- [x] 2.2 /profile loads inbox queries only for verified viewers — 40ce641
+- [x] 2.3 safeRunReturnTo still only allows /runs/{uuid} (friend mutation redirect is safeFriendRedirect; safeAuthReturnTo exists but auth hops are switched in Phase 3) — 40ce641
+- [x] 2.4 npm run lint passes — 40ce641
+- [x] 2.5 npm run build passes — 40ce641
 
 #### Manual
 
@@ -400,12 +400,12 @@ Additive: new enum, table, view, function. No backfill. Existing users have zero
 
 #### Automated
 
-- [ ] 3.1 /players/[id].astro renders a Friends section and does not SELECT friend_requests for the public list
-- [ ] 3.2 FriendActions exists; guest/unverified/own-public paths do not mount Add friend
-- [ ] 3.3 /players is still absent from PROTECTED_ROUTES
-- [ ] 3.4 withReturnTo, authErrorRedirect, and the six auth pages/routes use safeAuthReturnTo; nickname.ts still uses safeRunReturnTo
-- [ ] 3.5 npm run lint passes
-- [ ] 3.6 npm run build passes
+- [x] 3.1 /players/[id].astro renders a Friends section and does not SELECT friend_requests for the public list
+- [x] 3.2 FriendActions exists; guest/unverified/own-public paths do not mount Add friend
+- [x] 3.3 /players is still absent from PROTECTED_ROUTES
+- [x] 3.4 withReturnTo, authErrorRedirect, and the six auth pages/routes use safeAuthReturnTo; nickname.ts still uses safeRunReturnTo
+- [x] 3.5 npm run lint passes
+- [x] 3.6 npm run build passes
 
 #### Manual
 

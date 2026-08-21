@@ -32,7 +32,7 @@ export function safeFriendRedirect(value: string | null | undefined): string | n
 }
 
 export function withReturnTo(path: string, returnTo: string | null | undefined): string {
-  const safe = safeRunReturnTo(returnTo);
+  const safe = safeAuthReturnTo(returnTo);
   if (!safe) return path;
   const url = new URL(path, "http://local.invalid");
   url.searchParams.set("returnTo", safe);
@@ -46,7 +46,7 @@ export function authErrorRedirect(
 ): string {
   const url = new URL(basePath, "http://local.invalid");
   url.searchParams.set("error", message);
-  const safe = safeRunReturnTo(returnTo);
+  const safe = safeAuthReturnTo(returnTo);
   if (safe) url.searchParams.set("returnTo", safe);
   return `${url.pathname}${url.search}`;
 }
