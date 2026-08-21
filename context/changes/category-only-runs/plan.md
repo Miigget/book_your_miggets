@@ -283,30 +283,30 @@ Production may already have `map_id` null rows. XOR must be `NOT VALID` so `supa
 
 #### Automated
 
-- [x] 2.1 `npm run lint` passes
-- [x] 2.2 `npx astro sync` and `npm run build` succeed
+- [x] 2.1 `npm run lint` passes — d4c1270
+- [x] 2.2 `npx astro sync` and `npm run build` succeed — d4c1270
 
 #### Manual
 
-- [x] 2.3 Existing create form still publishes a mapped run; DB `map_category` is null
-- [x] 2.4 Crafted `POST /api/runs` with empty `map_id` and `map_category=Insane` inserts XOR; the same POST with both empty redirects with the domain `?error=` (not PostgREST)
-- [x] 2.5 Crafted POST with both a map and a category stores map only (`map_category` null)
-- [x] 2.6 Crafted `POST /api/runs/:id`: mapped run + empty map + `map_category=Easy` stores category-only; category-only run + a `map_id` clears `map_category`
-- [x] 2.7 Crafted edit of a both-null row (if one exists) without map or category is rejected; a valid XOR save afterward succeeds
+- [x] 2.3 Existing create form still publishes a mapped run; DB `map_category` is null — d4c1270
+- [x] 2.4 Crafted `POST /api/runs` with empty `map_id` and `map_category=Insane` inserts XOR; the same POST with both empty redirects with the domain `?error=` (not PostgREST) — d4c1270
+- [x] 2.5 Crafted POST with both a map and a category stores map only (`map_category` null) — d4c1270
+- [x] 2.6 Crafted `POST /api/runs/:id`: mapped run + empty map + `map_category=Easy` stores category-only; category-only run + a `map_id` clears `map_category` — d4c1270
+- [x] 2.7 Crafted edit of a both-null row (if one exists) without map or category is rejected; a valid XOR save afterward succeeds — d4c1270
 
 ### Phase 3: Form UX and card/detail display
 
 #### Automated
 
-- [ ] 3.1 `npm run lint` passes
-- [ ] 3.2 `npx astro sync` and `npm run build` succeed
+- [x] 3.1 `npm run lint` passes
+- [x] 3.2 `npx astro sync` and `npm run build` succeed
 
 #### Manual
 
-- [ ] 3.3 Active list card and `/runs/{id}` show `Category: Insane` (or the chosen value) with **no** map name for a category-only run
-- [ ] 3.4 Dashboard (active + past), `/runs/history`, home Recent Runs, and admin player archive show the same Category line
-- [ ] 3.5 A mapped run still shows Map: name · difficulty · points and **no** extra Category line
-- [ ] 3.6 A grandfathered map-less run (if present) still has neither Map nor Category
-- [ ] 3.7 `?map=insane` includes the category-only Insane run; title remains `{nick} run` when no custom title
-- [ ] 3.8 MapPicker “All difficulties” still only filters the catalog; creating without clicking a map requires Run category
-- [ ] 3.9 Edit via the form: mapped run → clear map, pick a category, save; category-only run → pick a map (category control hidden/cleared, Map row returns)
+- [x] 3.3 Active list card and `/runs/{id}` show `Category: Insane` (or the chosen value) with **no** map name for a category-only run
+- [x] 3.4 Dashboard (active + past), `/runs/history`, home Recent Runs, and admin player archive show the same Category line
+- [x] 3.5 A mapped run still shows Map: name · difficulty · points and **no** extra Category line
+- [x] 3.6 A grandfathered map-less run (if present) still has neither Map nor Category
+- [x] 3.7 `?map=insane` includes the category-only Insane run; title remains `{nick} run` when no custom title
+- [x] 3.8 MapPicker “All difficulties” still only filters the catalog; creating without clicking a map requires Run category
+- [x] 3.9 Edit via the form: mapped run → clear map, pick a category, save; category-only run → pick a map (category control hidden/cleared, Map row returns)

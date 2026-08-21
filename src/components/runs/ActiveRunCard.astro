@@ -43,7 +43,7 @@ const { run } = Astro.props;
       <dd class="inline text-blue-100/90">{formatJoinMode(run.joinMode)}</dd>
     </div>
     {
-      run.map && (
+      run.map ? (
         <div>
           <dt class="inline">Map: </dt>
           <dd class="inline text-blue-100/90">
@@ -54,7 +54,12 @@ const { run } = Astro.props;
             </span>
           </dd>
         </div>
-      )
+      ) : run.mapCategory ? (
+        <div>
+          <dt class="inline">Category: </dt>
+          <dd class="inline text-blue-100/90">{run.mapCategory}</dd>
+        </div>
+      ) : null
     }
     <div>
       <dt class="inline">Organizer:</dt>{" "}

@@ -66,7 +66,9 @@ export function MapPicker({ maps, selectedId, onSelect, error }: MapPickerProps)
           </div>
         </div>
       ) : (
-        <p className="text-xs text-blue-100/50">No map selected — title or nickname will name the run.</p>
+        <p className="text-xs text-blue-100/50">
+          No map selected — pick a run category below, or title/nickname will name the run.
+        </p>
       )}
 
       <input type="hidden" name="map_id" value={selectedId} />
