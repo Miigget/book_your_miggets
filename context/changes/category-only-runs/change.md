@@ -1,7 +1,7 @@
 ---
 change_id: category-only-runs
 title: Create category-only runs with catalog difficulty on the card
-status: implemented
+status: impl_reviewed
 created: 2026-08-21
 updated: 2026-08-21
 archived_at: null
