@@ -1,10 +1,10 @@
 ---
 change_id: restricted-run-visibility
 title: Friends-only and invite-only run visibility
-status: impl_reviewed
+status: archived
 created: 2026-08-24
 updated: 2026-08-24
-archived_at: null
+archived_at: 2026-08-24T10:57:00Z
 ---
 
 ## Notes
