@@ -288,10 +288,10 @@ Put the Phase 1 mutations on `/admin/users/{id}` and a pending hint on `/admin`.
 
 #### Automated
 
-- [x] 2.1 /admin/users/[id].astro posts to the four new admin APIs (grep)
-- [x] 2.2 /admin index still links nicknames to /admin/users/{id} and reads hasPendingNicknameRequest
-- [x] 2.3 npm run lint passes
-- [x] 2.4 npm run build passes
+- [x] 2.1 /admin/users/[id].astro posts to the four new admin APIs (grep) — eec6dcd
+- [x] 2.2 /admin index still links nicknames to /admin/users/{id} and reads hasPendingNicknameRequest — eec6dcd
+- [x] 2.3 npm run lint passes — eec6dcd
+- [x] 2.4 npm run build passes — eec6dcd
 
 #### Manual
 
@@ -299,7 +299,7 @@ Put the Phase 1 mutations on `/admin/users/{id}` and a pending hint on `/admin`.
 - [ ] 2.6 Direct nick save while pending: match → accepted; different → denied; taken nick → error, pending remains
 - [ ] 2.7 Points save then public Self-reported; Mark verified → Checked in-game; changing points clears the flag
 - [ ] 2.8 Unverified and banned players: same editors; unverify on /admin with a pending request denies it
-- [x] 2.9 Guest /admin/users/{id} → sign-in; member → 404; archive list still loads
+- [x] 2.9 Guest /admin/users/{id} → sign-in; member → 404; archive list still loads — eec6dcd
 - [ ] 2.10 http://localhost:4321/admin and a known http://localhost:4321/admin/users/{uuid}
-- [x] 2.11 Empty points: Mark verified hidden or disabled; Unverify still works; posting value=true still errors with the Phase 1 copy
-- [x] 2.12 Pending-load failure: nick/points/flag editors still render; inline friendly error; no Accept/Deny; profile load still succeeds
+- [x] 2.11 Empty points: Mark verified hidden or disabled; Unverify still works; posting value=true still errors with the Phase 1 copy — eec6dcd
+- [x] 2.12 Pending-load failure: nick/points/flag editors still render; inline friendly error; no Accept/Deny; profile load still succeeds — eec6dcd

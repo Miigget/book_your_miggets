@@ -1,7 +1,7 @@
 ---
 change_id: admin-profile-edits
 title: Admin edits nickname, KoG points, and nickname-change requests
-status: implementing
+status: impl_reviewed
 created: 2026-08-24
 updated: 2026-08-24
 archived_at: null
