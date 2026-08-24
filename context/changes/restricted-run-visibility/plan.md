@@ -417,12 +417,12 @@ Existing `runs` rows default to `public` — no backfill script. Rollback is `su
 
 #### Automated
 
-- [x] 3.1 /runs partitions with Public / Friends / Invited / admin Restricted and does not put friends_only / invite_only into Public
-- [x] 3.2 Welcome.astro always calls listActiveRuns with publicOnly; guest /runs always does; signed-in /runs never does
-- [x] 3.3 Detail 404 copy is unchanged; canReadComments is not "anyone who can view"
-- [x] 3.4 PROTECTED_ROUTES still does not prefix-protect /runs
-- [x] 3.5 npm run lint passes
-- [x] 3.6 npm run build passes
+- [x] 3.1 /runs partitions with Public / Friends / Invited / admin Restricted and does not put friends_only / invite_only into Public — e24401c
+- [x] 3.2 Welcome.astro always calls listActiveRuns with publicOnly; guest /runs always does; signed-in /runs never does — e24401c
+- [x] 3.3 Detail 404 copy is unchanged; canReadComments is not "anyone who can view" — e24401c
+- [x] 3.4 PROTECTED_ROUTES still does not prefix-protect /runs — e24401c
+- [x] 3.5 npm run lint passes — e24401c
+- [x] 3.6 npm run build passes — e24401c
 
 #### Manual
 
