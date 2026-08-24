@@ -1,10 +1,10 @@
 ---
 change_id: admin-profile-edits
 title: Admin edits nickname, KoG points, and nickname-change requests
-status: impl_reviewed
+status: archived
 created: 2026-08-24
 updated: 2026-08-24
-archived_at: null
+archived_at: 2026-08-24T14:36:38Z
 ---
 
 ## Notes
