@@ -1,6 +1,7 @@
 import type { APIRoute } from "astro";
-import { createClient } from "@/lib/supabase";
+import { authConfirmRedirectUrl } from "@/lib/safe-return-to";
 import { ensureOwnProfile } from "@/lib/services/runs";
+import { createClient } from "@/lib/supabase";
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -45,7 +46,7 @@ export const POST: APIRoute = async (context) => {
 
   const { data, error } = await supabase.auth.updateUser(
     { email },
-    { emailRedirectTo: new URL("/profile", context.url.origin).href },
+    { emailRedirectTo: authConfirmRedirectUrl(context.url.origin, "/profile") },
   );
 
   if (error) {

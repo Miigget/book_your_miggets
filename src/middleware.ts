@@ -1,4 +1,5 @@
 import { defineMiddleware } from "astro:middleware";
+import { completeEmailAuth } from "@/lib/auth-callback";
 import { getRequestTimeZone } from "@/lib/format-date";
 import { createClient } from "@/lib/supabase";
 
@@ -27,6 +28,11 @@ export const onRequest = defineMiddleware(async (context, next) => {
   context.locals.timeZone = getRequestTimeZone(context.request);
 
   if (supabase) {
+    const emailAuth = await completeEmailAuth(supabase, context.url);
+    if (emailAuth.handled) {
+      return context.redirect(emailAuth.location);
+    }
+
     const {
       data: { user },
     } = await supabase.auth.getUser();

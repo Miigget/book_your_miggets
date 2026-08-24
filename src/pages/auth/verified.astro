@@ -1,0 +1,28 @@
+---
+import Layout from "@/layouts/Layout.astro";
+import { safeAuthConfirmNext } from "@/lib/safe-return-to";
+
+const next = safeAuthConfirmNext(Astro.url.searchParams.get("next"));
+---
+
+<Layout title="Email verified">
+  <div class="bg-cosmic flex min-h-screen items-center justify-center p-4">
+    <div
+      class="w-full max-w-sm rounded-2xl border border-white/10 bg-white/10 p-8 text-center text-white backdrop-blur-xl"
+    >
+      <div class="mb-4 text-5xl">✅</div>
+      <h1 class="mb-3 bg-gradient-to-r from-blue-200 to-purple-200 bg-clip-text text-2xl font-bold text-transparent">
+        Email verified
+      </h1>
+      <p class="mb-6 text-blue-100/80">
+        Your email is confirmed and your account is active. You can start finding runs.
+      </p>
+      <a
+        href={next}
+        class="inline-flex items-center justify-center rounded-lg bg-purple-600 px-6 py-3 text-sm font-medium text-white transition-colors hover:bg-purple-500"
+      >
+        Continue
+      </a>
+    </div>
+  </div>
+</Layout>
