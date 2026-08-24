@@ -1,17 +1,23 @@
 ---
 import Layout from "@/layouts/Layout.astro";
+import Banner from "@/components/Banner.astro";
 import NicknameLink from "@/components/NicknameLink.astro";
 import PageChrome from "@/components/PageChrome.astro";
 import { formatStart } from "@/lib/format-date";
 import { createClient } from "@/lib/supabase";
 import { getProfileForAdmin, type AdminPlayerProfile } from "@/lib/services/admin";
+import { getPendingNicknameRequest, type PendingNicknameRequest } from "@/lib/services/profile";
 import { formatJoinMode, listArchivedRunsForParticipant } from "@/lib/services/runs";
 
 // Route protection lives in middleware: only admins reach this page.
 const { id } = Astro.params;
 const supabase = createClient(Astro.request.headers, Astro.cookies);
+const notice = Astro.url.searchParams.get("notice");
+const serverError = Astro.url.searchParams.get("error");
 
 let profile: AdminPlayerProfile | null = null;
+let pendingRequest: PendingNicknameRequest | null = null;
+let pendingError: string | null = null;
 let pageError: "missing" | "config" | "load" | null = null;
 let runs: Awaited<ReturnType<typeof listArchivedRunsForParticipant>> = [];
 let listError: string | null = null;
@@ -27,6 +33,12 @@ if (!id) {
       pageError = "missing";
     } else {
       try {
+        pendingRequest = await getPendingNicknameRequest(supabase, profile.id);
+      } catch (err) {
+        console.error("getPendingNicknameRequest failed on admin player profile", err);
+        pendingError = "Could not load the pending nickname request.";
+      }
+      try {
         runs = await listArchivedRunsForParticipant(supabase, profile.id);
       } catch (err) {
         console.error("listArchivedRunsForParticipant failed on admin player profile", err);
@@ -38,6 +50,17 @@ if (!id) {
     pageError = "load";
   }
 }
+
+const hasPoints = profile?.kog_points !== null && profile?.kog_points !== undefined;
+const fieldClass =
+  "w-full rounded-lg border border-white/20 bg-white/10 px-3 py-2 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-purple-400";
+const labelClass = "mb-1 block text-sm text-blue-100/80";
+const saveButtonClass =
+  "rounded-lg border border-white/20 px-3 py-1.5 text-sm font-medium text-white transition-colors hover:bg-white/10";
+const actionButtonClass =
+  "rounded-lg border border-white/20 px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-white/10";
+const denyButtonClass =
+  "rounded-lg border border-red-400/40 px-3 py-1.5 text-xs font-medium text-red-200 transition-colors hover:bg-red-500/20";
 
 if (pageError === "missing") {
   Astro.response.status = 404;
@@ -51,6 +74,21 @@ const pageTitle = profile ? `${displayNickname} — Admin — Book Your Miggets`
 
 <Layout title={pageTitle}>
   <PageChrome>
+    {
+      notice && (
+        <div class="mb-6 overflow-hidden rounded-lg">
+          <Banner variant="info">{notice}</Banner>
+        </div>
+      )
+    }
+    {
+      serverError && (
+        <div class="mb-6 overflow-hidden rounded-lg">
+          <Banner variant="error">{serverError}</Banner>
+        </div>
+      )
+    }
+
     <p class="mb-6">
       <a href="/admin" class="text-sm text-purple-300 transition-colors hover:text-purple-100 hover:underline">
         ← Users
@@ -79,6 +117,106 @@ const pageTitle = profile ? `${displayNickname} — Admin — Book Your Miggets`
               </h1>
               <p class="mt-2 font-mono text-xs text-blue-100/60">{profile.id}</p>
             </header>
+
+            <section
+              class="mb-8 rounded-xl border border-white/10 bg-white/5 p-5 backdrop-blur-xl"
+              aria-label="Edit player identity"
+            >
+              <form method="POST" action={`/api/admin/users/${profile.id}/nickname`} class="space-y-3">
+                <div>
+                  <label for="admin-nickname" class:list={[labelClass]}>
+                    Nickname
+                  </label>
+                  <input
+                    id="admin-nickname"
+                    type="text"
+                    name="nickname"
+                    required
+                    maxlength="32"
+                    autocomplete="off"
+                    value={profile.nickname ?? ""}
+                    class:list={[fieldClass]}
+                  />
+                </div>
+                <button type="submit" class:list={[saveButtonClass]}>
+                  Save nickname
+                </button>
+              </form>
+
+              <form method="POST" action={`/api/admin/users/${profile.id}/points`} class="mt-6 space-y-3">
+                <div>
+                  <label for="admin-kog-points" class:list={[labelClass]}>
+                    KoG points
+                  </label>
+                  <input
+                    id="admin-kog-points"
+                    type="text"
+                    name="kog_points"
+                    inputmode="numeric"
+                    autocomplete="off"
+                    value={hasPoints ? String(profile.kog_points) : ""}
+                    placeholder="Empty to clear"
+                    class:list={[fieldClass]}
+                  />
+                </div>
+                <button type="submit" class:list={[saveButtonClass]}>
+                  Save KoG points
+                </button>
+              </form>
+
+              <div class="mt-6 space-y-2">
+                <p class="text-sm text-blue-100/80">Points checked in-game</p>
+                <p class="text-sm text-white">{profile.kog_points_verified ? "Checked in-game" : "Self-reported"}</p>
+                <div class="flex flex-wrap gap-2">
+                  {hasPoints && !profile.kog_points_verified ? (
+                    <form method="POST" action={`/api/admin/users/${profile.id}/points-verified`}>
+                      <input type="hidden" name="value" value="true" />
+                      <button type="submit" class:list={[actionButtonClass]}>
+                        Mark verified
+                      </button>
+                    </form>
+                  ) : null}
+                  {profile.kog_points_verified ? (
+                    <form method="POST" action={`/api/admin/users/${profile.id}/points-verified`}>
+                      <input type="hidden" name="value" value="false" />
+                      <button type="submit" class:list={[actionButtonClass]}>
+                        Unverify
+                      </button>
+                    </form>
+                  ) : null}
+                </div>
+                {!hasPoints && !profile.kog_points_verified ? (
+                  <p class="text-xs text-blue-100/50">Set KoG points before marking them checked in-game.</p>
+                ) : null}
+              </div>
+
+              {pendingError ? (
+                <p class="mt-6 rounded-lg border border-red-400/30 bg-red-500/10 px-4 py-3 text-sm text-red-100">
+                  {pendingError}
+                </p>
+              ) : pendingRequest ? (
+                <div class="mt-6 space-y-3 border-t border-white/10 pt-6">
+                  <h2 class="text-sm font-semibold tracking-wide text-white/80 uppercase">Pending nickname request</h2>
+                  <p class="text-sm text-blue-100/80">
+                    Requested: <span class="text-white">{pendingRequest.requestedNickname}</span>
+                  </p>
+                  <div class="flex flex-wrap gap-2">
+                    <form method="POST" action={`/api/admin/users/${profile.id}/nickname-request`}>
+                      <input type="hidden" name="decision" value="accept" />
+                      <button type="submit" class:list={[actionButtonClass]}>
+                        Accept
+                      </button>
+                    </form>
+                    <form method="POST" action={`/api/admin/users/${profile.id}/nickname-request`}>
+                      <input type="hidden" name="decision" value="deny" />
+                      <button type="submit" class:list={[denyButtonClass]}>
+                        Deny
+                      </button>
+                    </form>
+                  </div>
+                </div>
+              ) : null}
+            </section>
 
             {listError ? (
               <p class="rounded-lg border border-red-400/30 bg-red-500/10 px-4 py-3 text-sm text-red-100">

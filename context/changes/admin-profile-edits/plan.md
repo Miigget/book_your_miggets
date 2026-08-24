@@ -269,29 +269,29 @@ Put the Phase 1 mutations on `/admin/users/{id}` and a pending hint on `/admin`.
 
 #### Automated
 
-- [x] 1.1 Migration file exists under supabase/migrations/ replacing enforce_profile_privileged_columns so any kog_points change clears the flag and non-admins restore the flag when points are unchanged
-- [x] 1.2 npx supabase db reset (or project-equivalent apply) succeeds locally
-- [x] 1.3 getProfileForAdmin selects kog_points / kog_points_verified; listProfilesForAdmin exposes hasPendingNicknameRequest
-- [x] 1.4 Admin mutation helpers and the four new API routes exist; setUserVerified(false) deny-if-any then unverify; denyNicknameChangeRequest still errors when none pending; setKogPointsVerified(true) rejects null kog_points
-- [x] 1.5 findProfileIdByNickname is exported and used by admin nick/accept paths
-- [x] 1.6 npm run lint passes
-- [x] 1.7 npm run build passes
+- [x] 1.1 Migration file exists under supabase/migrations/ replacing enforce_profile_privileged_columns so any kog_points change clears the flag and non-admins restore the flag when points are unchanged — 2e53395
+- [x] 1.2 npx supabase db reset (or project-equivalent apply) succeeds locally — 2e53395
+- [x] 1.3 getProfileForAdmin selects kog_points / kog_points_verified; listProfilesForAdmin exposes hasPendingNicknameRequest — 2e53395
+- [x] 1.4 Admin mutation helpers and the four new API routes exist; setUserVerified(false) deny-if-any then unverify; denyNicknameChangeRequest still errors when none pending; setKogPointsVerified(true) rejects null kog_points — 2e53395
+- [x] 1.5 findProfileIdByNickname is exported and used by admin nick/accept paths — 2e53395
+- [x] 1.6 npm run lint passes — 2e53395
+- [x] 1.7 npm run build passes — 2e53395
 
 #### Manual
 
-- [x] 1.8 SQL: admin UPDATE of kog_points sets kog_points_verified false; a following UPDATE of the flag only to true sticks when points are unchanged
-- [x] 1.9 SQL: member still cannot set the flag true; member points change still clears it; verified nickname lock still applies to non-admins
-- [x] 1.10 SQL or service: unverify with a pending row leaves status denied and is_verified false; unverify with no pending row still sets is_verified false; deny write failure must not leave the user unverified with a live pending row
-- [x] 1.11 Service: setKogPointsVerified(true) when kog_points is null errors with fixed copy; Unverify (false) still succeeds when points are null
+- [x] 1.8 SQL: admin UPDATE of kog_points sets kog_points_verified false; a following UPDATE of the flag only to true sticks when points are unchanged — 2e53395
+- [x] 1.9 SQL: member still cannot set the flag true; member points change still clears it; verified nickname lock still applies to non-admins — 2e53395
+- [x] 1.10 SQL or service: unverify with a pending row leaves status denied and is_verified false; unverify with no pending row still sets is_verified false; deny write failure must not leave the user unverified with a live pending row — 2e53395
+- [x] 1.11 Service: setKogPointsVerified(true) when kog_points is null errors with fixed copy; Unverify (false) still succeeds when points are null — 2e53395
 
 ### Phase 2: Admin player page editors and list discovery
 
 #### Automated
 
-- [ ] 2.1 /admin/users/[id].astro posts to the four new admin APIs (grep)
-- [ ] 2.2 /admin index still links nicknames to /admin/users/{id} and reads hasPendingNicknameRequest
-- [ ] 2.3 npm run lint passes
-- [ ] 2.4 npm run build passes
+- [x] 2.1 /admin/users/[id].astro posts to the four new admin APIs (grep)
+- [x] 2.2 /admin index still links nicknames to /admin/users/{id} and reads hasPendingNicknameRequest
+- [x] 2.3 npm run lint passes
+- [x] 2.4 npm run build passes
 
 #### Manual
 
@@ -299,7 +299,7 @@ Put the Phase 1 mutations on `/admin/users/{id}` and a pending hint on `/admin`.
 - [ ] 2.6 Direct nick save while pending: match → accepted; different → denied; taken nick → error, pending remains
 - [ ] 2.7 Points save then public Self-reported; Mark verified → Checked in-game; changing points clears the flag
 - [ ] 2.8 Unverified and banned players: same editors; unverify on /admin with a pending request denies it
-- [ ] 2.9 Guest /admin/users/{id} → sign-in; member → 404; archive list still loads
+- [x] 2.9 Guest /admin/users/{id} → sign-in; member → 404; archive list still loads
 - [ ] 2.10 http://localhost:4321/admin and a known http://localhost:4321/admin/users/{uuid}
-- [ ] 2.11 Empty points: Mark verified hidden or disabled; Unverify still works; posting value=true still errors with the Phase 1 copy
-- [ ] 2.12 Pending-load failure: nick/points/flag editors still render; inline friendly error; no Accept/Deny; profile load still succeeds
+- [x] 2.11 Empty points: Mark verified hidden or disabled; Unverify still works; posting value=true still errors with the Phase 1 copy
+- [x] 2.12 Pending-load failure: nick/points/flag editors still render; inline friendly error; no Accept/Deny; profile load still succeeds

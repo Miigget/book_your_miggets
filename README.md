@@ -29,8 +29,10 @@ There are no seeded admin credentials. To designate the first admin:
 
 4. After signing in again (or refreshing), the account sees the **Admin** link in the top bar and
    can moderate from `/admin`: ban/unban and verify/unverify users, and delete runs from each
-   run's detail page. Nicknames on `/admin` open `/admin/users/{id}` (that player's confirmed
-   archived runs).
+   run's detail page. Nicknames on `/admin` open `/admin/users/{id}` — that is where admins edit
+   nickname and KoG points, mark points as checked in-game, and accept or deny nickname-change
+   requests (plus that player's confirmed archived runs). `/admin` shows a pending-nick marker
+   when a request is waiting.
 
 Further role changes stay manual by design — there is no role-management UI. Ban and verify
 toggles are available in the admin UI once at least one admin exists (admin sessions pass the
