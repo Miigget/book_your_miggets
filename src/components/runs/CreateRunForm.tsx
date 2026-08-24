@@ -7,12 +7,18 @@ import { MapPicker } from "@/components/runs/MapPicker";
 import { formatLocalDatetimeValue, parseLocalDatetime } from "@/lib/format-date";
 import { isRunActive } from "@/lib/run-lifecycle";
 import { cn } from "@/lib/utils";
-import type { MapPickerItem } from "@/lib/services/runs";
+import { INVITE_LIST_EMPTY_MESSAGE, type MapPickerItem } from "@/lib/services/runs";
 
 const selectClass =
   "w-full rounded-lg border border-white/20 bg-white/10 px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-purple-400";
 
 export type CreateRunFormJoinMode = "approval_required" | "auto_join";
+export type CreateRunFormVisibility = "public" | "friends_only" | "invite_only";
+
+export interface CreateRunFormFriend {
+  id: string;
+  nickname: string | null;
+}
 
 export interface CreateRunFormEditValues {
   runId: string;
@@ -23,6 +29,8 @@ export interface CreateRunFormEditValues {
   maxParticipants: number;
   minPoints: number;
   joinMode: CreateRunFormJoinMode;
+  visibility: CreateRunFormVisibility;
+  inviteeIds: string[];
   confirmedCount: number;
   joinModeLocked: boolean;
 }
@@ -31,6 +39,7 @@ interface Props {
   maps: MapPickerItem[];
   nickname: string | null;
   isVerified: boolean;
+  friends?: CreateRunFormFriend[];
   serverError?: string | null;
   edit?: CreateRunFormEditValues;
 }
@@ -47,10 +56,18 @@ function startsAtToLocalDatetime(iso: string): string {
   return formatLocalDatetimeValue(d);
 }
 
-export default function CreateRunForm({ maps, nickname: initialNickname, isVerified, serverError, edit }: Props) {
+export default function CreateRunForm({
+  maps,
+  nickname: initialNickname,
+  isVerified,
+  friends = [],
+  serverError,
+  edit,
+}: Props) {
   const isEdit = Boolean(edit);
   const needsNickname = !isEdit && !initialNickname && !isVerified;
   const verifiedNeedsRequest = !isEdit && !initialNickname && isVerified;
+  const canChooseVisibility = isEdit || isVerified;
   const [nickname, setNickname] = useState("");
   const [title, setTitle] = useState(edit?.title ?? "");
   const [mapId, setMapId] = useState(edit?.mapId ?? "");
@@ -60,12 +77,16 @@ export default function CreateRunForm({ maps, nickname: initialNickname, isVerif
   const [maxParticipants, setMaxParticipants] = useState(edit ? String(edit.maxParticipants) : "2");
   const [minPoints, setMinPoints] = useState(edit ? String(edit.minPoints) : "0");
   const [joinMode, setJoinMode] = useState<CreateRunFormJoinMode>(edit?.joinMode ?? "approval_required");
+  const [visibility, setVisibility] = useState<CreateRunFormVisibility>(edit?.visibility ?? "public");
+  const [selectedInviteeIds, setSelectedInviteeIds] = useState<Set<string>>(() => new Set(edit?.inviteeIds ?? []));
   const [errors, setErrors] = useState<{
     nickname?: string;
     starts_at?: string;
     max_participants?: string;
     min_points?: string;
+    invitee_ids?: string;
   }>({});
+  const showInvitePicker = visibility === "invite_only" && (isEdit || isVerified);
 
   const startsAtIso = useMemo(() => {
     if (!startsAtLocal) return "";
@@ -111,6 +132,10 @@ export default function CreateRunForm({ maps, nickname: initialNickname, isVerif
     const points = Number.parseInt(minPoints, 10);
     if (!Number.isFinite(points) || points < 0) {
       next.min_points = "Must be 0 or greater";
+    }
+
+    if (visibility === "invite_only" && selectedInviteeIds.size < 1) {
+      next.invitee_ids = INVITE_LIST_EMPTY_MESSAGE;
     }
 
     setErrors(next);
@@ -261,6 +286,82 @@ export default function CreateRunForm({ maps, nickname: initialNickname, isVerif
           <p className="mt-1 text-xs text-blue-100/50">Join mode cannot be changed after someone has applied.</p>
         )}
       </div>
+
+      {canChooseVisibility ? (
+        <div>
+          <label htmlFor="visibility" className="mb-1 block text-sm text-blue-100/80">
+            Visibility
+          </label>
+          <select
+            id="visibility"
+            name="visibility"
+            value={visibility}
+            onChange={(e) => {
+              setVisibility(e.target.value as CreateRunFormVisibility);
+              if (errors.invitee_ids) setErrors((prev) => ({ ...prev, invitee_ids: undefined }));
+            }}
+            className={selectClass}
+          >
+            <option value="public" className="bg-slate-900">
+              Public
+            </option>
+            <option value="friends_only" className="bg-slate-900">
+              Friends only
+            </option>
+            <option value="invite_only" className="bg-slate-900">
+              Invite only
+            </option>
+          </select>
+          <p className="mt-1 text-xs text-blue-100/50">
+            {visibility === "friends_only"
+              ? "Only your current friends can find this run."
+              : visibility === "invite_only"
+                ? "Only the friends you pick can find this run."
+                : "Anyone can find this run on the public list."}
+          </p>
+        </div>
+      ) : (
+        <input type="hidden" name="visibility" value="public" />
+      )}
+
+      {showInvitePicker && (
+        <fieldset>
+          <legend className="mb-1 block text-sm text-blue-100/80">Invitees</legend>
+          {friends.length === 0 ? (
+            <p className="text-sm text-blue-100/50">Pick at least one friend. You have no friends to invite yet.</p>
+          ) : (
+            <ul className="space-y-2 rounded-lg border border-white/10 bg-white/5 px-3 py-2">
+              {friends.map((friend) => {
+                const checked = selectedInviteeIds.has(friend.id);
+                return (
+                  <li key={friend.id}>
+                    <label className="flex cursor-pointer items-center gap-2 text-sm text-white">
+                      <input
+                        type="checkbox"
+                        name="invitee_ids"
+                        value={friend.id}
+                        checked={checked}
+                        onChange={(e) => {
+                          setSelectedInviteeIds((prev) => {
+                            const next = new Set(prev);
+                            if (e.target.checked) next.add(friend.id);
+                            else next.delete(friend.id);
+                            return next;
+                          });
+                          if (errors.invitee_ids) setErrors((prev) => ({ ...prev, invitee_ids: undefined }));
+                        }}
+                        className="size-4 rounded border-white/30 bg-white/10 text-purple-400 focus:ring-purple-400"
+                      />
+                      <span>{friend.nickname ?? "Unknown player"}</span>
+                    </label>
+                  </li>
+                );
+              })}
+            </ul>
+          )}
+          {errors.invitee_ids && <p className="mt-1 text-xs text-red-300">{errors.invitee_ids}</p>}
+        </fieldset>
+      )}
 
       <ServerError message={serverError} />
 

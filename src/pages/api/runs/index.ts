@@ -2,11 +2,16 @@ import type { APIRoute } from "astro";
 import { createClient } from "@/lib/supabase";
 import { ProfileError, getOwnProfile, setOwnNickname } from "@/lib/services/profile";
 import {
+  createInviteOnlyRun,
   ensureOwnProfile,
+  INVITE_LIST_EMPTY_MESSAGE,
   isJoinMode,
   isUuid,
+  isVisibility,
   mapRunMapCategoryConstraintError,
   normalizeRunMapAndCategory,
+  parseInviteeIds,
+  RESTRICTED_VISIBILITY_UNVERIFIED,
   RunError,
 } from "@/lib/services/runs";
 
@@ -24,6 +29,8 @@ export const POST: APIRoute = async (context) => {
   const minPointsRaw = formString(form, "min_points", "0");
   const joinModeRaw = formString(form, "join_mode");
   const nicknameRaw = formString(form, "nickname");
+  const visibilityRaw = formString(form, "visibility", "public");
+  const inviteeIds = parseInviteeIds(form);
 
   const fail = (message: string) => context.redirect(`/runs/new?error=${encodeURIComponent(message)}`);
 
@@ -74,6 +81,16 @@ export const POST: APIRoute = async (context) => {
       console.error("setOwnNickname failed", err);
       return fail("Could not save nickname");
     }
+  }
+
+  if (!isVisibility(visibilityRaw)) {
+    return fail("Visibility is invalid");
+  }
+  if (!ownProfile.isVerified && visibilityRaw !== "public") {
+    return fail(RESTRICTED_VISIBILITY_UNVERIFIED);
+  }
+  if (visibilityRaw === "invite_only" && inviteeIds.length < 1) {
+    return fail(INVITE_LIST_EMPTY_MESSAGE);
   }
 
   const title = titleRaw.length > 0 ? titleRaw : null;
@@ -128,6 +145,28 @@ export const POST: APIRoute = async (context) => {
     return fail("Join mode is invalid");
   }
 
+  if (visibilityRaw === "invite_only") {
+    try {
+      const runId = await createInviteOnlyRun(supabase, user.id, {
+        title,
+        mapId,
+        mapCategory,
+        startsAtIso: startsAt.toISOString(),
+        maxParticipants,
+        minPoints,
+        joinMode: joinModeRaw,
+        inviteeIds,
+      });
+      return context.redirect(`/runs/${runId}`);
+    } catch (err) {
+      if (err instanceof RunError) {
+        return fail(err.message);
+      }
+      console.error("create_invite_only_run failed", err);
+      return fail("Could not create this run");
+    }
+  }
+
   const { data: run, error: insertError } = await supabase
     .from("runs")
     .insert({
@@ -139,6 +178,7 @@ export const POST: APIRoute = async (context) => {
       max_participants: maxParticipants,
       min_points: minPoints,
       join_mode: joinModeRaw,
+      visibility: visibilityRaw,
       archived_at: null,
     })
     .select("id")

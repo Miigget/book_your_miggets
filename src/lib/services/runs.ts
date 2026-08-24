@@ -24,6 +24,7 @@ export interface RunListItem {
   maxParticipants: number;
   minPoints: number;
   joinMode: Enums<"join_mode">;
+  visibility: Enums<"run_visibility">;
   displayTitle: string;
   map: RunMap | null;
   mapCategory: string | null;
@@ -57,6 +58,7 @@ const RUN_SELECT = `
   max_participants,
   min_points,
   join_mode,
+  visibility,
   created_at,
   organizer_id,
   map_category,
@@ -83,6 +85,7 @@ interface RunRow {
   max_participants: number;
   min_points: number;
   join_mode: Enums<"join_mode">;
+  visibility: Enums<"run_visibility">;
   created_at: string;
   organizer_id: string;
   map_category: string | null;
@@ -135,6 +138,7 @@ function runFieldsFromRow(row: RunRow, confirmedCount: number) {
     maxParticipants: row.max_participants,
     minPoints: row.min_points,
     joinMode: row.join_mode,
+    visibility: row.visibility,
     createdAt: row.created_at,
     map,
     mapCategory: row.map_category,
@@ -538,6 +542,69 @@ export function isJoinMode(value: string): value is Enums<"join_mode"> {
   return (JOIN_MODES as readonly string[]).includes(value);
 }
 
+export const VISIBILITIES = [
+  "public",
+  "friends_only",
+  "invite_only",
+] as const satisfies readonly Enums<"run_visibility">[];
+
+export function isVisibility(value: string): value is Enums<"run_visibility"> {
+  return (VISIBILITIES as readonly string[]).includes(value);
+}
+
+/** Shared create/edit `?error=` when an unverified organizer posts a non-public visibility. */
+export const RESTRICTED_VISIBILITY_UNVERIFIED = "Verify your account to create friends-only or invite-only runs";
+
+export const INVITE_LIST_EMPTY_MESSAGE = "Invite-only runs need at least one invitee";
+
+export function parseInviteeIds(form: FormData): string[] {
+  const ids = form
+    .getAll("invitee_ids")
+    .filter((value): value is string => typeof value === "string")
+    .map((value) => value.trim())
+    .filter(isUuid);
+  return [...new Set(ids)];
+}
+
+export async function listRunInviteeIds(supabase: AppSupabaseClient, runId: string): Promise<string[]> {
+  if (!isUuid(runId)) return [];
+
+  const { data, error } = await supabase.from("run_invites").select("user_id").eq("run_id", runId);
+
+  if (error) {
+    throw new Error(`Failed to list run invitees: ${error.message}`);
+  }
+
+  return [...new Set(data.map((row) => row.user_id).filter(isUuid))];
+}
+
+export async function listPublicNicknamesByIds(
+  supabase: AppSupabaseClient,
+  ids: string[],
+): Promise<{ id: string; nickname: string | null }[]> {
+  const unique = [...new Set(ids.filter(isUuid))];
+  if (unique.length === 0) return [];
+
+  const { data, error } = await supabase.from("public_profiles").select("id, nickname").in("id", unique);
+
+  if (error) {
+    throw new Error(`Failed to load invitee nicknames: ${error.message}`);
+  }
+
+  const byId = new Map<string, string | null>();
+  for (const profile of data) {
+    if (!profile.id) continue;
+    const trimmed = profile.nickname?.trim();
+    if (!trimmed) {
+      byId.set(profile.id, null);
+    } else {
+      byId.set(profile.id, trimmed);
+    }
+  }
+
+  return unique.map((id) => ({ id, nickname: byId.get(id) ?? null }));
+}
+
 export class RunError extends Error {
   constructor(message: string) {
     super(message);
@@ -575,6 +642,19 @@ export interface UpdateRunInput {
   maxParticipants: string;
   minPoints: string;
   joinMode: string;
+  visibility: string;
+}
+
+interface PreparedRunPatch {
+  title: string | null;
+  mapId: string | null;
+  mapCategory: string | null;
+  startsAtIso: string;
+  maxParticipants: number;
+  minPoints: number;
+  /** Null when join mode is locked — omit from UPDATE / pass null to the RPC. */
+  joinMode: Enums<"join_mode"> | null;
+  visibility: Enums<"run_visibility">;
 }
 
 interface PostgrestErrorBlob {
@@ -591,7 +671,7 @@ export function mapRunMapCategoryConstraintError(error: PostgrestErrorBlob): Run
   return null;
 }
 
-function mapRunUpdateTriggerError(error: PostgrestErrorBlob): RunError | null {
+function mapRunWriteError(error: PostgrestErrorBlob): RunError | null {
   const mappedCategory = mapRunMapCategoryConstraintError(error);
   if (mappedCategory) return mappedCategory;
 
@@ -602,21 +682,69 @@ function mapRunUpdateTriggerError(error: PostgrestErrorBlob): RunError | null {
   if (blob.includes("capacity_below_confirmed")) {
     return new RunError("Capacity cannot be below the confirmed roster");
   }
+  if (blob.includes("invite_list_empty")) {
+    return new RunError(INVITE_LIST_EMPTY_MESSAGE);
+  }
+  if (blob.includes("invitee_not_friend")) {
+    return new RunError("Invitees must be friends");
+  }
+  if (blob.includes("invitee_is_organizer")) {
+    return new RunError("You cannot invite yourself");
+  }
+  if (blob.includes("run_not_found")) {
+    return new RunError("Run not found or no longer active");
+  }
   return null;
 }
 
+async function loadCurrentFriendIdSet(
+  supabase: AppSupabaseClient,
+  userId: string,
+  genericMessage: string,
+): Promise<Set<string>> {
+  const { data, error } = await supabase.from("public_friendships").select("friend_id").eq("user_id", userId);
+
+  if (error) {
+    console.error("load friend ids for invites failed", error);
+    throw new RunError(genericMessage);
+  }
+
+  return new Set(data.map((row) => row.friend_id).filter((id): id is string => typeof id === "string" && isUuid(id)));
+}
+
+async function assertNewInviteesAreFriends(
+  supabase: AppSupabaseClient,
+  organizerId: string,
+  inviteeIds: string[],
+  snapshotIds: readonly string[],
+  genericMessage: string,
+): Promise<void> {
+  const snapshot = new Set(snapshotIds);
+  const newcomers = inviteeIds.filter((id) => !snapshot.has(id));
+  if (newcomers.length === 0) return;
+
+  const friendIds = await loadCurrentFriendIdSet(supabase, organizerId, genericMessage);
+  if (newcomers.some((id) => !friendIds.has(id))) {
+    throw new RunError("Invitees must be friends");
+  }
+}
+
 /**
- * Organizer-only update of an active run. Do not use `getActiveRunById` as the owner gate.
- * Join mode is omitted from the patch when any non-organizer participant row exists.
+ * Shared normalize/validate for organizer edits. Used by `updateRun` (public/friends-only)
+ * and `setRunVisibilityAndInvites` (invite-only RPC) so S-13 checks stay in one place.
  */
-export async function updateRun(
+async function prepareOwnedActiveRunPatch(
   supabase: AppSupabaseClient,
   userId: string,
   runId: string,
   input: UpdateRunInput,
-): Promise<void> {
+): Promise<PreparedRunPatch> {
   if (!isUuid(runId)) {
     throw new RunError("Run not found or no longer active");
+  }
+
+  if (!isVisibility(input.visibility)) {
+    throw new RunError("Visibility is invalid");
   }
 
   const { data: existing, error: loadError } = await supabase
@@ -692,6 +820,91 @@ export async function updateRun(
   }
 
   const joinModeLocked = (otherParticipants.count ?? 0) > 0;
+  let joinMode: Enums<"join_mode"> | null = null;
+  if (!joinModeLocked) {
+    if (!isJoinMode(input.joinMode)) {
+      throw new RunError("Join mode is invalid");
+    }
+    joinMode = input.joinMode;
+  }
+
+  return {
+    title,
+    mapId,
+    mapCategory,
+    startsAtIso: startsAt.toISOString(),
+    maxParticipants,
+    minPoints,
+    joinMode,
+    visibility: input.visibility,
+  };
+}
+
+export interface CreateInviteOnlyRunInput {
+  title: string | null;
+  mapId: string | null;
+  mapCategory: string | null;
+  startsAtIso: string;
+  maxParticipants: number;
+  minPoints: number;
+  joinMode: Enums<"join_mode">;
+  inviteeIds: string[];
+}
+
+/**
+ * Invite-only create in one transaction. Never pair `.insert()` with a separate invite write.
+ */
+export async function createInviteOnlyRun(
+  supabase: AppSupabaseClient,
+  userId: string,
+  input: CreateInviteOnlyRunInput,
+): Promise<string> {
+  if (input.inviteeIds.length < 1) {
+    throw new RunError(INVITE_LIST_EMPTY_MESSAGE);
+  }
+
+  await assertNewInviteesAreFriends(supabase, userId, input.inviteeIds, [], "Could not create this run");
+
+  const { data, error } = await supabase.rpc("create_invite_only_run", {
+    p_title: input.title,
+    p_map_id: input.mapId,
+    p_map_category: input.mapCategory,
+    p_starts_at: input.startsAtIso,
+    p_max_participants: input.maxParticipants,
+    p_min_points: input.minPoints,
+    p_join_mode: input.joinMode,
+    p_invitee_ids: input.inviteeIds,
+  } as Database["public"]["Functions"]["create_invite_only_run"]["Args"]);
+
+  if (error) {
+    console.error("create_invite_only_run failed", error);
+    const mapped = mapRunWriteError(error);
+    if (mapped) throw mapped;
+    throw new RunError("Could not create this run");
+  }
+  if (!data) {
+    throw new RunError("Could not create this run");
+  }
+  return data;
+}
+
+/**
+ * Organizer-only update of an active run. Do not use `getActiveRunById` as the owner gate.
+ * Join mode is omitted from the patch when any non-organizer participant row exists.
+ * Visibility is always patchable. Invite-only edits must use `setRunVisibilityAndInvites`.
+ */
+export async function updateRun(
+  supabase: AppSupabaseClient,
+  userId: string,
+  runId: string,
+  input: UpdateRunInput,
+): Promise<void> {
+  const prepared = await prepareOwnedActiveRunPatch(supabase, userId, runId, input);
+
+  if (prepared.visibility === "invite_only") {
+    throw new RunError("Could not save this run");
+  }
+
   const patch: {
     title: string | null;
     map_id: string | null;
@@ -699,21 +912,20 @@ export async function updateRun(
     starts_at: string;
     max_participants: number;
     min_points: number;
+    visibility: Enums<"run_visibility">;
     join_mode?: Enums<"join_mode">;
   } = {
-    title,
-    map_id: mapId,
-    map_category: mapCategory,
-    starts_at: startsAt.toISOString(),
-    max_participants: maxParticipants,
-    min_points: minPoints,
+    title: prepared.title,
+    map_id: prepared.mapId,
+    map_category: prepared.mapCategory,
+    starts_at: prepared.startsAtIso,
+    max_participants: prepared.maxParticipants,
+    min_points: prepared.minPoints,
+    visibility: prepared.visibility,
   };
 
-  if (!joinModeLocked) {
-    if (!isJoinMode(input.joinMode)) {
-      throw new RunError("Join mode is invalid");
-    }
-    patch.join_mode = input.joinMode;
+  if (prepared.joinMode) {
+    patch.join_mode = prepared.joinMode;
   }
 
   const { data: updated, error: updateError } = await supabase
@@ -725,12 +937,60 @@ export async function updateRun(
 
   if (updateError) {
     console.error("updateRun failed", updateError);
-    const mapped = mapRunUpdateTriggerError(updateError);
+    const mapped = mapRunWriteError(updateError);
     if (mapped) throw mapped;
     throw new RunError("Could not save this run");
   }
 
   if (!updated) {
     throw new RunError("Run not found or no longer active");
+  }
+}
+
+/**
+ * Invite-only edit in one transaction. Calls `set_run_visibility_and_invites` instead of
+ * `updateRun` so the run patch and invite replace commit together. `p_join_mode` is omitted
+ * when join mode is locked (Postgres default null = leave unchanged).
+ */
+export async function setRunVisibilityAndInvites(
+  supabase: AppSupabaseClient,
+  userId: string,
+  runId: string,
+  input: UpdateRunInput,
+  inviteeIds: string[],
+): Promise<void> {
+  if (inviteeIds.length < 1) {
+    throw new RunError(INVITE_LIST_EMPTY_MESSAGE);
+  }
+
+  const [prepared, snapshotIds] = await Promise.all([
+    prepareOwnedActiveRunPatch(supabase, userId, runId, input),
+    listRunInviteeIds(supabase, runId),
+  ]);
+
+  if (prepared.visibility !== "invite_only") {
+    throw new RunError("Could not save this run");
+  }
+
+  await assertNewInviteesAreFriends(supabase, userId, inviteeIds, snapshotIds, "Could not save this run");
+
+  const { error } = await supabase.rpc("set_run_visibility_and_invites", {
+    p_run_id: runId,
+    p_visibility: prepared.visibility,
+    p_invitee_ids: inviteeIds,
+    p_title: prepared.title,
+    p_map_id: prepared.mapId,
+    p_map_category: prepared.mapCategory,
+    p_starts_at: prepared.startsAtIso,
+    p_max_participants: prepared.maxParticipants,
+    p_min_points: prepared.minPoints,
+    ...(prepared.joinMode ? { p_join_mode: prepared.joinMode } : {}),
+  } as Database["public"]["Functions"]["set_run_visibility_and_invites"]["Args"]);
+
+  if (error) {
+    console.error("set_run_visibility_and_invites failed", error);
+    const mapped = mapRunWriteError(error);
+    if (mapped) throw mapped;
+    throw new RunError("Could not save this run");
   }
 }

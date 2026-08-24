@@ -369,36 +369,36 @@ Existing `runs` rows default to `public` — no backfill script. Rollback is `su
 
 #### Automated
 
-- [x] 1.1 Migration exists under supabase/migrations/ with RLS per operation on run_invites, no anon grant on that table, visibility default public
-- [x] 1.2 npx supabase db reset (or project-equivalent apply) succeeds locally
-- [x] 1.3 npm run db:types includes run_visibility, runs.visibility, run_invites, can_view_run, is_run_invitee, create_invite_only_run, set_run_visibility_and_invites
-- [x] 1.4 npm run lint passes
-- [x] 1.5 npm run build passes
+- [x] 1.1 Migration exists under supabase/migrations/ with RLS per operation on run_invites, no anon grant on that table, visibility default public — e6199ed
+- [x] 1.2 npx supabase db reset (or project-equivalent apply) succeeds locally — e6199ed
+- [x] 1.3 npm run db:types includes run_visibility, runs.visibility, run_invites, can_view_run, is_run_invitee, create_invite_only_run, set_run_visibility_and_invites — e6199ed
+- [x] 1.4 npm run lint passes — e6199ed
+- [x] 1.5 npm run build passes — e6199ed
 
 #### Manual
 
-- [x] 1.6 SQL: anon SELECT runs returns only visibility = public rows inside the active window; a friends-only/invite-only seed is absent
-- [x] 1.7 SQL: authenticated non-friend non-invitee non-admin cannot SELECT a restricted active run; organizer, admin, and confirmed participant can
-- [x] 1.8 SQL: are_friends true → friends-only SELECT succeeds; after DELETE of the accepted friend row, non-seated friend loses SELECT; seated confirmed still SELECTs
-- [x] 1.9 SQL: invitee SELECT invite-only succeeds after unfriend; non-invitee friend does not
-- [x] 1.10 SQL: anon/authenticated confirmed run_participants SELECT does not return organizer auto-seats for a hidden run
-- [x] 1.11 SQL: auto_join_run on a hidden UUID returns not_active (not confirmed)
-- [x] 1.12 SQL: is_run_in_active_window(hidden_id) is false for a non-audience authenticated user; true for a confirmed seat on that active run
-- [x] 1.13 SQL: unverified INSERT friends_only / invite_only fails WITH CHECK; unverified INSERT public succeeds
-- [x] 1.14 SQL: invite-only writer rejects 0 invitees; accepts ≥1 current friend; keeping an unfriended snapshot id on replace succeeds; create_invite_only_run and set_run_visibility_and_invites exist and are the writers used in smoke (not a separate Worker-facing sync_run_invites)
-- [x] 1.15 PostgREST as anon: GET /rest/v1/runs does not include restricted ids
-- [x] 1.16 SQL: unverified UPDATE of an owned public run to friends_only / invite_only fails WITH CHECK; unverified UPDATE that keeps or sets public succeeds; after unverify, a title-only save that leaves the row restricted fails until visibility is public
+- [x] 1.6 SQL: anon SELECT runs returns only visibility = public rows inside the active window; a friends-only/invite-only seed is absent — e6199ed
+- [x] 1.7 SQL: authenticated non-friend non-invitee non-admin cannot SELECT a restricted active run; organizer, admin, and confirmed participant can — e6199ed
+- [x] 1.8 SQL: are_friends true → friends-only SELECT succeeds; after DELETE of the accepted friend row, non-seated friend loses SELECT; seated confirmed still SELECTs — e6199ed
+- [x] 1.9 SQL: invitee SELECT invite-only succeeds after unfriend; non-invitee friend does not — e6199ed
+- [x] 1.10 SQL: anon/authenticated confirmed run_participants SELECT does not return organizer auto-seats for a hidden run — e6199ed
+- [x] 1.11 SQL: auto_join_run on a hidden UUID returns not_active (not confirmed) — e6199ed
+- [x] 1.12 SQL: is_run_in_active_window(hidden_id) is false for a non-audience authenticated user; true for a confirmed seat on that active run — e6199ed
+- [x] 1.13 SQL: unverified INSERT friends_only / invite_only fails WITH CHECK; unverified INSERT public succeeds — e6199ed
+- [x] 1.14 SQL: invite-only writer rejects 0 invitees; accepts ≥1 current friend; keeping an unfriended snapshot id on replace succeeds; create_invite_only_run and set_run_visibility_and_invites exist and are the writers used in smoke (not a separate Worker-facing sync_run_invites) — e6199ed
+- [x] 1.15 PostgREST as anon: GET /rest/v1/runs does not include restricted ids — e6199ed
+- [x] 1.16 SQL: unverified UPDATE of an owned public run to friends_only / invite_only fails WITH CHECK; unverified UPDATE that keeps or sets public succeeds; after unverify, a title-only save that leaves the row restricted fails until visibility is public — e6199ed
 
 ### Phase 2: Create and edit visibility + invite picker
 
 #### Automated
 
-- [ ] 2.1 Create and edit APIs parse visibility / invitee_ids; unverified non-public is rejected in both the create handler and the edit handler with the same ?error= string
-- [ ] 2.2 CreateRunForm posts visibility and (when invite-only) invitee_ids; unverified create cannot post restricted values
-- [ ] 2.3 updateRun patches visibility independently of joinModeLocked on public/friends-only edits; invite-only edits call set_run_visibility_and_invites instead of updateRun (never updateRun then RPC / sync_run_invites)
-- [ ] 2.4 npm run lint passes
-- [ ] 2.5 npm run build passes
-- [ ] 2.15 Edit form/page loads public_profiles nicknames for snapshot invitee ids missing from listPublicFriends
+- [x] 2.1 Create and edit APIs parse visibility / invitee_ids; unverified non-public is rejected in both the create handler and the edit handler with the same ?error= string
+- [x] 2.2 CreateRunForm posts visibility and (when invite-only) invitee_ids; unverified create cannot post restricted values
+- [x] 2.3 updateRun patches visibility independently of joinModeLocked on public/friends-only edits; invite-only edits call set_run_visibility_and_invites instead of updateRun (never updateRun then RPC / sync_run_invites)
+- [x] 2.4 npm run lint passes
+- [x] 2.5 npm run build passes
+- [x] 2.15 Edit form/page loads public_profiles nicknames for snapshot invitee ids missing from listPublicFriends
 
 #### Manual
 
