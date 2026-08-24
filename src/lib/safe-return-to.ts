@@ -31,6 +31,31 @@ export function safeFriendRedirect(value: string | null | undefined): string | n
   return null;
 }
 
+/** After email confirm/PKCE — `/`, `/profile`, or the post-login allowlist. */
+export function safeAuthConfirmNext(value: string | null | undefined): string {
+  if (!value) return "/";
+  const trimmed = value.trim();
+  if (trimmed === "/" || trimmed === "/profile") return trimmed;
+  return safeAuthReturnTo(trimmed) ?? "/";
+}
+
+/** Absolute `emailRedirectTo` for GoTrue (signup + email change). */
+export function authConfirmRedirectUrl(origin: string, next?: string | null): string {
+  const url = new URL("/auth/confirm", origin);
+  const safe = safeAuthConfirmNext(next);
+  if (safe !== "/") url.searchParams.set("next", safe);
+  return url.href;
+}
+
+/** Same-request redirect after PKCE/OTP so the success page loads with session cookies. */
+export function authVerifiedLocation(next: string): string {
+  const safe = safeAuthConfirmNext(next);
+  if (safe === "/") return "/auth/verified";
+  const url = new URL("/auth/verified", "http://local.invalid");
+  url.searchParams.set("next", safe);
+  return `${url.pathname}${url.search}`;
+}
+
 export function withReturnTo(path: string, returnTo: string | null | undefined): string {
   const safe = safeAuthReturnTo(returnTo);
   if (!safe) return path;

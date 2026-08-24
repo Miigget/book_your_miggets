@@ -1,6 +1,7 @@
 import type { APIRoute } from "astro";
+import { signupErrorMessage } from "@/lib/auth-callback";
+import { authConfirmRedirectUrl, authErrorRedirect, safeAuthReturnTo, withReturnTo } from "@/lib/safe-return-to";
 import { createClient } from "@/lib/supabase";
-import { authErrorRedirect, safeAuthReturnTo, withReturnTo } from "@/lib/safe-return-to";
 
 export const POST: APIRoute = async (context) => {
   const form = await context.request.formData();
@@ -12,10 +13,14 @@ export const POST: APIRoute = async (context) => {
   if (!supabase) {
     return context.redirect(authErrorRedirect("/auth/signup", "Supabase is not configured", returnTo));
   }
-  const { error } = await supabase.auth.signUp({ email, password });
+  const { error } = await supabase.auth.signUp({
+    email,
+    password,
+    options: { emailRedirectTo: authConfirmRedirectUrl(context.url.origin, returnTo) },
+  });
 
   if (error) {
-    return context.redirect(authErrorRedirect("/auth/signup", error.message, returnTo));
+    return context.redirect(authErrorRedirect("/auth/signup", signupErrorMessage(error), returnTo));
   }
 
   return context.redirect(withReturnTo("/auth/confirm-email", returnTo));
