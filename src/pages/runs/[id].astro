@@ -21,6 +21,7 @@ import {
 import { getOwnProfile } from "@/lib/services/profile";
 import {
   formatJoinMode,
+  formatVisibility,
   getActiveRunById,
   getArchivedRunForAdmin,
   getArchivedRunForOrganizer,
@@ -200,6 +201,10 @@ function formatReleasedOn(value: string | null): string {
                 <div>
                   <dt class="text-blue-100/50">Join mode</dt>
                   <dd class="mt-0.5 text-white">{formatJoinMode(run.joinMode)}</dd>
+                </div>
+                <div>
+                  <dt class="text-blue-100/50">Visibility</dt>
+                  <dd class="mt-0.5 text-white">{formatVisibility(run.visibility)}</dd>
                 </div>
                 {!run.map && run.mapCategory ? (
                   <div>

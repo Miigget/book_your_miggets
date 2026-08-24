@@ -4,6 +4,7 @@ import PageChrome from "@/components/PageChrome.astro";
 import CreateRunForm from "@/components/runs/CreateRunForm";
 import { createClient } from "@/lib/supabase";
 import { getOwnProfile } from "@/lib/services/profile";
+import { listPublicFriends, type PublicFriend } from "@/lib/services/friends";
 import { listMapsForPicker, type MapPickerItem } from "@/lib/services/runs";
 
 const supabase = createClient(Astro.request.headers, Astro.cookies);
@@ -14,6 +15,7 @@ const isBanned = Boolean(Astro.locals.profile?.isBanned);
 let maps: MapPickerItem[] = [];
 let nickname: string | null = null;
 let isVerified = false;
+let friends: PublicFriend[] = [];
 let loadError: string | null = null;
 
 if (!supabase || !user) {
@@ -24,6 +26,9 @@ if (!supabase || !user) {
     maps = mapRows;
     nickname = own.nickname;
     isVerified = own.isVerified;
+    if (own.isVerified) {
+      friends = await listPublicFriends(supabase, user.id);
+    }
   } catch (err) {
     loadError = err instanceof Error ? err.message : "Failed to load create form.";
   }
@@ -56,7 +61,14 @@ if (!supabase || !user) {
         <p class="rounded-lg border border-red-400/30 bg-red-500/10 px-4 py-3 text-sm text-red-100">{loadError}</p>
       ) : (
         <div class="rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur-xl">
-          <CreateRunForm maps={maps} nickname={nickname} isVerified={isVerified} serverError={error} client:load />
+          <CreateRunForm
+            maps={maps}
+            nickname={nickname}
+            isVerified={isVerified}
+            friends={friends}
+            serverError={error}
+            client:load
+          />
         </div>
       )
     }

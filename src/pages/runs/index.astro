@@ -5,28 +5,54 @@ import ActiveRunCard from "@/components/runs/ActiveRunCard.astro";
 import RunListFilters from "@/components/runs/RunListFilters.astro";
 import PageChrome from "@/components/PageChrome.astro";
 import { hasActiveFilters, parseRunListFilters } from "@/lib/run-list-filters";
+import { emptyRunListViewerFacts, loadRunListViewerFacts, partitionActiveRuns } from "@/lib/run-list-sections";
 import { createClient } from "@/lib/supabase";
-import { listActiveRuns } from "@/lib/services/runs";
+import { listActiveRuns, type RunListItem } from "@/lib/services/runs";
 
 const supabase = createClient(Astro.request.headers, Astro.cookies);
 const { user } = Astro.locals;
+const isAdmin = Astro.locals.profile?.role === "admin";
 const notice = Astro.url.searchParams.get("notice");
 const serverError = Astro.url.searchParams.get("error");
 const filters = parseRunListFilters(Astro.url.searchParams);
 const filtersActive = hasActiveFilters(filters);
 
-let runs: Awaited<ReturnType<typeof listActiveRuns>> = [];
+let publicRuns: RunListItem[] = [];
+let friendsRuns: RunListItem[] = [];
+let invitedRuns: RunListItem[] = [];
+let restrictedAdminRuns: RunListItem[] = [];
 let loadError: string | null = null;
 
 if (!supabase) {
   loadError = "Supabase is not configured.";
 } else {
   try {
-    runs = await listActiveRuns(supabase, filters);
+    const runs = user
+      ? await listActiveRuns(supabase, filters)
+      : await listActiveRuns(supabase, filters, { publicOnly: true });
+    const facts = user
+      ? await loadRunListViewerFacts(
+          supabase,
+          user.id,
+          isAdmin,
+          runs.map((run) => run.id),
+        )
+      : emptyRunListViewerFacts();
+    ({ publicRuns, friendsRuns, invitedRuns, restrictedAdminRuns } = partitionActiveRuns(runs, facts));
   } catch (err) {
     loadError = err instanceof Error ? err.message : "Failed to load runs.";
   }
 }
+
+const hasAnyRuns =
+  publicRuns.length > 0 || friendsRuns.length > 0 || invitedRuns.length > 0 || restrictedAdminRuns.length > 0;
+
+const sections = [
+  { title: "Public", runs: publicRuns, subtitle: null as string | null },
+  { title: "Friends", runs: friendsRuns, subtitle: null },
+  { title: "Invited", runs: invitedRuns, subtitle: null },
+  { title: "Restricted", runs: restrictedAdminRuns, subtitle: "Guests cannot see these." },
+].filter((section) => section.runs.length > 0);
 ---
 
 <Layout title="Active runs — Book Your Miggets">
@@ -90,7 +116,7 @@ if (!supabase) {
     {
       loadError ? (
         <p class="rounded-lg border border-red-400/30 bg-red-500/10 px-4 py-3 text-sm text-red-100">{loadError}</p>
-      ) : runs.length === 0 && filtersActive ? (
+      ) : !hasAnyRuns && filtersActive ? (
         <div class="rounded-xl border border-white/10 bg-white/5 px-6 py-12 text-center backdrop-blur-xl">
           <p class="text-lg font-medium text-white">No runs match these filters</p>
           <p class="mt-2 text-sm text-blue-100/60">Clear the filters to see all active runs.</p>
@@ -101,19 +127,33 @@ if (!supabase) {
             Clear
           </a>
         </div>
-      ) : runs.length === 0 ? (
+      ) : !hasAnyRuns ? (
         <div class="rounded-xl border border-white/10 bg-white/5 px-6 py-12 text-center backdrop-blur-xl">
           <p class="text-lg font-medium text-white">No active runs yet</p>
           <p class="mt-2 text-sm text-blue-100/60">Check back soon, or create one when you are signed in.</p>
         </div>
       ) : (
-        <ul class="flex flex-col gap-3">
-          {runs.map((run) => (
-            <li>
-              <ActiveRunCard run={run} />
-            </li>
+        <div class="flex flex-col gap-10">
+          {sections.map((section) => (
+            <section>
+              {section.subtitle ? (
+                <div class="mb-3">
+                  <h2 class="text-xl font-semibold text-white">{section.title}</h2>
+                  <p class="mt-1 text-sm text-blue-100/60">{section.subtitle}</p>
+                </div>
+              ) : (
+                <h2 class="mb-3 text-xl font-semibold text-white">{section.title}</h2>
+              )}
+              <ul class="flex flex-col gap-3">
+                {section.runs.map((run) => (
+                  <li>
+                    <ActiveRunCard run={run} />
+                  </li>
+                ))}
+              </ul>
+            </section>
           ))}
-        </ul>
+        </div>
       )
     }
   </PageChrome>
