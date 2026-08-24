@@ -3,7 +3,7 @@ change_id: restricted-run-visibility
 mode: YOLO
 started: 2026-08-24
 updated: 2026-08-24
-status: in-progress
+status: complete
 ---
 
 # Crew decisions — restricted-run-visibility
@@ -20,6 +20,13 @@ Mode: **YOLO**. Crew Lead answered specialist questions; the human was asked onl
 | 2026-08-24T11:40 | 10x-plan-review | verdict REVISE (0 critical, 4 warnings); applying ⭐ fixes then re-review                     |
 | 2026-08-24T11:50 | 10x-plan        | REVISE pass applied F1–F5 to plan.md + plan-brief.md                                          |
 | 2026-08-24T12:05 | 10x-plan-review | re-review SOUND (0 critical, 1 LOW already in patched plan); gh-change-sync #57 plan_reviewed |
+| 2026-08-24T12:30 | 10x-implement p1 | schema+RLS+RPCs on feature/restricted-run-visibility; commit e6199ed |
+| 2026-08-24T12:50 | 10x-impl-review p1 | APPROVED (0 findings); next implement phase 2 |
+| 2026-08-24T13:20 | 10x-implement p2 | create/edit visibility + invite picker; commit 6e4bdbc; YOLO skipped UI 2.6–2.14/2.16 |
+| 2026-08-24T13:40 | 10x-impl-review p2 | APPROVED (0 findings) |
+| 2026-08-24T14:05 | 10x-implement p3 | /runs sections + public landing + 404; commits e24401c, 5b4eafb; change.md implemented |
+| 2026-08-24T14:25 | 10x-impl-review p3 | APPROVED (0 findings) |
+| 2026-08-24T14:40 | 10x-impl-review full | APPROVED (0 findings); reviews/impl-review.md |
 
 ## Decisions the Crew Lead made (no human)
 
@@ -60,7 +67,9 @@ Mode: **YOLO**. Crew Lead answered specialist questions; the human was asked onl
 
 ## Human-action gates
 
-- none yet
+- Phase 1 Progress Manual SQL 1.6–1.16: agent ran them locally (not skipped). Human UI click-through: none in phase 1.
+- Phase 2 UI click-through (2.6–2.14, 2.16): skipped (YOLO residual).
+- Phase 3 UI click-through (3.7–3.15): skipped (YOLO residual).
 
 ## Stop / escape hatches
 
@@ -68,4 +77,4 @@ Mode: **YOLO**. Crew Lead answered specialist questions; the human was asked onl
 
 ## GitHub
 
-- change-sync: #57 events new, planned, plan_reviewed → Backlog (link-roadmap)
+- change-sync: #57 events new, planned, plan_reviewed → Backlog; implementing → In progress; implemented pending then archived (link-roadmap)
