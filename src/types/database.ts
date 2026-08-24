@@ -296,6 +296,46 @@ export type Database = {
           },
         ]
       }
+      run_invites: {
+        Row: {
+          created_at: string
+          run_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          run_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          run_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "run_invites_run_id_fkey"
+            columns: ["run_id"]
+            isOneToOne: false
+            referencedRelation: "runs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "run_invites_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "run_invites_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "public_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       run_participants: {
         Row: {
           created_at: string
@@ -359,6 +399,7 @@ export type Database = {
           starts_at: string
           title: string | null
           updated_at: string
+          visibility: Database["public"]["Enums"]["run_visibility"]
         }
         Insert: {
           archived_at?: string | null
@@ -373,6 +414,7 @@ export type Database = {
           starts_at: string
           title?: string | null
           updated_at?: string
+          visibility?: Database["public"]["Enums"]["run_visibility"]
         }
         Update: {
           archived_at?: string | null
@@ -387,6 +429,7 @@ export type Database = {
           starts_at?: string
           title?: string | null
           updated_at?: string
+          visibility?: Database["public"]["Enums"]["run_visibility"]
         }
         Relationships: [
           {
@@ -449,6 +492,20 @@ export type Database = {
     Functions: {
       are_friends: { Args: { a: string; b: string }; Returns: boolean }
       auto_join_run: { Args: { p_run_id: string }; Returns: string }
+      can_view_run: { Args: { p_run_id: string }; Returns: boolean }
+      create_invite_only_run: {
+        Args: {
+          p_invitee_ids: string[]
+          p_join_mode: Database["public"]["Enums"]["join_mode"]
+          p_map_category: string
+          p_map_id: string
+          p_max_participants: number
+          p_min_points: number
+          p_starts_at: string
+          p_title: string
+        }
+        Returns: string
+      }
       ensure_own_profile: {
         Args: never
         Returns: {
@@ -473,13 +530,30 @@ export type Database = {
       is_confirmed_participant: { Args: { p_run_id: string }; Returns: boolean }
       is_not_banned: { Args: never; Returns: boolean }
       is_run_in_active_window: { Args: { p_run_id: string }; Returns: boolean }
+      is_run_invitee: { Args: { p_run_id: string }; Returns: boolean }
       is_run_organizer: { Args: { p_run_id: string }; Returns: boolean }
+      set_run_visibility_and_invites: {
+        Args: {
+          p_invitee_ids: string[]
+          p_join_mode?: Database["public"]["Enums"]["join_mode"]
+          p_map_category: string
+          p_map_id: string
+          p_max_participants: number
+          p_min_points: number
+          p_run_id: string
+          p_starts_at: string
+          p_title: string
+          p_visibility: Database["public"]["Enums"]["run_visibility"]
+        }
+        Returns: undefined
+      }
     }
     Enums: {
       friend_request_status: "pending" | "accepted" | "declined"
       join_mode: "approval_required" | "auto_join"
       nickname_change_request_status: "pending" | "accepted" | "denied"
       participant_status: "pending" | "confirmed" | "denied"
+      run_visibility: "public" | "friends_only" | "invite_only"
       user_role: "member" | "admin"
     }
     CompositeTypes: {
@@ -615,6 +689,7 @@ export const Constants = {
       join_mode: ["approval_required", "auto_join"],
       nickname_change_request_status: ["pending", "accepted", "denied"],
       participant_status: ["pending", "confirmed", "denied"],
+      run_visibility: ["public", "friends_only", "invite_only"],
       user_role: ["member", "admin"],
     },
   },
