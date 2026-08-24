@@ -127,6 +127,21 @@ export function formatJoinMode(mode: Enums<"join_mode">): string {
   }
 }
 
+export function formatVisibility(visibility: Enums<"run_visibility">): string {
+  switch (visibility) {
+    case "public":
+      return "Public";
+    case "friends_only":
+      return "Friends only";
+    case "invite_only":
+      return "Invite only";
+    default: {
+      const _exhaustive: never = visibility;
+      return _exhaustive;
+    }
+  }
+}
+
 function runFieldsFromRow(row: RunRow, confirmedCount: number) {
   const map = row.map;
   const organizerNickname = row.organizer?.nickname ?? null;
@@ -228,9 +243,15 @@ async function pendingCountsForRuns(supabase: AppSupabaseClient, runIds: string[
   return counts;
 }
 
+export interface ListActiveRunsOptions {
+  /** Dual-defense catalog: SQL `visibility = public` in addition to RLS. */
+  publicOnly?: boolean;
+}
+
 export async function listActiveRuns(
   supabase: AppSupabaseClient,
   filters: RunListFilters = {},
+  options: ListActiveRunsOptions = {},
 ): Promise<RunListItem[]> {
   const now = Date.now();
   let query = supabase
@@ -239,6 +260,9 @@ export async function listActiveRuns(
     .is("archived_at", null)
     .gt("starts_at", activeWindowStartsAfter(now));
 
+  if (options.publicOnly) {
+    query = query.eq("visibility", "public");
+  }
   if (filters.date) {
     const { startIso, endIso } = utcDayRange(filters.date);
     query = query.gte("starts_at", startIso).lt("starts_at", endIso);

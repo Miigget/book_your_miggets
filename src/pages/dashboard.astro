@@ -4,7 +4,7 @@ import NicknameLink from "@/components/NicknameLink.astro";
 import PageChrome from "@/components/PageChrome.astro";
 import { formatStart } from "@/lib/format-date";
 import { createClient } from "@/lib/supabase";
-import { formatJoinMode, listRunsForOrganizer } from "@/lib/services/runs";
+import { formatJoinMode, formatVisibility, listRunsForOrganizer } from "@/lib/services/runs";
 
 const supabase = createClient(Astro.request.headers, Astro.cookies);
 const { user } = Astro.locals;
@@ -99,6 +99,10 @@ const hasCreatedRuns = active.length > 0 || archived.length > 0;
                           <dt class="inline">Join: </dt>
                           <dd class="inline text-blue-100/90">{formatJoinMode(run.joinMode)}</dd>
                         </div>
+                        <div>
+                          <dt class="inline">Visibility: </dt>
+                          <dd class="inline text-blue-100/90">{formatVisibility(run.visibility)}</dd>
+                        </div>
                         {run.joinMode === "approval_required" && (
                           <div>
                             <dt class="inline">Pending: </dt>
@@ -170,6 +174,10 @@ const hasCreatedRuns = active.length > 0 || archived.length > 0;
                         <div>
                           <dt class="inline">Join: </dt>
                           <dd class="inline text-blue-100/90">{formatJoinMode(run.joinMode)}</dd>
+                        </div>
+                        <div>
+                          <dt class="inline">Visibility: </dt>
+                          <dd class="inline text-blue-100/90">{formatVisibility(run.visibility)}</dd>
                         </div>
                         {run.map ? (
                           <div>

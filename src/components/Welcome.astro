@@ -10,7 +10,7 @@ const supabase = createClient(Astro.request.headers, Astro.cookies);
 let recentRuns: Awaited<ReturnType<typeof listActiveRuns>> = [];
 if (supabase) {
   try {
-    recentRuns = (await listActiveRuns(supabase)).slice(0, 6);
+    recentRuns = (await listActiveRuns(supabase, {}, { publicOnly: true })).slice(0, 6);
   } catch {
     recentRuns = [];
   }

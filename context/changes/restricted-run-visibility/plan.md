@@ -393,12 +393,12 @@ Existing `runs` rows default to `public` — no backfill script. Rollback is `su
 
 #### Automated
 
-- [x] 2.1 Create and edit APIs parse visibility / invitee_ids; unverified non-public is rejected in both the create handler and the edit handler with the same ?error= string
-- [x] 2.2 CreateRunForm posts visibility and (when invite-only) invitee_ids; unverified create cannot post restricted values
-- [x] 2.3 updateRun patches visibility independently of joinModeLocked on public/friends-only edits; invite-only edits call set_run_visibility_and_invites instead of updateRun (never updateRun then RPC / sync_run_invites)
-- [x] 2.4 npm run lint passes
-- [x] 2.5 npm run build passes
-- [x] 2.15 Edit form/page loads public_profiles nicknames for snapshot invitee ids missing from listPublicFriends
+- [x] 2.1 Create and edit APIs parse visibility / invitee_ids; unverified non-public is rejected in both the create handler and the edit handler with the same ?error= string — 6e4bdbc
+- [x] 2.2 CreateRunForm posts visibility and (when invite-only) invitee_ids; unverified create cannot post restricted values — 6e4bdbc
+- [x] 2.3 updateRun patches visibility independently of joinModeLocked on public/friends-only edits; invite-only edits call set_run_visibility_and_invites instead of updateRun (never updateRun then RPC / sync_run_invites) — 6e4bdbc
+- [x] 2.4 npm run lint passes — 6e4bdbc
+- [x] 2.5 npm run build passes — 6e4bdbc
+- [x] 2.15 Edit form/page loads public_profiles nicknames for snapshot invitee ids missing from listPublicFriends — 6e4bdbc
 
 #### Manual
 
@@ -417,12 +417,12 @@ Existing `runs` rows default to `public` — no backfill script. Rollback is `su
 
 #### Automated
 
-- [ ] 3.1 /runs partitions with Public / Friends / Invited / admin Restricted and does not put friends_only / invite_only into Public
-- [ ] 3.2 Welcome.astro always calls listActiveRuns with publicOnly; guest /runs always does; signed-in /runs never does
-- [ ] 3.3 Detail 404 copy is unchanged; canReadComments is not "anyone who can view"
-- [ ] 3.4 PROTECTED_ROUTES still does not prefix-protect /runs
-- [ ] 3.5 npm run lint passes
-- [ ] 3.6 npm run build passes
+- [x] 3.1 /runs partitions with Public / Friends / Invited / admin Restricted and does not put friends_only / invite_only into Public
+- [x] 3.2 Welcome.astro always calls listActiveRuns with publicOnly; guest /runs always does; signed-in /runs never does
+- [x] 3.3 Detail 404 copy is unchanged; canReadComments is not "anyone who can view"
+- [x] 3.4 PROTECTED_ROUTES still does not prefix-protect /runs
+- [x] 3.5 npm run lint passes
+- [x] 3.6 npm run build passes
 
 #### Manual
 
