@@ -3,7 +3,7 @@ project: "Book Your Miggets"
 version: 2
 status: draft
 created: 2026-07-27
-updated: 2026-08-21
+updated: 2026-08-24
 prd_version: 2
 main_goal: market-feedback
 top_blocker: community-launch
@@ -44,8 +44,8 @@ The King of Gores (KoG) community in TeeWorlds has no tool for organizing shared
 | S-12 | run-comments | (confirmed participant) post comments on a run they were accepted to | S-02 | FR-020, US-05 | done |
 | S-13 | edit-run | (organizer) edit an active run they created | S-01 | FR-021, US-06 | done |
 | S-14 | category-only-runs | create a run with a map category and no specific map; category shows on the card | S-01 | FR-022, US-07 | done |
-| S-15 | restricted-run-visibility | create friends-only or invite-only runs; hidden from everyone else | S-01, S-11 | FR-027, FR-028, US-08, US-09 | proposed |
-| S-16 | admin-profile-edits | (admin) edit player nickname/points, verify points, handle nickname-change requests | S-09, S-10 | FR-023, FR-024, US-10 | ready |
+| S-15 | restricted-run-visibility | create friends-only or invite-only runs; hidden from everyone else | S-01, S-11 | FR-027, FR-028, US-08, US-09 | done |
+| S-16 | admin-profile-edits | (admin) edit player nickname/points, verify points, handle nickname-change requests | S-09, S-10 | FR-023, FR-024, US-10 | done |
 | S-17 | player-labels | (admin) maintain label dictionary (name + color) and assign labels shown on public profiles | S-09, S-10 | FR-029, FR-030, US-11 | ready |
 
 ## Streams
@@ -272,7 +272,7 @@ PRD v1 must-haves are covered. Remaining PRD v2 slices: S-11, S-15…S-17. Landi
   - Friends-only presentation — separate section vs highlight in the same list? — Owner: user. Block: no. Candidate default: distinct "Friends" / "Invited" sections on `/runs`.
   - If two friends unfriend after an invite-only run was created, does the invitee keep access? — Owner: user. Block: no. Candidate default: invite is a snapshot at create/edit time.
 - **Risk:** visibility is a new RLS axis on top of the active window; both modes share that axis so they ship together — splitting them would duplicate the leak-risk. Admins still see restricted runs so S-06 delete remains possible.
-- **Status:** proposed
+- **Status:** done
 
 ### S-16: Admin edits player profiles
 
@@ -284,7 +284,7 @@ PRD v1 must-haves are covered. Remaining PRD v2 slices: S-11, S-15…S-17. Landi
 - **Blockers:** —
 - **Unknowns:** —
 - **Risk:** extends the S-09 admin player page rather than adding a second profile; without this slice, S-10's nickname-change request and points self-report have nowhere to be trusted.
-- **Status:** ready
+- **Status:** done
 
 ### S-17: Player labels
 
@@ -375,3 +375,5 @@ PRD v1 must-haves are covered. Remaining PRD v2 slices: S-11, S-15…S-17. Landi
 - **S-13: organizer can edit an active run they created.** — Archived 2026-08-20 → `context/archive/2026-08-20-edit-run/`. Lesson: —.
 - **S-14: organizer can create a run with a map category and no specific map; that category shows on the run card.** — Archived 2026-08-21 → `context/archive/2026-08-21-category-only-runs/`. Lesson: —.
 - **S-11: verified user can send, accept, or decline friend requests to other verified members and see the friends list on the profile (including Add friend on someone else's public profile).** — Archived 2026-08-21 → `context/archive/2026-08-21-add-friends/`. Lesson: —.
+- **S-15: organizer can create a friends-only run (visible to their friends, highlighted or in a separate list section) or an invite-only run (visible only to friends they pick); guests and everyone else do not see those runs.** — Archived 2026-08-24 → `context/archive/2026-08-24-restricted-run-visibility/`. Lesson: —.
+- **S-16: admin can edit a player's nickname and KoG points from the existing admin player page, mark points as verified after an in-game check, and accept or deny nickname-change requests from verified members.** — Archived 2026-08-24 → `context/archive/2026-08-24-admin-profile-edits/`. Lesson: —.

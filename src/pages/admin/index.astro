@@ -53,8 +53,9 @@ function formatCreated(value: string): string {
         Admin — users
       </h1>
       <p class="mt-2 text-sm text-blue-100/60">
-        Ban or verify users. Nicknames open that player's archived run history. To delete a run, open its detail page —
-        admins see a delete control there.
+        Ban or verify users. Nicknames open that player's edit forms and archived run history. A pending-nick marker
+        means a nickname-change request is waiting. To delete a run, open its detail page — admins see a delete control
+        there.
       </p>
     </header>
 
@@ -79,12 +80,19 @@ function formatCreated(value: string): string {
               {profiles.map((profile) => (
                 <tr class="border-b border-white/5 last:border-b-0">
                   <td class="px-4 py-3 text-white">
-                    <a
-                      href={`/admin/users/${profile.id}`}
-                      class="text-purple-300 transition-colors hover:text-purple-100 hover:underline"
-                    >
-                      {profile.nickname ?? "—"}
-                    </a>
+                    <span class="inline-flex flex-wrap items-center gap-2">
+                      <a
+                        href={`/admin/users/${profile.id}`}
+                        class="text-purple-300 transition-colors hover:text-purple-100 hover:underline"
+                      >
+                        {profile.nickname ?? "—"}
+                      </a>
+                      {profile.hasPendingNicknameRequest ? (
+                        <span class="rounded-full border border-amber-400/40 bg-amber-500/15 px-2 py-0.5 text-[10px] font-medium tracking-wide text-amber-100 uppercase">
+                          pending nick
+                        </span>
+                      ) : null}
+                    </span>
                   </td>
                   <td class="px-4 py-3 font-mono text-xs text-blue-100/60">{profile.id}</td>
                   <td class="px-4 py-3 text-blue-100/80">{profile.role}</td>

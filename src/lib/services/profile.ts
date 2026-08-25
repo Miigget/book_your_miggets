@@ -69,7 +69,7 @@ export function parseKogPoints(raw: string): number | null {
   return points;
 }
 
-async function findProfileIdByNickname(supabase: AppSupabaseClient, nickname: string): Promise<string | null> {
+export async function findProfileIdByNickname(supabase: AppSupabaseClient, nickname: string): Promise<string | null> {
   const key = nicknameKey(nickname);
   const { data, error } = await supabase
     .from("public_profiles")
