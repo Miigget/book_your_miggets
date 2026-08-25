@@ -1,10 +1,10 @@
 ---
 change_id: player-labels
 title: Admin label dictionary assigned on public player profiles
-status: impl_reviewed
+status: archived
 created: 2026-08-25
 updated: 2026-08-25
-archived_at: null
+archived_at: 2026-08-25T07:26:04Z
 ---
 
 ## Notes
