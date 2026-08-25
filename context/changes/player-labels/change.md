@@ -14,4 +14,4 @@ Admin can create a dictionary of labels (name + color), assign them to players, 
 Phase 1 impl-review: `reviews/impl-review-phase-1.md` — APPROVED (2026-08-25).
 Phase 2 impl-review: `reviews/impl-review-phase-2.md` — APPROVED (2026-08-25).
 Phase 3 implemented (2026-08-25): public `/players/{id}` chips + README/AGENTS.
-Full-plan impl-review: `reviews/impl-review.md` — APPROVED (2026-08-25). Status `impl_reviewed`. Commit pending COMMIT_OK (phase ritual + epilogue). Manual Progress rows remain YOLO-skipped residual risk through release.
+Full-plan impl-review: `reviews/impl-review.md` — APPROVED (2026-08-25). Status `impl_reviewed`. Phase 3 commit `507ed2b`; Progress SHAs stamped via epilogue. Manual Progress rows remain YOLO-skipped residual risk through release.
