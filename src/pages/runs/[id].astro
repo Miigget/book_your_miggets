@@ -112,10 +112,8 @@ const isBanned = Boolean(Astro.locals.profile?.isBanned);
 const canPostOrLike = own?.status === "confirmed" && !isArchived && !isBanned;
 const isOrganizer = Boolean(user?.id && user.id === run?.organizerId);
 const confirmedCount = confirmed.length;
-const archivedBackHref =
-  archivedSource === "organizer" ? "/dashboard" : archivedSource === "admin" ? "/admin" : "/runs/history";
-const archivedBackLabel =
-  archivedSource === "organizer" ? "← Dashboard" : archivedSource === "admin" ? "← Admin" : "← Past runs";
+const archivedBackHref = archivedSource === "admin" ? "/admin" : "/dashboard?tab=past";
+const archivedBackLabel = archivedSource === "admin" ? "← Admin" : "← Dashboard";
 
 function formatReleasedOn(value: string | null): string {
   if (!value) return "Unknown";

@@ -1,0 +1,30 @@
+---
+import DashboardRunCard from "@/components/runs/DashboardRunCard.astro";
+import type { ArchivedRunListItem, OrganizerRunListItem, RunListItem } from "@/lib/services/runs";
+
+interface Props {
+  heading: string;
+  empty: string;
+  runs: (RunListItem | ArchivedRunListItem | OrganizerRunListItem)[];
+  showEdit?: boolean;
+}
+
+const { heading, empty, runs, showEdit = false } = Astro.props;
+---
+
+<section>
+  <h2 class="mb-3 text-xl font-semibold text-white">{heading}</h2>
+  {
+    runs.length === 0 ? (
+      <p class="text-sm text-blue-100/60">{empty}</p>
+    ) : (
+      <ul class="flex flex-col gap-3">
+        {runs.map((run) => (
+          <li>
+            <DashboardRunCard run={run} showEdit={showEdit} />
+          </li>
+        ))}
+      </ul>
+    )
+  }
+</section>
