@@ -596,6 +596,32 @@ export type Database = {
       is_run_in_active_window: { Args: { p_run_id: string }; Returns: boolean }
       is_run_invitee: { Args: { p_run_id: string }; Returns: boolean }
       is_run_organizer: { Args: { p_run_id: string }; Returns: boolean }
+      list_player_public_runs: {
+        Args: { p_user_id: string }
+        Returns: {
+          archived_at: string
+          confirmed_count: number
+          created_at: string
+          id: string
+          join_mode: Database["public"]["Enums"]["join_mode"]
+          map_category: string
+          map_creator: string
+          map_difficulty: string
+          map_id: string
+          map_length: string
+          map_name: string
+          map_points: number
+          map_released_on: string
+          map_stars: string
+          max_participants: number
+          min_points: number
+          organizer_id: string
+          organizer_nickname: string
+          starts_at: string
+          title: string
+          visibility: Database["public"]["Enums"]["run_visibility"]
+        }[]
+      }
       set_run_visibility_and_invites: {
         Args: {
           p_invitee_ids: string[]

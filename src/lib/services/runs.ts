@@ -469,6 +469,160 @@ export async function listArchivedRunsForParticipant(
   return archived;
 }
 
+export const PLAYER_PROFILE_RUN_PREVIEW_LIMIT = 3;
+
+type PlayerPublicRunRpcRow = Database["public"]["Functions"]["list_player_public_runs"]["Returns"][number];
+
+function runRowFromPublicRpc(row: PlayerPublicRunRpcRow): { row: RunRow; confirmedCount: number } {
+  const map: RunMap | null =
+    row.map_id && row.map_name
+      ? {
+          id: row.map_id,
+          name: row.map_name,
+          difficulty: row.map_difficulty,
+          stars: row.map_stars,
+          points: row.map_points,
+          length: row.map_length,
+          creator: row.map_creator,
+          released_on: row.map_released_on,
+        }
+      : null;
+
+  return {
+    row: {
+      id: row.id,
+      title: row.title,
+      starts_at: row.starts_at,
+      archived_at: row.archived_at,
+      max_participants: row.max_participants,
+      min_points: row.min_points,
+      join_mode: row.join_mode,
+      visibility: row.visibility,
+      created_at: row.created_at,
+      organizer_id: row.organizer_id,
+      map_category: row.map_category,
+      map,
+      organizer: { nickname: row.organizer_nickname },
+    },
+    confirmedCount: row.confirmed_count,
+  };
+}
+
+/**
+ * Public-profile showcase: organized + confirmed-member runs the viewer may already see,
+ * plus public runs (including archived) via `list_player_public_runs`.
+ * Does not widen comment ACL or archived `/runs/{id}` for guests.
+ */
+export async function listPlayerProfileRuns(
+  supabase: AppSupabaseClient,
+  playerId: string,
+): Promise<{ incoming: RunListItem[]; recent: ArchivedRunListItem[] }> {
+  if (!isUuid(playerId)) {
+    return { incoming: [], recent: [] };
+  }
+
+  const now = Date.now();
+  const [publicResult, membershipsResult, organizedResult] = await Promise.all([
+    supabase.rpc("list_player_public_runs", { p_user_id: playerId }),
+    supabase.from("run_participants").select("run_id").eq("user_id", playerId).eq("status", "confirmed"),
+    supabase.from("runs").select(RUN_SELECT).eq("organizer_id", playerId),
+  ]);
+
+  if (publicResult.error) {
+    throw new Error(`Failed to list player public runs: ${publicResult.error.message}`);
+  }
+  if (membershipsResult.error) {
+    throw new Error(`Failed to list player run memberships: ${membershipsResult.error.message}`);
+  }
+  if (organizedResult.error) {
+    throw new Error(`Failed to list player organized runs: ${organizedResult.error.message}`);
+  }
+
+  const byId = new Map<string, RunRow>();
+  const confirmedById = new Map<string, number>();
+
+  for (const rpcRow of publicResult.data) {
+    const mapped = runRowFromPublicRpc(rpcRow);
+    byId.set(mapped.row.id, mapped.row);
+    confirmedById.set(mapped.row.id, mapped.confirmedCount);
+  }
+
+  for (const row of organizedResult.data as unknown as RunRow[]) {
+    if (!byId.has(row.id)) {
+      byId.set(row.id, row);
+    }
+  }
+
+  const extraMembershipIds = [
+    ...new Set(membershipsResult.data.map((row) => row.run_id).filter((id) => !byId.has(id))),
+  ];
+  if (extraMembershipIds.length > 0) {
+    const { data, error } = await supabase.from("runs").select(RUN_SELECT).in("id", extraMembershipIds);
+    if (error) {
+      throw new Error(`Failed to list player member runs: ${error.message}`);
+    }
+    for (const row of data as unknown as RunRow[]) {
+      byId.set(row.id, row);
+    }
+  }
+
+  const rows = [...byId.values()];
+  const missingCountIds = rows.filter((row) => !confirmedById.has(row.id)).map((row) => row.id);
+  const extraCounts = await confirmedCountsForRuns(supabase, missingCountIds);
+  for (const [id, count] of extraCounts) {
+    confirmedById.set(id, count);
+  }
+
+  const incoming = rows
+    .filter((row) => isRunActive(row.starts_at, row.archived_at, now))
+    .sort((a, b) => Date.parse(a.starts_at) - Date.parse(b.starts_at))
+    .slice(0, PLAYER_PROFILE_RUN_PREVIEW_LIMIT)
+    .map((row) => mapRunRow(row, confirmedById.get(row.id) ?? 0, now))
+    .filter((run): run is RunDetail => run !== null);
+
+  const recent = rows
+    .filter((row) => !isRunActive(row.starts_at, row.archived_at, now))
+    .sort((a, b) => Date.parse(b.starts_at) - Date.parse(a.starts_at))
+    .slice(0, PLAYER_PROFILE_RUN_PREVIEW_LIMIT)
+    .map((row) => mapArchivedRunRow(row, confirmedById.get(row.id) ?? 0, now))
+    .filter((run): run is ArchivedRunDetail => run !== null);
+
+  return { incoming, recent };
+}
+
+export async function listConfirmedRunIdsForViewer(
+  supabase: AppSupabaseClient,
+  viewerId: string,
+  runIds: readonly string[],
+): Promise<Set<string>> {
+  const ids = [...new Set(runIds.filter(isUuid))];
+  if (!isUuid(viewerId) || ids.length === 0) {
+    return new Set();
+  }
+
+  const { data, error } = await supabase
+    .from("run_participants")
+    .select("run_id")
+    .eq("user_id", viewerId)
+    .eq("status", "confirmed")
+    .in("run_id", ids);
+
+  if (error) {
+    throw new Error(`Failed to list viewer run memberships: ${error.message}`);
+  }
+
+  return new Set(data.map((row) => row.run_id));
+}
+
+export function canOpenArchivedRunDetail(
+  run: Pick<ArchivedRunListItem, "id" | "organizerId">,
+  viewer: { id: string | null; isAdmin: boolean; confirmedRunIds: ReadonlySet<string> },
+): boolean {
+  if (!viewer.id) return false;
+  if (viewer.isAdmin) return true;
+  return viewer.id === run.organizerId || viewer.confirmedRunIds.has(run.id);
+}
+
 /**
  * Archived `/runs/{id}` only when the viewer still has a confirmed row and the run is archived.
  * Organizer/admin RLS success is not enough — return null without a current confirmed seat.

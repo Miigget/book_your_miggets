@@ -1,0 +1,64 @@
+---
+import RunPreviewCard from "@/components/runs/RunPreviewCard.astro";
+import { canOpenArchivedRunDetail, type ArchivedRunListItem, type RunListItem } from "@/lib/services/runs";
+
+interface Props {
+  incoming: RunListItem[];
+  recent: ArchivedRunListItem[];
+  loadError?: string | null;
+  viewerId: string | null;
+  viewerIsAdmin: boolean;
+  viewerConfirmedRunIds: ReadonlySet<string>;
+}
+
+const { incoming, recent, loadError = null, viewerId, viewerIsAdmin, viewerConfirmedRunIds } = Astro.props;
+---
+
+{
+  loadError ? (
+    <p class="mb-8 text-sm text-blue-100/60">{loadError}</p>
+  ) : (
+    <>
+      <section class="mb-8">
+        <h2 class="mb-4 text-2xl font-bold text-white">
+          Incoming <span class="text-purple-300">Runs</span>
+        </h2>
+        {incoming.length === 0 ? (
+          <p class="text-sm text-blue-100/60">No incoming runs.</p>
+        ) : (
+          <div class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+            {incoming.map((run) => (
+              <RunPreviewCard run={run} />
+            ))}
+          </div>
+        )}
+      </section>
+
+      <section class="mb-8">
+        <h2 class="mb-4 text-2xl font-bold text-white">
+          Recent <span class="text-purple-300">Runs</span>
+        </h2>
+        {recent.length === 0 ? (
+          <p class="text-sm text-blue-100/60">No recent runs.</p>
+        ) : (
+          <div class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+            {recent.map((run) => (
+              <RunPreviewCard
+                run={run}
+                href={
+                  canOpenArchivedRunDetail(run, {
+                    id: viewerId,
+                    isAdmin: viewerIsAdmin,
+                    confirmedRunIds: viewerConfirmedRunIds,
+                  })
+                    ? `/runs/${run.id}`
+                    : null
+                }
+              />
+            ))}
+          </div>
+        )}
+      </section>
+    </>
+  )
+}
