@@ -4,10 +4,17 @@ import PageChrome from "@/components/PageChrome.astro";
 import NicknameLink from "@/components/NicknameLink.astro";
 import PlayerLabelChip from "@/components/PlayerLabelChip.astro";
 import FriendActions from "@/components/profile/FriendActions";
+import PlayerProfileRunSections from "@/components/profile/PlayerProfileRunSections.astro";
 import { createClient } from "@/lib/supabase";
 import { getOwnProfile, getPublicProfile, type PublicProfile } from "@/lib/services/profile";
 import { getRelationship, listPublicFriends, type FriendRelationship, type PublicFriend } from "@/lib/services/friends";
 import { listAssignedLabels, type PlayerLabel } from "@/lib/services/player-labels";
+import {
+  listConfirmedRunIdsForViewer,
+  listPlayerProfileRuns,
+  type ArchivedRunListItem,
+  type RunListItem,
+} from "@/lib/services/runs";
 
 const { id } = Astro.params;
 const supabase = createClient(Astro.request.headers, Astro.cookies);
@@ -20,6 +27,10 @@ let friendsError: string | null = null;
 let friendCta: FriendRelationship | null = null;
 let labels: PlayerLabel[] = [];
 let labelsError: string | null = null;
+let incomingRuns: RunListItem[] = [];
+let recentRuns: ArchivedRunListItem[] = [];
+let runsError: string | null = null;
+let viewerConfirmedRunIds = new Set<string>();
 
 if (!id) {
   pageError = "missing";
@@ -52,6 +63,27 @@ if (profile && supabase) {
     friendsError = "Could not load friends";
   }
 
+  try {
+    const listed = await listPlayerProfileRuns(supabase, profile.id);
+    incomingRuns = listed.incoming;
+    recentRuns = listed.recent;
+  } catch (err) {
+    console.error("listPlayerProfileRuns failed on public player page", err);
+    runsError = "Could not load runs";
+  }
+
+  if (user && recentRuns.length > 0) {
+    try {
+      viewerConfirmedRunIds = await listConfirmedRunIdsForViewer(
+        supabase,
+        user.id,
+        recentRuns.map((run) => run.id),
+      );
+    } catch (err) {
+      console.error("listConfirmedRunIdsForViewer failed on public player page", err);
+    }
+  }
+
   if (user && user.id !== profile.id) {
     try {
       const own = await getOwnProfile(supabase, user.id);
@@ -74,10 +106,11 @@ const displayNickname = profile?.nickname ?? "—";
 const pageTitle = profile ? `${displayNickname} — Book Your Miggets` : "Player — Book Your Miggets";
 const isOwnProfile = Boolean(user?.id && user.id === profile?.id);
 const kogPointsLabel = profile && profile.kogPoints !== null ? String(profile.kogPoints) : "—";
+const viewerIsAdmin = Astro.locals.profile?.role === "admin";
 ---
 
 <Layout title={pageTitle}>
-  <PageChrome>
+  <PageChrome contentClass="max-w-5xl">
     <p class="mb-6">
       <a href="/runs" class="text-sm text-purple-300 transition-colors hover:text-purple-100 hover:underline">
         ← Active runs
@@ -177,6 +210,15 @@ const kogPointsLabel = profile && profile.kogPoints !== null ? String(profile.ko
                 </ul>
               )}
             </section>
+
+            <PlayerProfileRunSections
+              incoming={incomingRuns}
+              recent={recentRuns}
+              loadError={runsError}
+              viewerId={user?.id ?? null}
+              viewerIsAdmin={viewerIsAdmin}
+              viewerConfirmedRunIds={viewerConfirmedRunIds}
+            />
           </>
         )
       )
