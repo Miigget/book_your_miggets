@@ -12,6 +12,9 @@ import type { Database, Enums, Tables } from "@/types/database";
 
 export type AppSupabaseClient = SupabaseClient<Database>;
 
+/** Optional custom run title — keeps list/detail cards readable. */
+export const RUN_TITLE_MAX_LENGTH = 100;
+
 export type RunMap = Pick<
   Tables<"maps">,
   "id" | "name" | "difficulty" | "stars" | "points" | "length" | "creator" | "released_on"
@@ -636,6 +639,16 @@ export class RunError extends Error {
   }
 }
 
+/** Trim optional title; empty → null. Throws when over `RUN_TITLE_MAX_LENGTH`. */
+export function normalizeOptionalRunTitle(raw: string): string | null {
+  const title = raw.trim();
+  if (title.length === 0) return null;
+  if (title.length > RUN_TITLE_MAX_LENGTH) {
+    throw new RunError(`Title must be ${RUN_TITLE_MAX_LENGTH} characters or fewer`);
+  }
+  return title;
+}
+
 export function normalizeRunMapAndCategory(
   mapIdRaw: string,
   categoryRaw: string,
@@ -700,6 +713,9 @@ function mapRunWriteError(error: PostgrestErrorBlob): RunError | null {
   if (mappedCategory) return mappedCategory;
 
   const blob = `${error.message} ${error.details ?? ""} ${error.hint ?? ""}`;
+  if (blob.includes("runs_title_max_length_chk") || blob.includes("title_max_length")) {
+    return new RunError(`Title must be ${RUN_TITLE_MAX_LENGTH} characters or fewer`);
+  }
   if (blob.includes("join_mode_locked")) {
     return new RunError("Join mode cannot be changed after someone has applied");
   }
@@ -787,7 +803,7 @@ async function prepareOwnedActiveRunPatch(
     throw new RunError("Run not found or no longer active");
   }
 
-  const title = input.title.trim().length > 0 ? input.title.trim() : null;
+  const title = normalizeOptionalRunTitle(input.title);
   const { mapId, mapCategory } = normalizeRunMapAndCategory(input.mapId, input.mapCategory);
 
   if (mapId !== null) {

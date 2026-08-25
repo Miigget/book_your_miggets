@@ -7,7 +7,7 @@ import { MapPicker } from "@/components/runs/MapPicker";
 import { formatLocalDatetimeValue, parseLocalDatetime } from "@/lib/format-date";
 import { isRunActive } from "@/lib/run-lifecycle";
 import { cn } from "@/lib/utils";
-import { INVITE_LIST_EMPTY_MESSAGE, type MapPickerItem } from "@/lib/services/runs";
+import { INVITE_LIST_EMPTY_MESSAGE, RUN_TITLE_MAX_LENGTH, type MapPickerItem } from "@/lib/services/runs";
 
 const selectClass =
   "w-full rounded-lg border border-white/20 bg-white/10 px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-purple-400";
@@ -81,6 +81,7 @@ export default function CreateRunForm({
   const [selectedInviteeIds, setSelectedInviteeIds] = useState<Set<string>>(() => new Set(edit?.inviteeIds ?? []));
   const [errors, setErrors] = useState<{
     nickname?: string;
+    title?: string;
     starts_at?: string;
     max_participants?: string;
     min_points?: string;
@@ -105,6 +106,10 @@ export default function CreateRunForm({
       } else if (nickname.trim().length > 32) {
         next.nickname = "Nickname must be 32 characters or fewer";
       }
+    }
+
+    if (title.trim().length > RUN_TITLE_MAX_LENGTH) {
+      next.title = `Title must be ${RUN_TITLE_MAX_LENGTH} characters or fewer`;
     }
 
     if (!startsAtLocal) {
@@ -200,8 +205,14 @@ export default function CreateRunForm({
         id="title"
         label="Custom title (optional)"
         value={title}
-        onChange={setTitle}
+        onChange={(v) => {
+          setTitle(v);
+          if (errors.title) setErrors((prev) => ({ ...prev, title: undefined }));
+        }}
         placeholder="Leave blank to use map / nickname fallback"
+        error={errors.title}
+        hint={<p className="mt-1 text-xs text-blue-100/40">Max {RUN_TITLE_MAX_LENGTH} characters</p>}
+        maxLength={RUN_TITLE_MAX_LENGTH}
         icon={<Tag className="size-4" />}
       />
 

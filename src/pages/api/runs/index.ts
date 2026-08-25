@@ -9,6 +9,7 @@ import {
   isUuid,
   isVisibility,
   mapRunMapCategoryConstraintError,
+  normalizeOptionalRunTitle,
   normalizeRunMapAndCategory,
   parseInviteeIds,
   RESTRICTED_VISIBILITY_UNVERIFIED,
@@ -93,7 +94,15 @@ export const POST: APIRoute = async (context) => {
     return fail(INVITE_LIST_EMPTY_MESSAGE);
   }
 
-  const title = titleRaw.length > 0 ? titleRaw : null;
+  let title: string | null;
+  try {
+    title = normalizeOptionalRunTitle(titleRaw);
+  } catch (err) {
+    if (err instanceof RunError) {
+      return fail(err.message);
+    }
+    throw err;
+  }
   let mapId: string | null;
   let mapCategory: string | null;
   try {
