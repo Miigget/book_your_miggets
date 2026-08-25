@@ -354,17 +354,17 @@ Dictionary is small (tens of rows, not thousands). Public profile adds one assig
 
 #### Automated
 
-- [x] 3.1 /players/[id].astro calls listAssignedLabels and renders PlayerLabelChip when labels exist
-- [x] 3.2 PROTECTED_ROUTES still does not include /players
-- [x] 3.3 AGENTS.md and README mention /admin/labels and public chips
-- [x] 3.4 npm run lint passes
-- [x] 3.5 npm run build passes
+- [x] 3.1 /players/[id].astro calls listAssignedLabels and renders PlayerLabelChip when labels exist — 507ed2b
+- [x] 3.2 PROTECTED_ROUTES still does not include /players — 507ed2b
+- [x] 3.3 AGENTS.md and README mention /admin/labels and public chips — 507ed2b
+- [x] 3.4 npm run lint passes — 507ed2b
+- [x] 3.5 npm run build passes — 507ed2b
 
 #### Manual
 
-- [x] 3.6 Guest and member both see chips on /players/{id} with palette colors; a player with no labels looks as today minus a labels block — YOLO skipped manual
-- [x] 3.7 Rename/recolor on /admin/labels updates chips on reload without re-assigning — YOLO skipped manual
-- [x] 3.8 Delete a used label: chip gone on public profile; other labels remain — YOLO skipped manual
-- [x] 3.9 Forced labels-load failure: nickname/points/friends still render — YOLO skipped manual
-- [x] 3.10 /profile has no label editor; /admin users table and run rosters still have no chips — YOLO skipped manual
-- [x] 3.11 http://localhost:4321/players/{uuid} as guest — YOLO skipped manual
+- [x] 3.6 Guest and member both see chips on /players/{id} with palette colors; a player with no labels looks as today minus a labels block — YOLO skipped manual — 507ed2b
+- [x] 3.7 Rename/recolor on /admin/labels updates chips on reload without re-assigning — YOLO skipped manual — 507ed2b
+- [x] 3.8 Delete a used label: chip gone on public profile; other labels remain — YOLO skipped manual — 507ed2b
+- [x] 3.9 Forced labels-load failure: nickname/points/friends still render — YOLO skipped manual — 507ed2b
+- [x] 3.10 /profile has no label editor; /admin users table and run rosters still have no chips — YOLO skipped manual — 507ed2b
+- [x] 3.11 http://localhost:4321/players/{uuid} as guest — YOLO skipped manual — 507ed2b
