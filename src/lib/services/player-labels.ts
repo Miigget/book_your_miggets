@@ -54,6 +54,22 @@ export async function listDictionary(supabase: AppSupabaseClient): Promise<Playe
   return data.map((row) => ({ id: row.id, name: row.name, color: row.color }));
 }
 
+/** One query over assignments; returns label_id → count for the admin dictionary page. */
+export async function countAssignmentsByLabel(supabase: AppSupabaseClient): Promise<Map<string, number>> {
+  const { data, error } = await supabase.from("player_label_assignments").select("label_id");
+
+  if (error) {
+    console.error("countAssignmentsByLabel failed", error);
+    throw new AdminError("Could not load labels");
+  }
+
+  const counts = new Map<string, number>();
+  for (const row of data) {
+    counts.set(row.label_id, (counts.get(row.label_id) ?? 0) + 1);
+  }
+  return counts;
+}
+
 export async function listAssignedLabels(supabase: AppSupabaseClient, profileId: string): Promise<PlayerLabel[]> {
   if (!isUuid(profileId)) return [];
 

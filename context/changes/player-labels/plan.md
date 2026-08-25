@@ -318,37 +318,37 @@ Dictionary is small (tens of rows, not thousands). Public profile adds one assig
 
 #### Automated
 
-- [x] 1.1 Migration file exists under supabase/migrations/ with both tables, unique lower(name), hex check, CASCADE FKs, per-operation per-role RLS, and grants as contracted
-- [x] 1.2 npx supabase db reset (or project-equivalent apply) succeeds locally
-- [x] 1.3 npm run db:types regenerates src/types/database.ts including player_labels and player_label_assignments
-- [x] 1.4 src/lib/player-label-palette.ts and src/lib/services/player-labels.ts exist with the helpers above
-- [x] 1.5 The four admin API routes exist and check locals.profile?.role === "admin"
-- [x] 1.6 npm run lint passes
-- [x] 1.7 npm run build passes
+- [x] 1.1 Migration file exists under supabase/migrations/ with both tables, unique lower(name), hex check, CASCADE FKs, per-operation per-role RLS, and grants as contracted — bd51290
+- [x] 1.2 npx supabase db reset (or project-equivalent apply) succeeds locally — bd51290
+- [x] 1.3 npm run db:types regenerates src/types/database.ts including player_labels and player_label_assignments — bd51290
+- [x] 1.4 src/lib/player-label-palette.ts and src/lib/services/player-labels.ts exist with the helpers above — bd51290
+- [x] 1.5 The four admin API routes exist and check locals.profile?.role === "admin" — bd51290
+- [x] 1.6 npm run lint passes — bd51290
+- [x] 1.7 npm run build passes — bd51290
 
 #### Manual
 
-- [x] 1.8 SQL: anon/authenticated SELECT both tables; a member session INSERT/UPDATE/DELETE is denied; an admin session can INSERT/UPDATE/DELETE labels and INSERT/DELETE assignments — YOLO skipped manual
-- [x] 1.9 SQL: deleting a label removes its assignment rows; inserting two names that differ only by case fails the unique index — YOLO skipped manual
-- [x] 1.10 Service: replacePlayerLabels with an unknown id does not delete existing assignments; empty id list unassigns all; palette-invalid color and blank name error with fixed copy — YOLO skipped manual
+- [x] 1.8 SQL: anon/authenticated SELECT both tables; a member session INSERT/UPDATE/DELETE is denied; an admin session can INSERT/UPDATE/DELETE labels and INSERT/DELETE assignments — YOLO skipped manual — bd51290
+- [x] 1.9 SQL: deleting a label removes its assignment rows; inserting two names that differ only by case fails the unique index — YOLO skipped manual — bd51290
+- [x] 1.10 Service: replacePlayerLabels with an unknown id does not delete existing assignments; empty id list unassigns all; palette-invalid color and blank name error with fixed copy — YOLO skipped manual — bd51290
 
 ### Phase 2: Admin dictionary page and assignment form
 
 #### Automated
 
-- [ ] 2.1 src/pages/admin/labels.astro exists and posts to the create/update/delete APIs
-- [ ] 2.2 /admin/users/[id].astro posts label_id checkboxes to /api/admin/users/{id}/labels
-- [ ] 2.3 /admin index links to /admin/labels
-- [ ] 2.4 npm run lint passes
-- [ ] 2.5 npm run build passes
+- [x] 2.1 src/pages/admin/labels.astro exists and posts to the create/update/delete APIs
+- [x] 2.2 /admin/users/[id].astro posts label_id checkboxes to /api/admin/users/{id}/labels
+- [x] 2.3 /admin index links to /admin/labels
+- [x] 2.4 npm run lint passes
+- [x] 2.5 npm run build passes
 
 #### Manual
 
-- [ ] 2.6 Admin creates a label from a swatch, renames and recolors it, deletes it; delete notice reports assignment count
-- [ ] 2.7 Empty dictionary: labels page still shows create; player page links to /admin/labels and has no Save
-- [ ] 2.8 Player page: check two labels, Save, reload shows them checked; uncheck all, Save, none checked
-- [ ] 2.9 Guest /admin/labels → sign-in; member → 404; S-16 editors still work when the labels load fails
-- [ ] 2.10 http://localhost:4321/admin/labels and a known http://localhost:4321/admin/users/{uuid}
+- [x] 2.6 Admin creates a label from a swatch, renames and recolors it, deletes it; delete notice reports assignment count — YOLO skipped manual
+- [x] 2.7 Empty dictionary: labels page still shows create; player page links to /admin/labels and has no Save — YOLO skipped manual
+- [x] 2.8 Player page: check two labels, Save, reload shows them checked; uncheck all, Save, none checked — YOLO skipped manual
+- [x] 2.9 Guest /admin/labels → sign-in; member → 404; S-16 editors still work when the labels load fails — YOLO skipped manual
+- [x] 2.10 http://localhost:4321/admin/labels and a known http://localhost:4321/admin/users/{uuid} — YOLO skipped manual
 
 ### Phase 3: Public profile chips and docs
 
