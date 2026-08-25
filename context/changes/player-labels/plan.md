@@ -336,19 +336,19 @@ Dictionary is small (tens of rows, not thousands). Public profile adds one assig
 
 #### Automated
 
-- [x] 2.1 src/pages/admin/labels.astro exists and posts to the create/update/delete APIs
-- [x] 2.2 /admin/users/[id].astro posts label_id checkboxes to /api/admin/users/{id}/labels
-- [x] 2.3 /admin index links to /admin/labels
-- [x] 2.4 npm run lint passes
-- [x] 2.5 npm run build passes
+- [x] 2.1 src/pages/admin/labels.astro exists and posts to the create/update/delete APIs — ca20899
+- [x] 2.2 /admin/users/[id].astro posts label_id checkboxes to /api/admin/users/{id}/labels — ca20899
+- [x] 2.3 /admin index links to /admin/labels — ca20899
+- [x] 2.4 npm run lint passes — ca20899
+- [x] 2.5 npm run build passes — ca20899
 
 #### Manual
 
-- [x] 2.6 Admin creates a label from a swatch, renames and recolors it, deletes it; delete notice reports assignment count — YOLO skipped manual
-- [x] 2.7 Empty dictionary: labels page still shows create; player page links to /admin/labels and has no Save — YOLO skipped manual
-- [x] 2.8 Player page: check two labels, Save, reload shows them checked; uncheck all, Save, none checked — YOLO skipped manual
-- [x] 2.9 Guest /admin/labels → sign-in; member → 404; S-16 editors still work when the labels load fails — YOLO skipped manual
-- [x] 2.10 http://localhost:4321/admin/labels and a known http://localhost:4321/admin/users/{uuid} — YOLO skipped manual
+- [x] 2.6 Admin creates a label from a swatch, renames and recolors it, deletes it; delete notice reports assignment count — YOLO skipped manual — ca20899
+- [x] 2.7 Empty dictionary: labels page still shows create; player page links to /admin/labels and has no Save — YOLO skipped manual — ca20899
+- [x] 2.8 Player page: check two labels, Save, reload shows them checked; uncheck all, Save, none checked — YOLO skipped manual — ca20899
+- [x] 2.9 Guest /admin/labels → sign-in; member → 404; S-16 editors still work when the labels load fails — YOLO skipped manual — ca20899
+- [x] 2.10 http://localhost:4321/admin/labels and a known http://localhost:4321/admin/users/{uuid} — YOLO skipped manual — ca20899
 
 ### Phase 3: Public profile chips and docs
 
