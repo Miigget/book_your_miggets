@@ -3,7 +3,7 @@ project: "Book Your Miggets"
 version: 2
 status: draft
 created: 2026-07-27
-updated: 2026-08-24
+updated: 2026-08-25
 prd_version: 2
 main_goal: market-feedback
 top_blocker: community-launch
@@ -46,7 +46,7 @@ The King of Gores (KoG) community in TeeWorlds has no tool for organizing shared
 | S-14 | category-only-runs | create a run with a map category and no specific map; category shows on the card | S-01 | FR-022, US-07 | done |
 | S-15 | restricted-run-visibility | create friends-only or invite-only runs; hidden from everyone else | S-01, S-11 | FR-027, FR-028, US-08, US-09 | done |
 | S-16 | admin-profile-edits | (admin) edit player nickname/points, verify points, handle nickname-change requests | S-09, S-10 | FR-023, FR-024, US-10 | done |
-| S-17 | player-labels | (admin) maintain label dictionary (name + color) and assign labels shown on public profiles | S-09, S-10 | FR-029, FR-030, US-11 | ready |
+| S-17 | player-labels | (admin) maintain label dictionary (name + color) and assign labels shown on public profiles | S-09, S-10 | FR-029, FR-030, US-11 | done |
 
 ## Streams
 
@@ -296,7 +296,7 @@ PRD v1 must-haves are covered. Remaining PRD v2 slices: S-11, S-15…S-17. Landi
 - **Blockers:** —
 - **Unknowns:** —
 - **Risk:** keep it a small admin dictionary, not player-authored tags; assignment belongs on the same admin player page as S-16 — coordinate if both are in flight, but they do not depend on each other.
-- **Status:** ready
+- **Status:** done
 
 ## Backlog Handoff
 
@@ -377,3 +377,4 @@ PRD v1 must-haves are covered. Remaining PRD v2 slices: S-11, S-15…S-17. Landi
 - **S-11: verified user can send, accept, or decline friend requests to other verified members and see the friends list on the profile (including Add friend on someone else's public profile).** — Archived 2026-08-21 → `context/archive/2026-08-21-add-friends/`. Lesson: —.
 - **S-15: organizer can create a friends-only run (visible to their friends, highlighted or in a separate list section) or an invite-only run (visible only to friends they pick); guests and everyone else do not see those runs.** — Archived 2026-08-24 → `context/archive/2026-08-24-restricted-run-visibility/`. Lesson: —.
 - **S-16: admin can edit a player's nickname and KoG points from the existing admin player page, mark points as verified after an in-game check, and accept or deny nickname-change requests from verified members.** — Archived 2026-08-24 → `context/archive/2026-08-24-admin-profile-edits/`. Lesson: —.
+- **S-17: admin can create a dictionary of labels (name + color), assign them to players, and everyone sees those labels on the player's public profile.** — Archived 2026-08-25 → `context/archive/2026-08-25-player-labels/`. Lesson: —.

@@ -6,8 +6,10 @@ import PageChrome from "@/components/PageChrome.astro";
 import { formatStart } from "@/lib/format-date";
 import { createClient } from "@/lib/supabase";
 import { getProfileForAdmin, type AdminPlayerProfile } from "@/lib/services/admin";
+import { listAssignedLabels, listDictionary, type PlayerLabel } from "@/lib/services/player-labels";
 import { getPendingNicknameRequest, type PendingNicknameRequest } from "@/lib/services/profile";
 import { formatJoinMode, listArchivedRunsForParticipant } from "@/lib/services/runs";
+import { cn } from "@/lib/utils";
 
 // Route protection lives in middleware: only admins reach this page.
 const { id } = Astro.params;
@@ -21,6 +23,9 @@ let pendingError: string | null = null;
 let pageError: "missing" | "config" | "load" | null = null;
 let runs: Awaited<ReturnType<typeof listArchivedRunsForParticipant>> = [];
 let listError: string | null = null;
+let dictionary: PlayerLabel[] = [];
+let assignedLabelIds = new Set<string>();
+let labelsError: string | null = null;
 
 if (!id) {
   pageError = "missing";
@@ -39,6 +44,14 @@ if (!id) {
         pendingError = "Could not load the pending nickname request.";
       }
       try {
+        dictionary = await listDictionary(supabase);
+        const assigned = await listAssignedLabels(supabase, profile.id);
+        assignedLabelIds = new Set(assigned.map((label) => label.id));
+      } catch (err) {
+        console.error("player labels load failed on admin player profile", err);
+        labelsError = "Could not load labels.";
+      }
+      try {
         runs = await listArchivedRunsForParticipant(supabase, profile.id);
       } catch (err) {
         console.error("listArchivedRunsForParticipant failed on admin player profile", err);
@@ -52,15 +65,23 @@ if (!id) {
 }
 
 const hasPoints = profile?.kog_points !== null && profile?.kog_points !== undefined;
-const fieldClass =
-  "w-full rounded-lg border border-white/20 bg-white/10 px-3 py-2 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-purple-400";
+const fieldClass = cn(
+  "w-full rounded-lg border border-white/20 bg-white/10 px-3 py-2 text-white placeholder-white/40",
+  "focus:outline-none focus:ring-2 focus:ring-purple-400",
+);
 const labelClass = "mb-1 block text-sm text-blue-100/80";
-const saveButtonClass =
-  "rounded-lg border border-white/20 px-3 py-1.5 text-sm font-medium text-white transition-colors hover:bg-white/10";
-const actionButtonClass =
-  "rounded-lg border border-white/20 px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-white/10";
-const denyButtonClass =
-  "rounded-lg border border-red-400/40 px-3 py-1.5 text-xs font-medium text-red-200 transition-colors hover:bg-red-500/20";
+const saveButtonClass = cn(
+  "rounded-lg border border-white/20 px-3 py-1.5 text-sm font-medium text-white",
+  "transition-colors hover:bg-white/10",
+);
+const actionButtonClass = cn(
+  "rounded-lg border border-white/20 px-3 py-1.5 text-xs font-medium text-white",
+  "transition-colors hover:bg-white/10",
+);
+const denyButtonClass = cn(
+  "rounded-lg border border-red-400/40 px-3 py-1.5 text-xs font-medium text-red-200",
+  "transition-colors hover:bg-red-500/20",
+);
 
 if (pageError === "missing") {
   Astro.response.status = 404;
@@ -216,6 +237,55 @@ const pageTitle = profile ? `${displayNickname} — Admin — Book Your Miggets`
                   </div>
                 </div>
               ) : null}
+            </section>
+
+            <section
+              class="mb-8 rounded-xl border border-white/10 bg-white/5 p-5 backdrop-blur-xl"
+              aria-label="Player labels"
+            >
+              <h2 class="mb-4 text-sm font-semibold tracking-wide text-white/80 uppercase">Labels</h2>
+              {labelsError ? (
+                <p class="rounded-lg border border-red-400/30 bg-red-500/10 px-4 py-3 text-sm text-red-100">
+                  {labelsError}
+                </p>
+              ) : dictionary.length === 0 ? (
+                <p class="text-sm text-blue-100/70">
+                  No labels in the dictionary yet.{" "}
+                  <a
+                    href="/admin/labels"
+                    class="text-purple-300 transition-colors hover:text-purple-100 hover:underline"
+                  >
+                    Manage labels
+                  </a>
+                </p>
+              ) : (
+                <form method="POST" action={`/api/admin/users/${profile.id}/labels`} class="space-y-4">
+                  <ul class="flex flex-col gap-2">
+                    {dictionary.map((label) => (
+                      <li>
+                        <label class="flex cursor-pointer items-center gap-3 rounded-lg border border-white/10 px-3 py-2 transition-colors hover:bg-white/5">
+                          <input
+                            type="checkbox"
+                            name="label_id"
+                            value={label.id}
+                            checked={assignedLabelIds.has(label.id)}
+                            class="size-4 rounded border-white/30 bg-white/10 text-purple-500 focus:ring-purple-400"
+                          />
+                          <span
+                            class="inline-block size-3.5 shrink-0 rounded-sm border border-white/30"
+                            style={`background-color: ${label.color}`}
+                            aria-hidden="true"
+                          />
+                          <span class="text-sm text-white">{label.name}</span>
+                        </label>
+                      </li>
+                    ))}
+                  </ul>
+                  <button type="submit" class:list={[saveButtonClass]}>
+                    Save labels
+                  </button>
+                </form>
+              )}
             </section>
 
             {listError ? (
