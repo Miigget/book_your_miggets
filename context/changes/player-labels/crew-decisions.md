@@ -3,7 +3,7 @@ change_id: player-labels
 mode: YOLO
 started: 2026-08-25
 updated: 2026-08-25
-status: in-progress
+status: complete
 ---
 
 # Crew decisions — player-labels
@@ -25,6 +25,16 @@ Mode: **YOLO**. Crew Lead answered specialist questions; the human was asked onl
 | 2026-08-25T08:47Z | gh-change-sync | #59 → Backlog (plan_reviewed) |
 | 2026-08-25T08:48Z | 10x-implement | Phase 1 done (schema/services/APIs); status implementing |
 | 2026-08-25T08:49Z | gh-change-sync | #59 → In progress (implementing) |
+| 2026-08-25T08:50Z | 10x-impl-review | Phase 1 APPROVED |
+| 2026-08-25T08:51Z | commit | Phase 1 ritual → bd51290 |
+| 2026-08-25T08:52Z | 10x-implement | Phase 2 done (admin UI) |
+| 2026-08-25T08:53Z | 10x-impl-review | Phase 2 APPROVED |
+| 2026-08-25T08:54Z | commit | Phase 2 ritual → ca20899 (+ 26035aa SHA) |
+| 2026-08-25T08:55Z | 10x-implement | Phase 3 done (public chips + docs); status implemented |
+| 2026-08-25T08:56Z | 10x-impl-review | Full APPROVED → impl_reviewed |
+| 2026-08-25T08:57Z | commit | Phase 3 → 507ed2b; epilogue d60c55d; docs 7c4ce66 |
+| 2026-08-25T08:58Z | gh-change-sync | #59 → In review (implemented) |
+| 2026-08-25T08:59Z | 10x-archive | pending |
 
 ## Decisions the Crew Lead made (no human)
 
@@ -32,6 +42,9 @@ Mode: **YOLO**. Crew Lead answered specialist questions; the human was asked onl
 - **q-delete-in-use** — delete label still assigned to players. Chose **B (cascade unassign + delete, show count)**. Why: keeps dictionary small; matches ON DELETE CASCADE patterns; soft-delete is overkill for a small admin dictionary.
 - **q-surfaces** — where labels appear in this slice. Chose **A (public `/players/{id}` + admin assignment only)**. Why: matches FR-030/US-11; roster/admin-list chips expand scope beyond S-17.
 - **q-edit-live** — rename/recolor after assignment. Chose **A (live edit via FK)**. Why: natural dictionary; cascade-delete already implies FK not snapshot; immutable would force painful delete+reassign.
+- **phase-1-commit** — phase-end ritual. Chose **COMMIT_OK → bd51290**. Why: YOLO auto-approves ritual commits after APPROVED phase review.
+- **phase-2-commit** — phase-end ritual. Chose **COMMIT_OK → ca20899**. Why: YOLO after Phase 2 APPROVED.
+- **phase-3-commit** — phase-end + epilogue. Chose **COMMIT_OK → 507ed2b / d60c55d / 7c4ce66**. Why: YOLO after full APPROVED.
 
 ### Non-obvious
 - **parent-link** — change-id `player-labels` equals roadmap Change ID S-17. Chose **1:1 link existing card** (no `--parent`). Why: hybrid rule is mechanical when Change ID matches.
@@ -56,6 +69,8 @@ Mode: **YOLO**. Crew Lead answered specialist questions; the human was asked onl
 ## Human-action gates
 
 - Phase 1 manuals 1.8–1.10 (RLS/SQL/service smoke): skipped (YOLO residual risk)
+- Phase 2 manuals 2.6–2.10 (admin UI smoke): skipped (YOLO residual risk)
+- Phase 3 manuals 3.6–3.11 (public chip smoke): skipped (YOLO residual risk)
 
 ## Stop / escape hatches
 
@@ -63,4 +78,5 @@ Mode: **YOLO**. Crew Lead answered specialist questions; the human was asked onl
 
 ## GitHub
 
-- change-sync: #59 events new, planned, plan_reviewed, implementing → In progress (link-roadmap)
+- change-sync: #59 events new, planned, plan_reviewed, implementing, implemented → In review (link-roadmap S-17)
+- archived: pending
