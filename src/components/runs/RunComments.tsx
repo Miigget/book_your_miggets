@@ -117,7 +117,7 @@ export default function RunComments({ runId, comments, canPostOrLike, isAdmin, c
       ) : (
         <ul className="space-y-4">
           {items.map((comment) => (
-            <li key={comment.id} className="rounded-lg border border-white/10 bg-white/5 px-3 py-3">
+            <li key={comment.id} className="overflow-hidden rounded-lg border border-white/10 bg-white/5 px-3 py-3">
               <div className="flex items-start justify-between gap-2">
                 <div className="min-w-0">
                   <p className="text-sm text-white">
@@ -184,7 +184,7 @@ export default function RunComments({ runId, comments, canPostOrLike, isAdmin, c
                 </div>
               </div>
 
-              <p className={cn("mt-3 text-sm whitespace-pre-wrap text-white")}>{comment.body}</p>
+              <p className={cn("mt-3 min-w-0 text-sm break-all whitespace-pre-wrap text-white")}>{comment.body}</p>
             </li>
           ))}
         </ul>

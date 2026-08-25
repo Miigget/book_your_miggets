@@ -151,7 +151,7 @@ function formatReleasedOn(value: string | null): string {
         run && (
           <>
             <header class="mb-8">
-              <h1 class="bg-gradient-to-r from-blue-200 to-purple-200 bg-clip-text text-3xl font-bold text-transparent sm:text-4xl">
+              <h1 class="min-w-0 bg-gradient-to-r from-blue-200 to-purple-200 bg-clip-text text-3xl font-bold break-all text-transparent sm:text-4xl">
                 {run.displayTitle}
               </h1>
               {run.lifecyclePhase === "in_progress" && (

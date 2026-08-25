@@ -17,6 +17,7 @@ interface FormFieldProps {
   hint?: ReactNode;
   icon: ReactNode;
   endContent?: ReactNode;
+  maxLength?: number;
 }
 
 export function FormField({
@@ -31,6 +32,7 @@ export function FormField({
   hint,
   icon,
   endContent,
+  maxLength,
 }: FormFieldProps) {
   return (
     <div>
@@ -44,6 +46,7 @@ export function FormField({
           name={name ?? id}
           type={type}
           value={value}
+          maxLength={maxLength}
           onChange={(e) => {
             onChange(e.target.value);
           }}

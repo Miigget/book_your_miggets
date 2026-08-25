@@ -1,63 +1,75 @@
 ---
+import { playerProfileHref } from "@/lib/profile-href";
+
 const { user } = Astro.locals;
 const isAdmin = Astro.locals.profile?.role === "admin";
 const rawNick = Astro.locals.profile?.nickname?.trim();
 const nickname = rawNick !== undefined && rawNick.length > 0 ? rawNick : null;
+
+const navLinkClass = "text-purple-300 transition-colors hover:text-purple-100 hover:underline";
 ---
 
 <div
-  class="mb-4 flex flex-wrap items-center justify-between gap-x-4 gap-y-2 rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-sm text-white/80"
+  class="mb-4 grid grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-x-4 gap-y-2 rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-sm text-white/80"
 >
   <a
     href="/"
-    class="shrink-0 bg-gradient-to-r from-blue-200 to-purple-200 bg-clip-text text-base font-semibold tracking-tight text-transparent transition-opacity hover:opacity-80"
+    class="shrink-0 justify-self-start bg-gradient-to-r from-blue-200 to-purple-200 bg-clip-text text-base font-semibold tracking-tight text-transparent transition-opacity hover:opacity-80"
   >
     BookYourMiggets
   </a>
   {
     user ? (
-      <div class="flex min-w-0 flex-wrap items-center justify-end gap-3">
-        <a
-          href="/profile"
-          class="max-w-[12rem] truncate text-blue-100/70 transition-colors hover:text-purple-100 hover:underline"
-        >
-          {nickname ?? "Set nickname"}
-        </a>
-        <a href="/runs" class="text-purple-300 transition-colors hover:text-purple-100 hover:underline">
-          Runs
-        </a>
-        <a href="/runs/history" class="text-purple-300 transition-colors hover:text-purple-100 hover:underline">
-          History
-        </a>
-        <a href="/runs/new" class="text-purple-300 transition-colors hover:text-purple-100 hover:underline">
-          New run
-        </a>
-        <a href="/dashboard" class="text-purple-300 transition-colors hover:text-purple-100 hover:underline">
-          Dashboard
-        </a>
-        {isAdmin && (
-          <a href="/admin" class="text-purple-300 transition-colors hover:text-purple-100 hover:underline">
-            Admin
+      <>
+        <nav class="flex flex-wrap items-center justify-center gap-3" aria-label="Primary">
+          <a href="/runs" class={navLinkClass}>
+            Runs
           </a>
-        )}
-        <form method="POST" action="/api/auth/signout">
-          <button type="submit" class="text-purple-300 transition-colors hover:text-purple-100 hover:underline">
-            Sign out
-          </button>
-        </form>
-      </div>
+          <a href="/runs/history" class={navLinkClass}>
+            History
+          </a>
+          <a href="/runs/new" class={navLinkClass}>
+            New run
+          </a>
+          <a href="/dashboard" class={navLinkClass}>
+            Dashboard
+          </a>
+          {isAdmin && (
+            <a href="/admin" class={navLinkClass}>
+              Admin
+            </a>
+          )}
+        </nav>
+        <div class="flex min-w-0 flex-wrap items-center justify-end gap-3 justify-self-end">
+          <a
+            href={playerProfileHref(user.id)}
+            class="max-w-[12rem] truncate text-blue-100/70 transition-colors hover:text-purple-100 hover:underline"
+          >
+            {nickname ?? "Set nickname"}
+          </a>
+          <form method="POST" action="/api/auth/signout">
+            <button type="submit" class={navLinkClass}>
+              Sign out
+            </button>
+          </form>
+        </div>
+      </>
     ) : (
-      <div class="flex flex-wrap items-center justify-end gap-3">
-        <a href="/runs" class="text-purple-300 transition-colors hover:text-purple-100 hover:underline">
-          Runs
-        </a>
-        <a href="/auth/signin" class="text-purple-300 transition-colors hover:text-purple-100 hover:underline">
-          Sign in
-        </a>
-        <a href="/auth/signup" class="text-purple-300 transition-colors hover:text-purple-100 hover:underline">
-          Sign up
-        </a>
-      </div>
+      <>
+        <nav class="flex flex-wrap items-center justify-center gap-3" aria-label="Primary">
+          <a href="/runs" class={navLinkClass}>
+            Runs
+          </a>
+        </nav>
+        <div class="flex flex-wrap items-center justify-end gap-3 justify-self-end">
+          <a href="/auth/signin" class={navLinkClass}>
+            Sign in
+          </a>
+          <a href="/auth/signup" class={navLinkClass}>
+            Sign up
+          </a>
+        </div>
+      </>
     )
   }
 </div>
