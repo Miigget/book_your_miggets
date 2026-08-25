@@ -2,10 +2,12 @@
 import Layout from "@/layouts/Layout.astro";
 import PageChrome from "@/components/PageChrome.astro";
 import NicknameLink from "@/components/NicknameLink.astro";
+import PlayerLabelChip from "@/components/PlayerLabelChip.astro";
 import FriendActions from "@/components/profile/FriendActions";
 import { createClient } from "@/lib/supabase";
 import { getOwnProfile, getPublicProfile, type PublicProfile } from "@/lib/services/profile";
 import { getRelationship, listPublicFriends, type FriendRelationship, type PublicFriend } from "@/lib/services/friends";
+import { listAssignedLabels, type PlayerLabel } from "@/lib/services/player-labels";
 
 const { id } = Astro.params;
 const supabase = createClient(Astro.request.headers, Astro.cookies);
@@ -16,6 +18,8 @@ let pageError: "missing" | "config" | "load" | null = null;
 let friends: PublicFriend[] = [];
 let friendsError: string | null = null;
 let friendCta: FriendRelationship | null = null;
+let labels: PlayerLabel[] = [];
+let labelsError: string | null = null;
 
 if (!id) {
   pageError = "missing";
@@ -34,6 +38,13 @@ if (!id) {
 }
 
 if (profile && supabase) {
+  try {
+    labels = await listAssignedLabels(supabase, profile.id);
+  } catch (err) {
+    console.error("listAssignedLabels failed on public player page", err);
+    labelsError = "Could not load labels";
+  }
+
   try {
     friends = await listPublicFriends(supabase, profile.id);
   } catch (err) {
@@ -132,6 +143,21 @@ const kogPointsLabel = profile && profile.kogPoints !== null ? String(profile.ko
                   <dt class="text-blue-100/50">Points source</dt>
                   <dd class="mt-0.5 text-white">{profile.kogPointsVerified ? "Checked in-game" : "Self-reported"}</dd>
                 </div>
+                {labelsError ? (
+                  <div class="sm:col-span-2">
+                    <dt class="text-blue-100/50">Labels</dt>
+                    <dd class="mt-0.5 text-blue-100/60">{labelsError}</dd>
+                  </div>
+                ) : labels.length > 0 ? (
+                  <div class="sm:col-span-2">
+                    <dt class="text-blue-100/50">Labels</dt>
+                    <dd class="mt-1 flex flex-wrap gap-1.5">
+                      {labels.map((label) => (
+                        <PlayerLabelChip name={label.name} color={label.color} />
+                      ))}
+                    </dd>
+                  </div>
+                ) : null}
               </dl>
             </section>
 

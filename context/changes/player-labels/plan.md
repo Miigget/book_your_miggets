@@ -354,17 +354,17 @@ Dictionary is small (tens of rows, not thousands). Public profile adds one assig
 
 #### Automated
 
-- [ ] 3.1 /players/[id].astro calls listAssignedLabels and renders PlayerLabelChip when labels exist
-- [ ] 3.2 PROTECTED_ROUTES still does not include /players
-- [ ] 3.3 AGENTS.md and README mention /admin/labels and public chips
-- [ ] 3.4 npm run lint passes
-- [ ] 3.5 npm run build passes
+- [x] 3.1 /players/[id].astro calls listAssignedLabels and renders PlayerLabelChip when labels exist
+- [x] 3.2 PROTECTED_ROUTES still does not include /players
+- [x] 3.3 AGENTS.md and README mention /admin/labels and public chips
+- [x] 3.4 npm run lint passes
+- [x] 3.5 npm run build passes
 
 #### Manual
 
-- [ ] 3.6 Guest and member both see chips on /players/{id} with palette colors; a player with no labels looks as today minus a labels block
-- [ ] 3.7 Rename/recolor on /admin/labels updates chips on reload without re-assigning
-- [ ] 3.8 Delete a used label: chip gone on public profile; other labels remain
-- [ ] 3.9 Forced labels-load failure: nickname/points/friends still render
-- [ ] 3.10 /profile has no label editor; /admin users table and run rosters still have no chips
-- [ ] 3.11 http://localhost:4321/players/{uuid} as guest
+- [x] 3.6 Guest and member both see chips on /players/{id} with palette colors; a player with no labels looks as today minus a labels block — YOLO skipped manual
+- [x] 3.7 Rename/recolor on /admin/labels updates chips on reload without re-assigning — YOLO skipped manual
+- [x] 3.8 Delete a used label: chip gone on public profile; other labels remain — YOLO skipped manual
+- [x] 3.9 Forced labels-load failure: nickname/points/friends still render — YOLO skipped manual
+- [x] 3.10 /profile has no label editor; /admin users table and run rosters still have no chips — YOLO skipped manual
+- [x] 3.11 http://localhost:4321/players/{uuid} as guest — YOLO skipped manual
