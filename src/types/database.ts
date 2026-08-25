@@ -171,6 +171,70 @@ export type Database = {
           },
         ]
       }
+      player_label_assignments: {
+        Row: {
+          created_at: string
+          label_id: string
+          profile_id: string
+        }
+        Insert: {
+          created_at?: string
+          label_id: string
+          profile_id: string
+        }
+        Update: {
+          created_at?: string
+          label_id?: string
+          profile_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "player_label_assignments_label_id_fkey"
+            columns: ["label_id"]
+            isOneToOne: false
+            referencedRelation: "player_labels"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "player_label_assignments_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "player_label_assignments_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "public_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      player_labels: {
+        Row: {
+          color: string
+          created_at: string
+          id: string
+          name: string
+          updated_at: string
+        }
+        Insert: {
+          color: string
+          created_at?: string
+          id?: string
+          name: string
+          updated_at?: string
+        }
+        Update: {
+          color?: string
+          created_at?: string
+          id?: string
+          name?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           created_at: string
