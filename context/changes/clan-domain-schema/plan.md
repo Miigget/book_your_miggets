@@ -230,12 +230,12 @@ Apply the migration on local Supabase, smoke-test the RLS matrix, and regenerate
 
 #### Automated
 
-- [x] 2.1 `npx supabase db reset` exits 0
-- [x] 2.2 `src/types/database.ts` includes `clans` and `clan_members`
-- [x] 2.3 `npm run lint` passes
-- [x] 2.4 `npm run build` passes
+- [x] 2.1 `npx supabase db reset` exits 0 — ee0072d
+- [x] 2.2 `src/types/database.ts` includes `clans` and `clan_members` — ee0072d
+- [x] 2.3 `npm run lint` passes — ee0072d
+- [x] 2.4 `npm run build` passes — ee0072d
 
 #### Manual
 
-- [x] 2.5 Anon / unverified / verified / admin RLS smoke checks behave as expected
-- [x] 2.6 Studio (or `\d`) shows owner membership seated on insert without a second client write
+- [x] 2.5 Anon / unverified / verified / admin RLS smoke checks behave as expected — ee0072d
+- [x] 2.6 Studio (or `\d`) shows owner membership seated on insert without a second client write — ee0072d
