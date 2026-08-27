@@ -1,10 +1,10 @@
 ---
 change_id: create-clan-directory
 title: Let verified members create clans and guests browse the directory
-status: impl_reviewed
+status: archived
 created: 2026-08-27
 updated: 2026-08-27
-archived_at: null
+archived_at: 2026-08-27T13:54:38Z
 ---
 
 ## Notes
