@@ -3,7 +3,7 @@ change_id: clan-domain-schema
 mode: YOLO
 started: 2026-08-27
 updated: 2026-08-27
-status: in-progress
+status: complete
 ---
 
 # Crew decisions — clan-domain-schema
@@ -26,8 +26,9 @@ Mode: **YOLO**. Crew Lead answered specialist questions; the human was asked onl
 | 2026-08-27T13:46Z | git | branch feature/clan-domain-schema from main |
 | 2026-08-27T13:50Z | 10x-implement p1 | migration + commit 8f0aa32; change.md → implementing |
 | 2026-08-27T13:53Z | 10x-impl-review p1 | APPROVED 0 findings |
-| 2026-08-27T13:46Z | 10x-implement | Phase 1: authored `20260827114633_clan_domain_schema.sql`; change.md → implementing |
-| 2026-08-27T13:57Z | 10x-implement p2 | db reset, db:types, lint, build, RLS smoke via psql |
+| 2026-08-27T14:05Z | 10x-implement p2 | db reset, types, lint, build, RLS smoke; commits ee0072d + epilogue e0097ed; change.md → implemented |
+| 2026-08-27T14:12Z | 10x-impl-review p2 | APPROVED 0 findings; change.md → impl_reviewed |
+| 2026-08-27T14:18Z | 10x-impl-review full | APPROVED 0 findings |
 
 ## Decisions the Crew Lead made (no human)
 
@@ -67,4 +68,4 @@ Mode: **YOLO**. Crew Lead answered specialist questions; the human was asked onl
 
 ## GitHub
 
-- change-sync: pending `--event new`
+- change-sync: GraphQL rate-limited throughout the loop (`API rate limit exceeded for user ID 103332621`). Events `new` / `planned` / `implementing` / `implemented` / `archived` were not applied. F-02 is a 1:1 roadmap Change ID — retry `/gh-change-sync clan-domain-schema --event archived` after the limit resets.
