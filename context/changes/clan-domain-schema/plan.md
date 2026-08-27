@@ -218,24 +218,24 @@ Apply the migration on local Supabase, smoke-test the RLS matrix, and regenerate
 
 #### Automated
 
-- [x] 1.1 Migration file exists under `supabase/migrations/` with AGENTS naming (`*_clan_domain_schema.sql`)
-- [x] 1.2 SQL is valid enough that Phase 2 `db reset` can apply it (checked in Phase 2)
+- [x] 1.1 Migration file exists under `supabase/migrations/` with AGENTS naming (`*_clan_domain_schema.sql`) — 8f0aa32
+- [x] 1.2 SQL is valid enough that Phase 2 `db reset` can apply it (checked in Phase 2) — 8f0aa32
 
 #### Manual
 
-- [x] 1.3 Policy matrix in the migration matches the Contract (SQL review)
-- [x] 1.4 No picture column, officer/role enum, `create_clan` RPC, or references to `runs` / `run_participants` / `run_invites`
+- [x] 1.3 Policy matrix in the migration matches the Contract (SQL review) — 8f0aa32
+- [x] 1.4 No picture column, officer/role enum, `create_clan` RPC, or references to `runs` / `run_participants` / `run_invites` — 8f0aa32
 
 ### Phase 2: Local verify + typed client
 
 #### Automated
 
-- [ ] 2.1 `npx supabase db reset` exits 0
-- [ ] 2.2 `src/types/database.ts` includes `clans` and `clan_members`
-- [ ] 2.3 `npm run lint` passes
-- [ ] 2.4 `npm run build` passes
+- [x] 2.1 `npx supabase db reset` exits 0
+- [x] 2.2 `src/types/database.ts` includes `clans` and `clan_members`
+- [x] 2.3 `npm run lint` passes
+- [x] 2.4 `npm run build` passes
 
 #### Manual
 
-- [ ] 2.5 Anon / unverified / verified / admin RLS smoke checks behave as expected
-- [ ] 2.6 Studio (or `\d`) shows owner membership seated on insert without a second client write
+- [x] 2.5 Anon / unverified / verified / admin RLS smoke checks behave as expected
+- [x] 2.6 Studio (or `\d`) shows owner membership seated on insert without a second client write

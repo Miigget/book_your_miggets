@@ -24,7 +24,10 @@ Mode: **YOLO**. Crew Lead answered specialist questions; the human was asked onl
 | 2026-08-27T13:42Z | 10x-plan | F1 applied in plan.md + plan-brief.md |
 | 2026-08-27T13:45Z | 10x-plan-review | re-review SOUND; F1 FIXED |
 | 2026-08-27T13:46Z | git | branch feature/clan-domain-schema from main |
+| 2026-08-27T13:50Z | 10x-implement p1 | migration + commit 8f0aa32; change.md → implementing |
+| 2026-08-27T13:53Z | 10x-impl-review p1 | APPROVED 0 findings |
 | 2026-08-27T13:46Z | 10x-implement | Phase 1: authored `20260827114633_clan_domain_schema.sql`; change.md → implementing |
+| 2026-08-27T13:57Z | 10x-implement p2 | db reset, db:types, lint, build, RLS smoke via psql |
 
 ## Decisions the Crew Lead made (no human)
 
@@ -56,6 +59,7 @@ Mode: **YOLO**. Crew Lead answered specialist questions; the human was asked onl
 ## Human-action gates
 
 - Phase 1 SQL review (1.3/1.4): self-reviewed by implement specialist (YOLO; not a UI gate). Residual: Phase 2 `db reset` is the apply proof.
+- Phase 2 RLS smoke (2.5/2.6): executed by specialist via local psql JWT impersonation + `\d`/pg_trigger (YOLO; not skipped). Residual: Studio UI click-through not used.
 
 ## Stop / escape hatches
 
