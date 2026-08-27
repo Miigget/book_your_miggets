@@ -1,0 +1,50 @@
+---
+import type { ClanListItem } from "@/lib/services/clans";
+
+interface Props {
+  clan: ClanListItem;
+  pictureUrl: string | null;
+}
+
+const { clan, pictureUrl } = Astro.props;
+const initials = clan.tag.trim().slice(0, 2).toUpperCase();
+---
+
+<div
+  class="group relative overflow-hidden rounded-xl border border-white/10 bg-white/5 px-5 py-4 transition-colors hover:border-white/20 hover:bg-white/10"
+>
+  <div class="flex min-w-0 items-center gap-4">
+    {
+      pictureUrl ? (
+        <img src={pictureUrl} alt="" class="h-12 w-12 shrink-0 rounded-lg object-cover" width="48" height="48" />
+      ) : (
+        <div
+          class="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-white/10 text-sm font-semibold tracking-wide text-blue-100/80"
+          aria-hidden="true"
+        >
+          {initials}
+        </div>
+      )
+    }
+    <div class="min-w-0 flex-1">
+      <h3 class="min-w-0 text-lg font-semibold break-all text-white">
+        <a
+          href={`/clans/${clan.id}`}
+          class="group-hover:text-purple-100 group-hover:underline after:absolute after:inset-0 after:z-[1] after:rounded-xl after:content-['']"
+        >
+          {clan.name}
+        </a>
+      </h3>
+      <dl class="mt-1 flex flex-wrap gap-x-4 gap-y-1 text-sm text-blue-100/60">
+        <div>
+          <dt class="inline">Tag:</dt>{" "}
+          <dd class="inline text-blue-100/90">{clan.tag}</dd>
+        </div>
+        <div>
+          <dt class="inline">Points:</dt>{" "}
+          <dd class="inline text-blue-100/90">{clan.points}</dd>
+        </div>
+      </dl>
+    </div>
+  </div>
+</div>

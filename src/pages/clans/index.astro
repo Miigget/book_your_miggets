@@ -1,0 +1,132 @@
+---
+import Layout from "@/layouts/Layout.astro";
+import Banner from "@/components/Banner.astro";
+import ClanCard from "@/components/clans/ClanCard.astro";
+import PageChrome from "@/components/PageChrome.astro";
+import { createClient } from "@/lib/supabase";
+import { CLAN_PICTURES_BUCKET, publicObjectUrl } from "@/lib/storage";
+import { getOwnProfile } from "@/lib/services/profile";
+import {
+  ClanError,
+  CLAN_VERIFIED_ONLY,
+  getClanMembershipForUser,
+  listClans,
+  type ClanListItem,
+  type ClanMembership,
+} from "@/lib/services/clans";
+
+const supabase = createClient(Astro.request.headers, Astro.cookies);
+const { user } = Astro.locals;
+const notice = Astro.url.searchParams.get("notice");
+const serverError = Astro.url.searchParams.get("error");
+
+let clans: ClanListItem[] = [];
+let loadError: string | null = null;
+let isVerified = false;
+let membership: ClanMembership | null = null;
+let viewerKnown = false;
+
+if (!supabase) {
+  loadError = "Supabase is not configured.";
+} else {
+  try {
+    clans = await listClans(supabase);
+  } catch (err) {
+    console.error("listClans failed on /clans", err);
+    loadError = err instanceof ClanError ? err.message : "Could not load clans";
+  }
+
+  if (user) {
+    try {
+      const own = await getOwnProfile(supabase, user.id);
+      isVerified = own.isVerified;
+      membership = await getClanMembershipForUser(supabase, user.id);
+      viewerKnown = true;
+    } catch (err) {
+      console.error("clan directory viewer lookup failed", err);
+    }
+  }
+}
+
+function pictureUrlFor(path: string | null): string | null {
+  if (!supabase || !path) return null;
+  return publicObjectUrl(supabase, CLAN_PICTURES_BUCKET, path);
+}
+---
+
+<Layout title="Clans — Book Your Miggets">
+  <PageChrome>
+    {
+      notice && (
+        <div class="mb-6 overflow-hidden rounded-lg">
+          <Banner variant="info">{notice}</Banner>
+        </div>
+      )
+    }
+    {
+      serverError && (
+        <div class="mb-6 overflow-hidden rounded-lg">
+          <Banner variant="error">{serverError}</Banner>
+        </div>
+      )
+    }
+
+    <header class="mb-8 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+      <div>
+        <h1
+          class="bg-gradient-to-r from-blue-200 to-purple-200 bg-clip-text text-3xl font-bold text-transparent sm:text-4xl"
+        >
+          Clans
+        </h1>
+        <p class="mt-2 text-sm text-blue-100/60">Browse clans ranked by points. No account needed.</p>
+      </div>
+      {
+        user ? (
+          viewerKnown && isVerified && !membership ? (
+            <a
+              href="/clans/new"
+              class="inline-flex items-center justify-center rounded-lg bg-purple-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-purple-500"
+            >
+              Create a clan
+            </a>
+          ) : viewerKnown && membership ? (
+            <a
+              href={`/clans/${membership.clanId}`}
+              class="text-sm text-purple-300 transition-colors hover:text-purple-100 hover:underline"
+            >
+              View your clan
+            </a>
+          ) : viewerKnown ? (
+            <p class="max-w-sm text-sm text-blue-100/70 sm:text-right">{CLAN_VERIFIED_ONLY}</p>
+          ) : null
+        ) : (
+          <a
+            href="/auth/signin"
+            class="inline-flex items-center justify-center rounded-lg border border-white/20 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-white/10"
+          >
+            Sign in to create
+          </a>
+        )
+      }
+    </header>
+
+    {
+      loadError ? (
+        <p class="rounded-lg border border-red-400/30 bg-red-500/10 px-4 py-3 text-sm text-red-100">{loadError}</p>
+      ) : clans.length === 0 ? (
+        <div class="rounded-xl border border-white/10 bg-white/5 px-6 py-12 text-center backdrop-blur-xl">
+          <p class="text-lg font-medium text-white">No clans yet</p>
+          <p class="mt-2 text-sm text-blue-100/60">Check back soon, or create one when you are verified.</p>
+        </div>
+      ) : (
+        <ul class="flex flex-col gap-3">
+          {clans.map((clan) => (
+            <li>
+              <ClanCard clan={clan} pictureUrl={pictureUrlFor(clan.picturePath)} />
+            </li>
+          ))}
+        </ul>
+      )
+    }
+  </PageChrome>
+</Layout>

@@ -1,5 +1,6 @@
 const RUN_RETURN_TO_RE = /^\/runs\/([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})$/i;
 const PLAYER_PATH_RE = /^\/players\/([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})$/i;
+const CLAN_PATH_RE = /^\/clans\/([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})$/i;
 
 /** Allow only `/runs/{uuid}` relative paths (blocks open redirects). */
 export function safeRunReturnTo(value: string | null | undefined): string | null {
@@ -10,7 +11,7 @@ export function safeRunReturnTo(value: string | null | undefined): string | null
   return `/runs/${match[1]}`;
 }
 
-/** Post-login `?returnTo=` — `/runs/{uuid}` or `/players/{uuid}` only. Do not allow `/profile`. */
+/** Post-login `?returnTo=` — `/runs/{uuid}`, `/players/{uuid}`, or `/clans/{uuid}` only. Do not allow `/profile`. */
 export function safeAuthReturnTo(value: string | null | undefined): string | null {
   if (!value) return null;
   const trimmed = value.trim();
@@ -18,6 +19,8 @@ export function safeAuthReturnTo(value: string | null | undefined): string | nul
   if (run) return `/runs/${run[1]}`;
   const player = PLAYER_PATH_RE.exec(trimmed);
   if (player) return `/players/${player[1]}`;
+  const clan = CLAN_PATH_RE.exec(trimmed);
+  if (clan) return `/clans/${clan[1]}`;
   return null;
 }
 

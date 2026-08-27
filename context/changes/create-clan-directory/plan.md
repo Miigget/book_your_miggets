@@ -305,9 +305,9 @@ Additive only: new column (null for any F-02 rows created in local/dev), new buc
 
 #### Automated
 
-- [x] 2.1 npm run lint exits 0
-- [x] 2.2 npm run build exits 0
-- [x] 2.3 PROTECTED_ROUTES contains /clans/new and does not contain /clans
+- [x] 2.1 npm run lint exits 0 — 67cd0b6
+- [x] 2.2 npm run build exits 0 — 67cd0b6
+- [x] 2.3 PROTECTED_ROUTES contains /clans/new and does not contain /clans — 67cd0b6
 
 #### Manual
 
@@ -323,9 +323,9 @@ Additive only: new column (null for any F-02 rows created in local/dev), new buc
 
 #### Automated
 
-- [ ] 3.1 npm run lint exits 0
-- [ ] 3.2 npm run build exits 0
-- [ ] 3.3 AGENTS.md states not to prefix-protect /clans; middleware PROTECTED_ROUTES has /clans/new and not /clans
+- [x] 3.1 npm run lint exits 0
+- [x] 3.2 npm run build exits 0
+- [x] 3.3 AGENTS.md states not to prefix-protect /clans; middleware PROTECTED_ROUTES has /clans/new and not /clans
 
 #### Manual
 
