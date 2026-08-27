@@ -1,10 +1,10 @@
 ---
 change_id: clan-domain-schema
 title: Clan-domain schema and RLS contract
-status: impl_reviewed
+status: archived
 created: 2026-08-27
 updated: 2026-08-27
-archived_at: null
+archived_at: 2026-08-27T12:16:02Z
 ---
 
 ## Notes
