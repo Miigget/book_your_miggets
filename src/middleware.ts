@@ -3,7 +3,7 @@ import { completeEmailAuth } from "@/lib/auth-callback";
 import { getRequestTimeZone } from "@/lib/format-date";
 import { createClient } from "@/lib/supabase";
 
-const PROTECTED_ROUTES = ["/dashboard", "/runs/new", "/admin", "/runs/history", "/profile"];
+const PROTECTED_ROUTES = ["/dashboard", "/runs/new", "/admin", "/runs/history", "/profile", "/clans/new"];
 const EDIT_RUN_PATH = /^\/runs\/[^/]+\/edit\/?$/;
 
 /** Same-origin Referer pathname, else "/" — the open-redirect guard for the banned-POST gate. */

@@ -291,11 +291,11 @@ Additive only: new column (null for any F-02 rows created in local/dev), new buc
 
 #### Automated
 
-- [x] 1.1 npx supabase db reset exits 0 (new migration applies after F-02)
-- [x] 1.2 npm run db:types — clans includes picture_path; file is not hand-edited
-- [x] 1.3 SQL smoke: public clan-pictures bucket; no clans UPDATE grant; verified INSERT with picture_path; UPDATE picture_path and points denied; unverified INSERT fails; anon SELECT picture_path
-- [x] 1.4 npm run lint exits 0
-- [x] 1.5 npm run build exits 0
+- [x] 1.1 npx supabase db reset exits 0 (new migration applies after F-02) — 456f414
+- [x] 1.2 npm run db:types — clans includes picture_path; file is not hand-edited — 456f414
+- [x] 1.3 SQL smoke: public clan-pictures bucket; no clans UPDATE grant; verified INSERT with picture_path; UPDATE picture_path and points denied; unverified INSERT fails; anon SELECT picture_path — 456f414
+- [x] 1.4 npm run lint exits 0 — 456f414
+- [x] 1.5 npm run build exits 0 — 456f414
 
 #### Manual
 
@@ -305,9 +305,9 @@ Additive only: new column (null for any F-02 rows created in local/dev), new buc
 
 #### Automated
 
-- [ ] 2.1 npm run lint exits 0
-- [ ] 2.2 npm run build exits 0
-- [ ] 2.3 PROTECTED_ROUTES contains /clans/new and does not contain /clans
+- [x] 2.1 npm run lint exits 0
+- [x] 2.2 npm run build exits 0
+- [x] 2.3 PROTECTED_ROUTES contains /clans/new and does not contain /clans
 
 #### Manual
 
