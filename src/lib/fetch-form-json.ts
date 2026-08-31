@@ -15,6 +15,7 @@ export interface FormJsonMeta {
     createdAt: string;
     likeCount: number;
     likedByMe: boolean;
+    screenshotUrl: string | null;
   };
 }
 

@@ -314,18 +314,18 @@ Admin run-delete (`deleteRunAsAdmin`) does **not** prefix-purge `comment-screens
 
 #### Automated
 
-- [x] 1.1 npx supabase db reset exits 0
-- [x] 1.2 npm run db:types — run_comments includes screenshot_path; file is not hand-edited
-- [x] 1.3 SQL smoke: private comment-screenshots bucket 5 MiB jpeg/png/webp; no anon SELECT; confirmed INSERT own-folder on active run; pending/anon cannot INSERT or SELECT; organizer/admin SELECT; screenshot-only row allowed; neither-body-nor-path rejected; text-only still works; authenticated has no UPDATE on run_comments; no storage.objects UPDATE policy for this bucket
-- [x] 1.4 npm run lint exits 0
-- [x] 1.5 npm run build exits 0
-- [x] 1.7 SQL smoke: author DELETE on archived run fails; author DELETE during active window for rollback still works; admin DELETE always works
-- [x] 1.8 SQL smoke: INSERT with screenshot_path whose first UUID is not author_id fails
-- [x] 1.9 SQL smoke: INSERT with screenshot_path whose second UUID is not run_id fails
+- [x] 1.1 npx supabase db reset exits 0 — 8273109
+- [x] 1.2 npm run db:types — run_comments includes screenshot_path; file is not hand-edited — 8273109
+- [x] 1.3 SQL smoke: private comment-screenshots bucket 5 MiB jpeg/png/webp; no anon SELECT; confirmed INSERT own-folder on active run; pending/anon cannot INSERT or SELECT; organizer/admin SELECT; screenshot-only row allowed; neither-body-nor-path rejected; text-only still works; authenticated has no UPDATE on run_comments; no storage.objects UPDATE policy for this bucket — 8273109
+- [x] 1.4 npm run lint exits 0 — 8273109
+- [x] 1.5 npm run build exits 0 — 8273109
+- [x] 1.7 SQL smoke: author DELETE on archived run fails; author DELETE during active window for rollback still works; admin DELETE always works — 8273109
+- [x] 1.8 SQL smoke: INSERT with screenshot_path whose first UUID is not author_id fails — 8273109
+- [x] 1.9 SQL smoke: INSERT with screenshot_path whose second UUID is not run_id fails — 8273109
 
 #### Manual
 
-- [x] 1.6 Local Studio: run_comments.screenshot_path nullable; storage.buckets shows comment-screenshots private, 5 MiB, jpeg/png/webp
+- [x] 1.6 Local Studio: run_comments.screenshot_path nullable; storage.buckets shows comment-screenshots private, 5 MiB, jpeg/png/webp — 8273109
 
 Note: YOLO skipped human Studio confirm for 1.6 (residual risk). Bucket + column were verified via SQL (`storage.buckets` + `information_schema` equivalent in smoke 1.3); no human opened Studio.
 
@@ -333,18 +333,20 @@ Note: YOLO skipped human Studio confirm for 1.6 (residual risk). Bucket + column
 
 #### Automated
 
-- [ ] 2.1 npm run lint exits 0
-- [ ] 2.2 npm run build exits 0
-- [ ] 2.3 PUBLIC_IMAGE_MAX_BYTES remains 1_048_576; COMMENT_SCREENSHOT_MAX_BYTES is 5_242_880; clan callers of uploadPublicImage do not pass a higher cap
+- [x] 2.1 npm run lint exits 0
+- [x] 2.2 npm run build exits 0
+- [x] 2.3 PUBLIC_IMAGE_MAX_BYTES remains 1_048_576; COMMENT_SCREENSHOT_MAX_BYTES is 5_242_880; clan callers of uploadPublicImage do not pass a higher cap
 
 #### Manual
 
-- [ ] 2.4 Confirmed participant: screenshot-only, text+screenshot, and text-only POST all succeed; returned screenshotUrl is signed (not /object/public/)
-- [ ] 2.5 Empty body without file, file over 5 MiB, and wrong MIME fail with the fixed screenshot/empty strings on ?commentError= (never Storage error.message)
-- [ ] 2.6 Guest, pending applicant, and unseated organizer/admin (not confirmed) cannot post a screenshot
-- [ ] 2.7 Admin comment delete removes the row; the object is gone or remove failure is only logged
-- [ ] 2.8 Clan picture upload still rejects files over 1 MiB with the existing picture string
-- [ ] 2.9 Text (including text+screenshot) over 1000 chars fails with "Comment must be 1000 characters or fewer", not a generic PostgREST dump
+- [x] 2.4 Confirmed participant: screenshot-only, text+screenshot, and text-only POST all succeed; returned screenshotUrl is signed (not /object/public/)
+- [x] 2.5 Empty body without file, file over 5 MiB, and wrong MIME fail with the fixed screenshot/empty strings on ?commentError= (never Storage error.message)
+- [x] 2.6 Guest, pending applicant, and unseated organizer/admin (not confirmed) cannot post a screenshot
+- [x] 2.7 Admin comment delete removes the row; the object is gone or remove failure is only logged
+- [x] 2.8 Clan picture upload still rejects files over 1 MiB with the existing picture string
+- [x] 2.9 Text (including text+screenshot) over 1000 chars fails with "Comment must be 1000 characters or fewer", not a generic PostgREST dump
+
+Note: YOLO skipped human curl confirm for 2.4–2.9 (residual risk). Automated 2.1–2.3 passed (`npm run lint` 0 errors, `npm run build` exit 0; clan `uploadPublicImage` callers omit `maxBytes`).
 
 ### Phase 3: RunComments island and AGENTS.md
 
