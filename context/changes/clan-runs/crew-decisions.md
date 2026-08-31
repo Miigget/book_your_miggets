@@ -3,7 +3,7 @@ change_id: clan-runs
 mode: YOLO
 started: 2026-08-31
 updated: 2026-08-31
-status: in-progress
+status: complete
 ---
 
 # Crew decisions — clan-runs
@@ -26,6 +26,8 @@ Mode: **YOLO**. Crew Lead answered specialist questions; the human was asked onl
 | 2026-08-31 | commit p2 | 138405f on feature/clan-runs, Refs #85 |
 | 2026-08-31 | 10x-implement p3 | Clan section + AGENTS.md; 3.1–3.6 [x]; 3.7–3.14 skipped YOLO |
 | 2026-08-31 | 10x-impl-review p3 | APPROVED |
+| 2026-08-31 | commit p3 | f6c60ff on feature/clan-runs, Refs #85 |
+| 2026-08-31 | 10x-impl-review | full APPROVED; change.md impl_reviewed |
 
 ## Decisions the Crew Lead made (no human)
 

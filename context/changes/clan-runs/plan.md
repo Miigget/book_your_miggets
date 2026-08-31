@@ -374,12 +374,12 @@ None (no pgTAP). Phase 1 SQL smoke under `authenticated` / `anon` roles is the a
 
 #### Automated
 
-- [x] 3.1 partitionActiveRuns never puts clan_only in publicRuns; members in clanRuns; admin leftovers in Restricted
-- [x] 3.2 Guest /runs and landing still publicOnly; signed-in /runs does not
-- [x] 3.3 PROTECTED_ROUTES still does not prefix-protect /runs
-- [x] 3.4 AGENTS.md names Clan section and clan-only 404
-- [x] 3.5 npm run lint passes
-- [x] 3.6 npm run build passes
+- [x] 3.1 partitionActiveRuns never puts clan_only in publicRuns; members in clanRuns; admin leftovers in Restricted — f6c60ff
+- [x] 3.2 Guest /runs and landing still publicOnly; signed-in /runs does not — f6c60ff
+- [x] 3.3 PROTECTED_ROUTES still does not prefix-protect /runs — f6c60ff
+- [x] 3.4 AGENTS.md names Clan section and clan-only 404 — f6c60ff
+- [x] 3.5 npm run lint passes — f6c60ff
+- [x] 3.6 npm run build passes — f6c60ff
 
 #### Manual
 
