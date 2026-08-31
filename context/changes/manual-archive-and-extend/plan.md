@@ -436,10 +436,10 @@ Worker `Date` vs Postgres `now()` on `extended_until` can disagree by seconds (s
 
 #### Automated
 
-- [x] 3.1 npm run lint exits 0
-- [x] 3.2 npm run build exits 0
-- [x] 3.3 AGENTS.md documents archive/extend POST paths and the 5-cap; PROTECTED_ROUTES still does not prefix-protect /runs
-- [x] 3.4 prd.md Guardrails / US-01 Then no longer claim a 1-hour auto-archive
+- [x] 3.1 npm run lint exits 0 — 5079165
+- [x] 3.2 npm run build exits 0 — 5079165
+- [x] 3.3 AGENTS.md documents archive/extend POST paths and the 5-cap; PROTECTED_ROUTES still does not prefix-protect /runs — 5079165
+- [x] 3.4 prd.md Guardrails / US-01 Then no longer claim a 1-hour auto-archive — 5079165
 
 #### Manual
 

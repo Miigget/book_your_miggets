@@ -1,7 +1,7 @@
 ---
 change_id: manual-archive-and-extend
 title: Manual archive, extend, and active-run cap
-status: implementing
+status: impl_reviewed
 created: 2026-08-31
 updated: 2026-08-31
 archived_at: null
