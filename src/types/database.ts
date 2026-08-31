@@ -750,6 +750,7 @@ export type Database = {
       is_run_in_active_window: { Args: { p_run_id: string }; Returns: boolean }
       is_run_invitee: { Args: { p_run_id: string }; Returns: boolean }
       is_run_organizer: { Args: { p_run_id: string }; Returns: boolean }
+      is_same_clan: { Args: { a: string; b: string }; Returns: boolean }
       list_player_public_runs: {
         Args: { p_user_id: string }
         Returns: {
@@ -798,7 +799,7 @@ export type Database = {
       join_mode: "approval_required" | "auto_join"
       nickname_change_request_status: "pending" | "accepted" | "denied"
       participant_status: "pending" | "confirmed" | "denied"
-      run_visibility: "public" | "friends_only" | "invite_only"
+      run_visibility: "public" | "friends_only" | "invite_only" | "clan_only"
       user_role: "member" | "admin"
     }
     CompositeTypes: {
@@ -935,7 +936,7 @@ export const Constants = {
       join_mode: ["approval_required", "auto_join"],
       nickname_change_request_status: ["pending", "accepted", "denied"],
       participant_status: ["pending", "confirmed", "denied"],
-      run_visibility: ["public", "friends_only", "invite_only"],
+      run_visibility: ["public", "friends_only", "invite_only", "clan_only"],
       user_role: ["member", "admin"],
     },
   },

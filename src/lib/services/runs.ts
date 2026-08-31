@@ -138,6 +138,8 @@ export function formatVisibility(visibility: Enums<"run_visibility">): string {
       return "Friends only";
     case "invite_only":
       return "Invite only";
+    case "clan_only":
+      return "Clan only";
     default: {
       const _exhaustive: never = visibility;
       return _exhaustive;

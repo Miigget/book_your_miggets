@@ -36,7 +36,7 @@ Both tracks must work; shipping only clans or only the run-loop extras is not do
 | S-18 | create-clan-directory | create a clan; guests browse directory, details, and points ranking | F-02, shipped verified members + public profiles | FR-014, FR-016, FR-017, FR-018, FR-028, FR-029, FR-030, US-02 | done |
 | S-19 | clan-friend-invites | (clan owner) invite friends into the clan | S-18, shipped friends | FR-015, US-02 | done |
 | S-20 | comment-screenshots | (confirmed participant) attach screenshots in comments without widening ACL | shipped run comments | FR-001, FR-027, US-01, US-02 | ready |
-| S-21 | clan-runs | (owner/officer) create a clan run and invite clan members | S-18, S-19, shipped run create | FR-020, FR-028, US-02 | proposed |
+| S-21 | clan-runs | (owner/officer) create a clan run and invite clan members | S-18, S-19, shipped run create | FR-020, FR-028, US-02 | in-progress |
 | S-22 | complete-clan-run | (owner/officer) mark a clan run completed | S-21 | FR-021, US-02 | proposed |
 | S-23 | verified-finish-clan-points | (admin) mark verified-finish; clan points and ranking update only then | S-22, S-20, shipped admin role | FR-019, FR-022, FR-023, FR-018, FR-030, US-02 | proposed |
 | S-24 | manual-archive-and-extend | archive via button or extend ≤ 6h; 1-hour auto-archive gone; max 5 active runs | shipped active list + 1-hour window | FR-002, FR-003, FR-004, FR-008, FR-024, US-01 | ready |
@@ -138,7 +138,7 @@ Shipped product (previous roadmap, all `done`): F-01 + S-01…S-17 — create/li
 - **Unknowns:**
   - Is a clan run a new audience on the existing run, or a separate listing? — Owner: user. Block: no. Candidate default: same run entity, audience = clan members + admin, never mixed into the guest public stack.
 - **Risk:** reusing run create without a new visibility axis will either leak onto `/runs` or fork a second scheduler. Join Stream A here so S-22/S-23 have a real clan session to complete.
-- **Status:** proposed
+- **Status:** in-progress
 
 ### S-22: Mark a clan run completed
 

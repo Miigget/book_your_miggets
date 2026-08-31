@@ -13,7 +13,7 @@ const selectClass =
   "w-full rounded-lg border border-white/20 bg-white/10 px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-purple-400";
 
 export type CreateRunFormJoinMode = "approval_required" | "auto_join";
-export type CreateRunFormVisibility = "public" | "friends_only" | "invite_only";
+export type CreateRunFormVisibility = "public" | "friends_only" | "invite_only" | "clan_only";
 
 export interface CreateRunFormFriend {
   id: string;
