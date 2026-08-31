@@ -326,14 +326,14 @@ Additive only: new enum, table, policies, triggers (accept DELETE, clans teardow
 
 #### Automated
 
-- [x] 1.1 npx supabase db reset exits 0 (migration applies after S-18 picture + admin clan update)
-- [x] 1.2 npm run db:types — clan_invites present; file is not hand-edited
-- [x] 1.3 SQL smoke: anon cannot read clan_invites; owner INSERT friend-not-in-clan; non-friend and already-member INSERT fail; invitee DELETE seats and clears other pendings; not-friends DELETE does not seat; owner DELETE does not seat; decline + reopen; no clan_members INSERT grant; points UPDATE still denied
-- [x] 1.4 npm run lint exits 0
-- [x] 1.5 npm run build exits 0
-- [x] 1.7 SQL smoke F1: admin DELETE clan with pending+declined succeeds; nobody seated; other clans’ pendings remain; admin invitee Accept still seats
-- [x] 1.8 SQL smoke F2: invitee cannot change clan_id/inviter_id on decline
-- [x] 1.9 SQL smoke F6: banned invitee DELETE pending fails and does not seat
+- [x] 1.1 npx supabase db reset exits 0 (migration applies after S-18 picture + admin clan update) — 3869abd
+- [x] 1.2 npm run db:types — clan_invites present; file is not hand-edited — 3869abd
+- [x] 1.3 SQL smoke: anon cannot read clan_invites; owner INSERT friend-not-in-clan; non-friend and already-member INSERT fail; invitee DELETE seats and clears other pendings; not-friends DELETE does not seat; owner DELETE does not seat; decline + reopen; no clan_members INSERT grant; points UPDATE still denied — 3869abd
+- [x] 1.4 npm run lint exits 0 — 3869abd
+- [x] 1.5 npm run build exits 0 — 3869abd
+- [x] 1.7 SQL smoke F1: admin DELETE clan with pending+declined succeeds; nobody seated; other clans’ pendings remain; admin invitee Accept still seats — 3869abd
+- [x] 1.8 SQL smoke F2: invitee cannot change clan_id/inviter_id on decline — 3869abd
+- [x] 1.9 SQL smoke F6: banned invitee DELETE pending fails and does not seat — 3869abd
 
 #### Manual
 
@@ -344,10 +344,10 @@ Additive only: new enum, table, policies, triggers (accept DELETE, clans teardow
 
 #### Automated
 
-- [ ] 2.1 npm run lint exits 0
-- [ ] 2.2 npm run build exits 0
-- [ ] 2.3 PROTECTED_ROUTES has /clans/new and not /clans; friend-graph load on clan detail is owner-only
-- [ ] 2.12 Page-level ?error= is serverError && (!isAdmin || isOwner); AdminClanControls still gets serverError; not inverted to admin-only
+- [x] 2.1 npm run lint exits 0
+- [x] 2.2 npm run build exits 0
+- [x] 2.3 PROTECTED_ROUTES has /clans/new and not /clans; friend-graph load on clan detail is owner-only
+- [x] 2.12 Page-level ?error= is serverError && (!isAdmin || isOwner); AdminClanControls still gets serverError; not inverted to admin-only
 
 #### Manual
 

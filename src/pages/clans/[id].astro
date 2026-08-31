@@ -5,9 +5,10 @@ import NicknameLink from "@/components/NicknameLink.astro";
 import PageChrome from "@/components/PageChrome.astro";
 import AdminClanControls from "@/components/clans/AdminClanControls";
 import ClanTagPlaceholder from "@/components/clans/ClanTagPlaceholder.astro";
+import InviteFriendsForm from "@/components/clans/InviteFriendsForm";
 import { createClient } from "@/lib/supabase";
 import { CLAN_PICTURES_BUCKET, publicObjectUrl } from "@/lib/storage";
-import { getClanById, type ClanDetail } from "@/lib/services/clans";
+import { getClanById, listEligibleClanInvitees, type ClanDetail, type ClanInvitee } from "@/lib/services/clans";
 
 const { id } = Astro.params;
 const supabase = createClient(Astro.request.headers, Astro.cookies);
@@ -17,6 +18,7 @@ const serverError = Astro.url.searchParams.get("error");
 
 let clan: ClanDetail | null = null;
 let pageError: "missing" | "config" | "load" | null = null;
+let eligibleInvitees: ClanInvitee[] = [];
 
 if (!id) {
   pageError = "missing";
@@ -40,6 +42,15 @@ if (pageError === "missing") {
   Astro.response.status = 500;
 }
 
+const isOwner = Boolean(clan && Astro.locals.user?.id === clan.ownerId);
+if (isOwner && supabase && clan && Astro.locals.user) {
+  try {
+    eligibleInvitees = await listEligibleClanInvitees(supabase, Astro.locals.user.id, clan.id);
+  } catch (err) {
+    console.error("listEligibleClanInvitees failed on clan detail", err);
+  }
+}
+
 const pictureUrl =
   clan?.picturePath && supabase ? publicObjectUrl(supabase, CLAN_PICTURES_BUCKET, clan.picturePath) : null;
 const pageTitle = clan ? `${clan.name} — Book Your Miggets` : "Clan — Book Your Miggets";
@@ -61,7 +72,7 @@ const pageTitle = clan ? `${clan.name} — Book Your Miggets` : "Clan — Book Y
       )
     }
     {
-      serverError && !isAdmin && (
+      serverError && (!isAdmin || isOwner) && (
         <div class="mb-6 overflow-hidden rounded-lg">
           <Banner variant="error">{serverError}</Banner>
         </div>
@@ -133,6 +144,13 @@ const pageTitle = clan ? `${clan.name} — Book Your Miggets` : "Clan — Book Y
                 </ul>
               )}
             </section>
+
+            {isOwner && (
+              <section class="mb-8 rounded-xl border border-white/10 bg-white/5 px-5 py-5 backdrop-blur-xl">
+                <h2 class="mb-4 text-sm font-semibold tracking-wide text-white/80 uppercase">Invite friends</h2>
+                <InviteFriendsForm client:load clanId={clan.id} friends={eligibleInvitees} />
+              </section>
+            )}
 
             {isAdmin && (
               <section class="mb-8 rounded-xl border border-red-400/20 bg-red-500/5 px-5 py-5 backdrop-blur-xl">

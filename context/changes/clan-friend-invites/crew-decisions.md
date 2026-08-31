@@ -18,6 +18,8 @@ Mode: **YOLO**. Crew Lead answered specialist questions; the human was asked onl
 | 2026-08-31 | 10x-plan | plan.md + plan-brief.md (status: planned) |
 | 2026-08-31 | 10x-plan-review | REVISE — F1–F4 triaged, F5/F6 pending; plan not rewritten that turn |
 | 2026-08-31 | 10x-plan-review (re-review) | SOUND — F1–F6 landed; status plan_reviewed |
+| 2026-08-31 | 10x-implement p1 | schema + accept trigger; commit 3869abd on feature/clan-friend-invites |
+| 2026-08-31 | 10x-impl-review p1 | APPROVED (0 findings) |
 
 ## Decisions the Crew Lead made (no human)
 
@@ -41,7 +43,10 @@ Mode: **YOLO**. Crew Lead answered specialist questions; the human was asked onl
 
 ### Obvious
 - Intent seeded from roadmap S-19 / FR-015 rather than empty slug humanization.
-- Stay on current `main` working tree; do not checkout/stash/reset while a parallel release agent is active. Do not stage unrelated dirty foundation files.
+- Stay on current working tree; do not stash/reset while a parallel release agent is active. Do not stage unrelated dirty foundation files.
+- **branch** — Phase 1 ritual: `git checkout -b feature/clan-friend-invites` from main, then commit only touched set. Why: trunk branching; keep release agent’s unstaged foundation files off our commit.
+- **roadmap-skip** — Skip in-progress flip on PREDIRTY `roadmap.md`. Why: parallel release owns that dirty file.
+- **commit-p1** — YOLO ritual COMMIT_OK for Phase 1. SHA `3869abd`. Refs: #83.
 - Cite PRD v2 FR-015 (clan invites), not the old `prd.md` FR-015 (archived-run history).
 - **F3** — Clan detail error banner. Chose **fix**: `serverError && (!isAdmin || isOwner)`; do not invert `!isAdmin`.
 - **F4** — Copy constant. Chose **fix**: new send-path constant for owner; keep `CLAN_ALREADY_MEMBER` (“You already belong…”) for viewer/Accept PK.
@@ -54,7 +59,7 @@ Mode: **YOLO**. Crew Lead answered specialist questions; the human was asked onl
 
 ## Human-action gates
 
-- none yet
+- Phase 1 Local Studio (1.6, 1.10): skipped (YOLO residual risk) — SQL smoke + advisors covered behavior; columns/enum/unique/grants not eyeballed in Studio UI.
 
 ## Stop / escape hatches
 
@@ -62,4 +67,4 @@ Mode: **YOLO**. Crew Lead answered specialist questions; the human was asked onl
 
 ## GitHub
 
-- change-sync: #83 events new, planned, plan_reviewed → Backlog (link-roadmap S-19)
+- change-sync: #83 events new, planned, plan_reviewed → Backlog; implementing → In progress (link-roadmap S-19)
