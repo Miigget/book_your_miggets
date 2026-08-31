@@ -35,7 +35,7 @@ Both tracks must work; shipping only clans or only the run-loop extras is not do
 | F-02 | clan-domain-schema | (foundation) minimal clan schema + guest/member/admin RLS landed | — | Access Control Changes, FR-014, FR-028 | done |
 | S-18 | create-clan-directory | create a clan; guests browse directory, details, and points ranking | F-02, shipped verified members + public profiles | FR-014, FR-016, FR-017, FR-018, FR-028, FR-029, FR-030, US-02 | done |
 | S-19 | clan-friend-invites | (clan owner) invite friends into the clan | S-18, shipped friends | FR-015, US-02 | done |
-| S-20 | comment-screenshots | (confirmed participant) attach screenshots in comments without widening ACL | shipped run comments | FR-001, FR-027, US-01, US-02 | ready |
+| S-20 | comment-screenshots | (confirmed participant) attach screenshots in comments without widening ACL | shipped run comments | FR-001, FR-027, US-01, US-02 | done |
 | S-21 | clan-runs | (owner/officer) create a clan run and invite clan members | S-18, S-19, shipped run create | FR-020, FR-028, US-02 | proposed |
 | S-22 | complete-clan-run | (owner/officer) mark a clan run completed | S-21 | FR-021, US-02 | proposed |
 | S-23 | verified-finish-clan-points | (admin) mark verified-finish; clan points and ranking update only then | S-22, S-20, shipped admin role | FR-019, FR-022, FR-023, FR-018, FR-030, US-02 | proposed |
@@ -125,7 +125,7 @@ Shipped product (previous roadmap, all `done`): F-01 + S-01…S-17 — create/li
 - **Blockers:** —
 - **Unknowns:** —
 - **Risk:** abuse (size/NSFW) is accepted in the PRD; the slice still must not open comment read/write to guests or pending applicants. Needed by S-23 as the in-app `/teamrank` + finish-line proof path, but admin still checks in-game by hand.
-- **Status:** ready
+- **Status:** done
 
 ### S-21: Clan runs
 
@@ -324,3 +324,4 @@ Previous full roadmap archived 2026-08-27 → `context/foundation/archive/2026-0
 - **F-02: (foundation) the smallest clan tables exist (clan, membership with owner as the first member, points defaulting to 0) with per-role RLS so a verified member can insert a clan, a guest can read the public directory/details, and friends-only / invite-only runs still cannot leak through clan rows.** — Archived 2026-08-27 → `context/archive/2026-08-27-clan-domain-schema/`. Lesson: —.
 - **S-18: verified member can create a clan (name, tag, profile picture); guests can browse all clans, open details (name, tag, picture, members, points), and see clans ranked by points (zeros until S-23).** — Archived 2026-08-27 → `context/archive/2026-08-27-create-clan-directory/`. Lesson: —.
 - **S-19: clan owner can invite friends to join the clan; accepted members appear on the clan roster guests already see.** — Archived 2026-08-31 → `context/archive/2026-08-31-clan-friend-invites/`. Lesson: —.
+- **S-20: confirmed participant can attach screenshots in comments on a run they were accepted to; who can post or read does not widen.** — Archived 2026-08-31 → `context/archive/2026-08-31-comment-screenshots/`. Lesson: —.

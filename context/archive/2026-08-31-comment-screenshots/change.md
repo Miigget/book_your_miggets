@@ -1,10 +1,10 @@
 ---
 change_id: comment-screenshots
 title: Confirmed participants attach screenshots in run comments
-status: implemented
+status: archived
 created: 2026-08-31
 updated: 2026-08-31
-archived_at: null
+archived_at: 2026-08-31T14:02:56Z
 ---
 
 ## Notes
