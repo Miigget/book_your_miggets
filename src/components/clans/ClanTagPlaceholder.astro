@@ -1,0 +1,21 @@
+---
+interface Props {
+  tag: string;
+  size: "sm" | "lg";
+}
+
+const { tag, size } = Astro.props;
+const label = tag.trim() || "?";
+---
+
+<div
+  class:list={[
+    "flex shrink-0 items-center justify-center overflow-hidden bg-white/10 text-center font-semibold tracking-wide break-all text-blue-100/80",
+    size === "lg"
+      ? "h-20 w-20 rounded-xl px-1 text-xs leading-tight"
+      : "h-12 w-12 rounded-lg px-0.5 text-[0.625rem] leading-tight",
+  ]}
+  aria-hidden="true"
+>
+  {label}
+</div>

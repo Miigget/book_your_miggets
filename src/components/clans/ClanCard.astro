@@ -1,4 +1,5 @@
 ---
+import ClanTagPlaceholder from "@/components/clans/ClanTagPlaceholder.astro";
 import type { ClanListItem } from "@/lib/services/clans";
 
 interface Props {
@@ -7,7 +8,6 @@ interface Props {
 }
 
 const { clan, pictureUrl } = Astro.props;
-const initials = clan.tag.trim().slice(0, 2).toUpperCase();
 ---
 
 <div
@@ -18,12 +18,7 @@ const initials = clan.tag.trim().slice(0, 2).toUpperCase();
       pictureUrl ? (
         <img src={pictureUrl} alt="" class="h-12 w-12 shrink-0 rounded-lg object-cover" width="48" height="48" />
       ) : (
-        <div
-          class="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-white/10 text-sm font-semibold tracking-wide text-blue-100/80"
-          aria-hidden="true"
-        >
-          {initials}
-        </div>
+        <ClanTagPlaceholder tag={clan.tag} size="sm" />
       )
     }
     <div class="min-w-0 flex-1">

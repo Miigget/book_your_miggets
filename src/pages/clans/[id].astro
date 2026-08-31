@@ -1,13 +1,19 @@
 ---
 import Layout from "@/layouts/Layout.astro";
+import Banner from "@/components/Banner.astro";
 import NicknameLink from "@/components/NicknameLink.astro";
 import PageChrome from "@/components/PageChrome.astro";
+import AdminClanControls from "@/components/clans/AdminClanControls";
+import ClanTagPlaceholder from "@/components/clans/ClanTagPlaceholder.astro";
 import { createClient } from "@/lib/supabase";
 import { CLAN_PICTURES_BUCKET, publicObjectUrl } from "@/lib/storage";
 import { getClanById, type ClanDetail } from "@/lib/services/clans";
 
 const { id } = Astro.params;
 const supabase = createClient(Astro.request.headers, Astro.cookies);
+const isAdmin = Astro.locals.profile?.role === "admin";
+const notice = Astro.url.searchParams.get("notice");
+const serverError = Astro.url.searchParams.get("error");
 
 let clan: ClanDetail | null = null;
 let pageError: "missing" | "config" | "load" | null = null;
@@ -36,7 +42,6 @@ if (pageError === "missing") {
 
 const pictureUrl =
   clan?.picturePath && supabase ? publicObjectUrl(supabase, CLAN_PICTURES_BUCKET, clan.picturePath) : null;
-const initials = clan ? clan.tag.trim().slice(0, 2).toUpperCase() : "?";
 const pageTitle = clan ? `${clan.name} — Book Your Miggets` : "Clan — Book Your Miggets";
 ---
 
@@ -47,6 +52,21 @@ const pageTitle = clan ? `${clan.name} — Book Your Miggets` : "Clan — Book Y
         ← Clans
       </a>
     </p>
+
+    {
+      notice && (
+        <div class="mb-6 overflow-hidden rounded-lg">
+          <Banner variant="info">{notice}</Banner>
+        </div>
+      )
+    }
+    {
+      serverError && !isAdmin && (
+        <div class="mb-6 overflow-hidden rounded-lg">
+          <Banner variant="error">{serverError}</Banner>
+        </div>
+      )
+    }
 
     {
       pageError === "missing" ? (
@@ -74,12 +94,7 @@ const pageTitle = clan ? `${clan.name} — Book Your Miggets` : "Clan — Book Y
                   height="80"
                 />
               ) : (
-                <div
-                  class="flex h-20 w-20 shrink-0 items-center justify-center rounded-xl bg-white/10 text-xl font-semibold tracking-wide text-blue-100/80"
-                  aria-hidden="true"
-                >
-                  {initials}
-                </div>
+                <ClanTagPlaceholder tag={clan.tag} size="lg" />
               )}
               <h1 class="min-w-0 bg-gradient-to-r from-blue-200 to-purple-200 bg-clip-text text-3xl font-bold break-all text-transparent sm:text-4xl">
                 {clan.name}
@@ -118,6 +133,18 @@ const pageTitle = clan ? `${clan.name} — Book Your Miggets` : "Clan — Book Y
                 </ul>
               )}
             </section>
+
+            {isAdmin && (
+              <section class="mb-8 rounded-xl border border-red-400/20 bg-red-500/5 px-5 py-5 backdrop-blur-xl">
+                <AdminClanControls
+                  client:load
+                  clanId={clan.id}
+                  name={clan.name}
+                  tag={clan.tag}
+                  serverError={serverError}
+                />
+              </section>
+            )}
           </>
         )
       )
