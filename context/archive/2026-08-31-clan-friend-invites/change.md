@@ -1,10 +1,10 @@
 ---
 change_id: clan-friend-invites
 title: Let clan owners invite friends onto the public roster
-status: impl_reviewed
+status: archived
 created: 2026-08-31
 updated: 2026-08-31
-archived_at: null
+archived_at: 2026-08-31T11:05:12Z
 ---
 
 ## Notes
