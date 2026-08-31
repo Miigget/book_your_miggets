@@ -2,10 +2,12 @@
 import Layout from "@/layouts/Layout.astro";
 import Banner from "@/components/Banner.astro";
 import PageChrome from "@/components/PageChrome.astro";
+import ClanInvitesInbox from "@/components/profile/ClanInvitesInbox.astro";
 import FriendsInbox from "@/components/profile/FriendsInbox.astro";
 import OwnProfileForm from "@/components/profile/OwnProfileForm";
 import { playerProfileHref } from "@/lib/profile-href";
 import { createClient } from "@/lib/supabase";
+import { listIncomingClanInvites, listOutgoingClanInvites, type ClanInviteInboxRow } from "@/lib/services/clans";
 import { listIncomingPending, listOutgoingPending, type FriendInboxRow } from "@/lib/services/friends";
 import { getOwnProfile, getPendingNicknameRequest } from "@/lib/services/profile";
 import { ensureOwnProfile } from "@/lib/services/runs";
@@ -22,6 +24,8 @@ let kogPointsVerified = false;
 let pendingRequestedNickname: string | null = null;
 let incoming: FriendInboxRow[] = [];
 let outgoing: FriendInboxRow[] = [];
+let incomingClanInvites: ClanInviteInboxRow[] = [];
+let outgoingClanInvites: ClanInviteInboxRow[] = [];
 let loadError: string | null = null;
 
 if (!supabase) {
@@ -41,12 +45,16 @@ if (!supabase) {
     kogPointsVerified = own.kogPointsVerified;
     pendingRequestedNickname = pending?.requestedNickname ?? null;
     if (own.isVerified) {
-      const [incomingRows, outgoingRows] = await Promise.all([
+      const [incomingRows, outgoingRows, incomingClanRows, outgoingClanRows] = await Promise.all([
         listIncomingPending(supabase, user.id),
         listOutgoingPending(supabase, user.id),
+        listIncomingClanInvites(supabase, user.id),
+        listOutgoingClanInvites(supabase, user.id),
       ]);
       incoming = incomingRows;
       outgoing = outgoingRows;
+      incomingClanInvites = incomingClanRows;
+      outgoingClanInvites = outgoingClanRows;
     }
   } catch (err) {
     console.error("own profile page load failed", err);
@@ -105,6 +113,7 @@ const sessionEmail = user?.email ?? "";
             outgoing={outgoing}
             publicProfileHref={user ? playerProfileHref(user.id) : null}
           />
+          <ClanInvitesInbox verified={isVerified} incoming={incomingClanInvites} outgoing={outgoingClanInvites} />
         </>
       )
     }
