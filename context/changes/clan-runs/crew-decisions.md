@@ -19,6 +19,9 @@ Mode: **YOLO**. Crew Lead answered specialist questions; the human was asked onl
 | 2026-08-31 | 10x-plan | plan.md + plan-brief.md; status planned |
 | 2026-08-31 | 10x-plan-review | SOUND; F1 LOW accepted; status plan_reviewed |
 | 2026-08-31 | 10x-implement p1 | enum+RLS+42P17; 1.1–1.7 [x]; 1.8 skipped YOLO |
+| 2026-08-31 | 10x-impl-review p1 | APPROVED |
+| 2026-08-31 | commit p1 | 9547b93 on feature/clan-runs, Refs #85 |
+| 2026-08-31 | 10x-implement p2 | owner gate + form/APIs; 2.1–2.5 [x]; 2.6–2.10 skipped YOLO |
 
 ## Decisions the Crew Lead made (no human)
 
@@ -48,6 +51,7 @@ Mode: **YOLO**. Crew Lead answered specialist questions; the human was asked onl
 ## Human-action gates
 
 - Phase 1.8 Dashboard Incoming/Past UI: skipped (YOLO residual risk). SQL smoke as authenticated organizer succeeded (SQLSTATE 00000); rendered dashboard catch copy was not click-tested.
+- Phase 2.6–2.10 create/edit/404 click-through: skipped (YOLO residual risk).
 
 ## Stop / escape hatches
 
@@ -55,4 +59,4 @@ Mode: **YOLO**. Crew Lead answered specialist questions; the human was asked onl
 
 ## GitHub
 
-- change-sync: #85 events new, planned, plan_reviewed (link-roadmap S-21 → Backlog)
+- change-sync: #85 events new, planned, plan_reviewed, implementing (link-roadmap S-21 → In progress)

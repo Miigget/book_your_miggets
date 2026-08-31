@@ -340,13 +340,13 @@ None (no pgTAP). Phase 1 SQL smoke under `authenticated` / `anon` roles is the a
 
 #### Automated
 
-- [x] 1.1 Both new migrations apply on local Supabase
-- [x] 1.2 npm run db:types includes clan_only on run_visibility
-- [x] 1.3 formatVisibility compiles with the exhaustive clan_only case
-- [x] 1.4 SQL smoke as authenticated organizer: archived friends_only and invite_only confirmed head-count succeeds (no 42P17)
-- [x] 1.5 SQL smoke as anon: SELECT clan_only runs returns no rows
-- [x] 1.6 npm run lint passes
-- [x] 1.7 npm run build passes
+- [x] 1.1 Both new migrations apply on local Supabase — 9547b93
+- [x] 1.2 npm run db:types includes clan_only on run_visibility — 9547b93
+- [x] 1.3 formatVisibility compiles with the exhaustive clan_only case — 9547b93
+- [x] 1.4 SQL smoke as authenticated organizer: archived friends_only and invite_only confirmed head-count succeeds (no 42P17) — 9547b93
+- [x] 1.5 SQL smoke as anon: SELECT clan_only runs returns no rows — 9547b93
+- [x] 1.6 npm run lint passes — 9547b93
+- [x] 1.7 npm run build passes — 9547b93
 
 #### Manual
 
@@ -356,11 +356,11 @@ None (no pgTAP). Phase 1 SQL smoke under `authenticated` / `anon` roles is the a
 
 #### Automated
 
-- [ ] 2.1 isVisibility("clan_only") is true; invite-only still uses existing RPCs only
-- [ ] 2.2 Create/edit API unverified vs non-owner vs owner gates behave as specified
-- [ ] 2.3 CreateRunForm hides clan_only unless ownsClan or edit visibility is clan_only; no invitee fieldset
-- [ ] 2.4 npm run lint passes
-- [ ] 2.5 npm run build passes
+- [x] 2.1 isVisibility("clan_only") is true; invite-only still uses existing RPCs only
+- [x] 2.2 Create/edit API unverified vs non-owner vs owner gates behave as specified
+- [x] 2.3 CreateRunForm hides clan_only unless ownsClan or edit visibility is clan_only; no invitee fieldset
+- [x] 2.4 npm run lint passes
+- [x] 2.5 npm run build passes
 
 #### Manual
 

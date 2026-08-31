@@ -235,6 +235,20 @@ export async function getClanMembershipForUser(
   return { clanId: data.clan_id };
 }
 
+/** Owner gate for clan-only runs. Do not reuse `getClanMembershipForUser` (membership ≠ ownership). */
+export async function userOwnsClan(supabase: AppSupabaseClient, userId: string): Promise<boolean> {
+  if (!isUuid(userId)) return false;
+
+  const { data, error } = await supabase.from("clans").select("id").eq("owner_id", userId).maybeSingle();
+
+  if (error) {
+    console.error("userOwnsClan failed", error);
+    throw new ClanError(CLAN_LOAD_FAILED);
+  }
+
+  return data !== null;
+}
+
 export async function listClans(supabase: AppSupabaseClient): Promise<ClanListItem[]> {
   const { data, error } = await supabase
     .from("clans")

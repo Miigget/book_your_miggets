@@ -40,6 +40,7 @@ interface Props {
   nickname: string | null;
   isVerified: boolean;
   friends?: CreateRunFormFriend[];
+  ownsClan?: boolean;
   serverError?: string | null;
   edit?: CreateRunFormEditValues;
 }
@@ -61,6 +62,7 @@ export default function CreateRunForm({
   nickname: initialNickname,
   isVerified,
   friends = [],
+  ownsClan = false,
   serverError,
   edit,
 }: Props) {
@@ -68,6 +70,7 @@ export default function CreateRunForm({
   const needsNickname = !isEdit && !initialNickname && !isVerified;
   const verifiedNeedsRequest = !isEdit && !initialNickname && isVerified;
   const canChooseVisibility = isEdit || isVerified;
+  const showClanOnlyOption = ownsClan || edit?.visibility === "clan_only";
   const [nickname, setNickname] = useState("");
   const [title, setTitle] = useState(edit?.title ?? "");
   const [mapId, setMapId] = useState(edit?.mapId ?? "");
@@ -322,13 +325,20 @@ export default function CreateRunForm({
             <option value="invite_only" className="bg-slate-900">
               Invite only
             </option>
+            {showClanOnlyOption && (
+              <option value="clan_only" className="bg-slate-900">
+                Clan only
+              </option>
+            )}
           </select>
           <p className="mt-1 text-xs text-blue-100/50">
-            {visibility === "friends_only"
-              ? "Only your current friends can find this run."
-              : visibility === "invite_only"
-                ? "Only the friends you pick can find this run."
-                : "Anyone can find this run on the public list."}
+            {visibility === "clan_only"
+              ? "Only current members of your clan can find this run."
+              : visibility === "friends_only"
+                ? "Only your current friends can find this run."
+                : visibility === "invite_only"
+                  ? "Only the friends you pick can find this run."
+                  : "Anyone can find this run on the public list."}
           </p>
         </div>
       ) : (

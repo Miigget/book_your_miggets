@@ -1,7 +1,9 @@
 import type { APIRoute } from "astro";
 import { createClient } from "@/lib/supabase";
+import { ClanError, userOwnsClan } from "@/lib/services/clans";
 import { ProfileError, getOwnProfile } from "@/lib/services/profile";
 import {
+  CLAN_ONLY_OWNER_REQUIRED,
   INVITE_LIST_EMPTY_MESSAGE,
   isUuid,
   isVisibility,
@@ -65,6 +67,21 @@ export const POST: APIRoute = async (context) => {
   }
   if (!ownProfile.isVerified && visibilityRaw !== "public") {
     return fail(RESTRICTED_VISIBILITY_UNVERIFIED);
+  }
+  if (visibilityRaw === "clan_only") {
+    let ownsClan = false;
+    try {
+      ownsClan = await userOwnsClan(supabase, user.id);
+    } catch (err) {
+      if (err instanceof ClanError) {
+        console.error("userOwnsClan failed", err);
+        return fail("Could not save this run");
+      }
+      throw err;
+    }
+    if (!ownsClan) {
+      return fail(CLAN_ONLY_OWNER_REQUIRED);
+    }
   }
   if (visibilityRaw === "invite_only" && inviteeIds.length < 1) {
     return fail(INVITE_LIST_EMPTY_MESSAGE);

@@ -751,6 +751,7 @@ export const VISIBILITIES = [
   "public",
   "friends_only",
   "invite_only",
+  "clan_only",
 ] as const satisfies readonly Enums<"run_visibility">[];
 
 export function isVisibility(value: string): value is Enums<"run_visibility"> {
@@ -758,7 +759,11 @@ export function isVisibility(value: string): value is Enums<"run_visibility"> {
 }
 
 /** Shared create/edit `?error=` when an unverified organizer posts a non-public visibility. */
-export const RESTRICTED_VISIBILITY_UNVERIFIED = "Verify your account to create friends-only or invite-only runs";
+export const RESTRICTED_VISIBILITY_UNVERIFIED =
+  "Verify your account to create friends-only, invite-only, or clan-only runs";
+
+/** Shared create/edit `?error=` when a verified non-owner posts `clan_only`. */
+export const CLAN_ONLY_OWNER_REQUIRED = "Only a clan owner can create a clan-only run";
 
 export const INVITE_LIST_EMPTY_MESSAGE = "Invite-only runs need at least one invitee";
 
@@ -948,7 +953,7 @@ async function assertNewInviteesAreFriends(
 }
 
 /**
- * Shared normalize/validate for organizer edits. Used by `updateRun` (public/friends-only)
+ * Shared normalize/validate for organizer edits. Used by `updateRun` (public/friends-only/clan-only)
  * and `setRunVisibilityAndInvites` (invite-only RPC) so S-13 checks stay in one place.
  */
 async function prepareOwnedActiveRunPatch(
