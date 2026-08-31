@@ -33,6 +33,7 @@ export interface CreateRunFormEditValues {
   inviteeIds: string[];
   confirmedCount: number;
   joinModeLocked: boolean;
+  extendedUntil: string | null;
 }
 
 interface Props {
@@ -118,8 +119,8 @@ export default function CreateRunForm({
       const d = parseLocalDatetime(startsAtLocal);
       if (!d) {
         next.starts_at = "Start time is invalid";
-      } else if (isEdit) {
-        if (!isRunActive(d, null)) {
+      } else if (edit) {
+        if (!isRunActive(d, null, edit.extendedUntil)) {
           next.starts_at = "Start time must keep the run active";
         }
       } else if (d.getTime() <= Date.now()) {

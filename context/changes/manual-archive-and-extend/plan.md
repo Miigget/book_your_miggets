@@ -391,19 +391,19 @@ Worker `Date` vs Postgres `now()` on `extended_until` can disagree by seconds (s
 
 #### Automated
 
-- [x] 1.1 npx supabase migration up applies this migration on a clean local DB
-- [x] 1.2 npm run db:types — extended_until on runs; archive_run / extend_run present; file not hand-edited
-- [x] 1.3 SQL smoke: live can_view_run, is_run_in_active_window, auto_join_run, runs_select_active_anon, runs_select_active_authenticated, runs_update_own use is_run_active_row (or equivalent) and have no interval '1 hour' audience window
-- [x] 1.4 SQL smoke: backfill stamps starts_at 2h ago; starts_at 10 minutes ago stays unstamped
-- [x] 1.5 SQL smoke: anon SELECT public audience-active only; elapsed extend and stamp hidden; confirmed/organizer/admin still SELECT archived
-- [x] 1.6 SQL smoke: 5th INSERT ok; 6th INSERT and 6th create_invite_only_run raise active_run_cap; archive then INSERT ok; elapsed-extend unstamped does not count
-- [x] 1.7 SQL smoke: archive_run organizer/admin/not_found/already_archived; authenticated cannot UPDATE archived_at or extended_until
-- [x] 1.8 SQL smoke: extend_run 1/2/3/6 one-shot; upcoming / already_extended / invalid_hours / admin non-owner
-- [x] 1.9 SQL smoke: clan_only branch still on can_view_run and runs_select_active_authenticated
+- [x] 1.1 npx supabase migration up applies this migration on a clean local DB — fd08d41
+- [x] 1.2 npm run db:types — extended_until on runs; archive_run / extend_run present; file not hand-edited — fd08d41
+- [x] 1.3 SQL smoke: live can_view_run, is_run_in_active_window, auto_join_run, runs_select_active_anon, runs_select_active_authenticated, runs_update_own use is_run_active_row (or equivalent) and have no interval '1 hour' audience window — fd08d41
+- [x] 1.4 SQL smoke: backfill stamps starts_at 2h ago; starts_at 10 minutes ago stays unstamped — fd08d41
+- [x] 1.5 SQL smoke: anon SELECT public audience-active only; elapsed extend and stamp hidden; confirmed/organizer/admin still SELECT archived — fd08d41
+- [x] 1.6 SQL smoke: 5th INSERT ok; 6th INSERT and 6th create_invite_only_run raise active_run_cap; archive then INSERT ok; elapsed-extend unstamped does not count — fd08d41
+- [x] 1.7 SQL smoke: archive_run organizer/admin/not_found/already_archived; authenticated cannot UPDATE archived_at or extended_until — fd08d41
+- [x] 1.8 SQL smoke: extend_run 1/2/3/6 one-shot; upcoming / already_extended / invalid_hours / admin non-owner — fd08d41
+- [x] 1.9 SQL smoke: clan_only branch still on can_view_run and runs_select_active_authenticated — fd08d41
   (N/A on origin/main: `clan_only` lives on feature/clan-runs. Adapted from S-15; S-21 must retarget `is_run_active_row` when it merges.)
-- [x] 1.10 npm run lint exits 0
-- [x] 1.11 npm run build exits 0
-- [x] 1.14 SQL smoke: list_player_public_runs RETURNS TABLE includes extended_until; query still unfiltered (no time predicate)
+- [x] 1.10 npm run lint exits 0 — fd08d41
+- [x] 1.11 npm run build exits 0 — fd08d41
+- [x] 1.14 SQL smoke: list_player_public_runs RETURNS TABLE includes extended_until; query still unfiltered (no time predicate) — fd08d41
 
 #### Manual
 
@@ -414,11 +414,11 @@ Worker `Date` vs Postgres `now()` on `extended_until` can disagree by seconds (s
 
 #### Automated
 
-- [ ] 2.1 npm run lint exits 0
-- [ ] 2.2 npm run build exits 0
-- [ ] 2.3 No remaining RUN_GRACE_MS / activeWindowStartsAfter / archiveDeadlineAt callers under src/
-- [ ] 2.4 mapRunRow / inventory splits use isRunActive including extended_until
-- [ ] 2.5 Create API contains the 5-active fail string; archiveRun / extendRun exist
+- [x] 2.1 npm run lint exits 0
+- [x] 2.2 npm run build exits 0
+- [x] 2.3 No remaining RUN_GRACE_MS / activeWindowStartsAfter / archiveDeadlineAt callers under src/
+- [x] 2.4 mapRunRow / inventory splits use isRunActive including extended_until
+- [x] 2.5 Create API contains the 5-active fail string; archiveRun / extendRun exist
 
 #### Manual
 

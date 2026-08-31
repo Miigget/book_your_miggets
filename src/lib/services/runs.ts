@@ -1,11 +1,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { isMapCategory } from "@/lib/map-categories";
-import {
-  activeWindowStartsAfter,
-  getRunLifecyclePhase,
-  isRunActive,
-  type ActiveRunLifecyclePhase,
-} from "@/lib/run-lifecycle";
+import { getRunLifecyclePhase, isRunActive, type ActiveRunLifecyclePhase } from "@/lib/run-lifecycle";
 import { utcDayRange, type RunListFilters } from "@/lib/run-list-filters";
 import { countConfirmedParticipants, getOwnParticipation } from "@/lib/services/participants";
 import type { Database, Enums, Tables } from "@/types/database";
@@ -24,6 +19,7 @@ export interface RunListItem {
   id: string;
   title: string | null;
   startsAt: string;
+  extendedUntil: string | null;
   maxParticipants: number;
   minPoints: number;
   joinMode: Enums<"join_mode">;
@@ -58,6 +54,7 @@ const RUN_SELECT = `
   title,
   starts_at,
   archived_at,
+  extended_until,
   max_participants,
   min_points,
   join_mode,
@@ -85,6 +82,7 @@ interface RunRow {
   title: string | null;
   starts_at: string;
   archived_at: string | null;
+  extended_until: string | null;
   max_participants: number;
   min_points: number;
   join_mode: Enums<"join_mode">;
@@ -153,6 +151,7 @@ function runFieldsFromRow(row: RunRow, confirmedCount: number) {
     id: row.id,
     title: row.title,
     startsAt: row.starts_at,
+    extendedUntil: row.extended_until,
     maxParticipants: row.max_participants,
     minPoints: row.min_points,
     joinMode: row.join_mode,
@@ -172,14 +171,15 @@ function runFieldsFromRow(row: RunRow, confirmedCount: number) {
 }
 
 function mapRunRow(row: RunRow, confirmedCount = 0, now = Date.now()): RunDetail | null {
-  const phase = getRunLifecyclePhase(row.starts_at, now);
+  if (!isRunActive(row.starts_at, row.archived_at, row.extended_until, now)) return null;
+  const phase = getRunLifecyclePhase(row.starts_at, row.archived_at, row.extended_until, now);
   if (phase === "archived") return null;
 
   return { ...runFieldsFromRow(row, confirmedCount), lifecyclePhase: phase };
 }
 
 function mapArchivedRunRow(row: RunRow, confirmedCount = 0, now = Date.now()): ArchivedRunDetail | null {
-  if (isRunActive(row.starts_at, row.archived_at, now)) return null;
+  if (isRunActive(row.starts_at, row.archived_at, row.extended_until, now)) return null;
 
   return { ...runFieldsFromRow(row, confirmedCount), lifecyclePhase: "archived" };
 }
@@ -257,11 +257,12 @@ export async function listActiveRuns(
   options: ListActiveRunsOptions = {},
 ): Promise<RunListItem[]> {
   const now = Date.now();
+  const nowIso = new Date(now).toISOString();
   let query = supabase
     .from("runs")
     .select(RUN_SELECT)
     .is("archived_at", null)
-    .gt("starts_at", activeWindowStartsAfter(now));
+    .or(`extended_until.is.null,extended_until.gt."${nowIso}"`);
 
   if (options.publicOnly) {
     query = query.eq("visibility", "public");
@@ -303,12 +304,13 @@ export async function getActiveRunById(supabase: AppSupabaseClient, id: string):
   if (!isUuid(id)) return null;
 
   const now = Date.now();
+  const nowIso = new Date(now).toISOString();
   const { data, error } = await supabase
     .from("runs")
     .select(RUN_SELECT)
     .eq("id", id)
     .is("archived_at", null)
-    .gt("starts_at", activeWindowStartsAfter(now))
+    .or(`extended_until.is.null,extended_until.gt."${nowIso}"`)
     .maybeSingle();
 
   if (error) {
@@ -344,7 +346,7 @@ export async function getOwnedActiveRunForEdit(
     throw new Error(`Failed to load run: ${error.message}`);
   }
   if (!data) return null;
-  if (!isRunActive(data.starts_at, data.archived_at, now)) return null;
+  if (!isRunActive(data.starts_at, data.archived_at, data.extended_until, now)) return null;
 
   return mapRunRow(data, 0, now);
 }
@@ -370,10 +372,10 @@ export async function listRunsForOrganizer(
   }
 
   const activeRows = rows
-    .filter((row) => isRunActive(row.starts_at, row.archived_at, now))
+    .filter((row) => isRunActive(row.starts_at, row.archived_at, row.extended_until, now))
     .sort((a, b) => Date.parse(a.starts_at) - Date.parse(b.starts_at));
   const archivedRows = rows
-    .filter((row) => !isRunActive(row.starts_at, row.archived_at, now))
+    .filter((row) => !isRunActive(row.starts_at, row.archived_at, row.extended_until, now))
     .sort((a, b) => Date.parse(b.starts_at) - Date.parse(a.starts_at));
 
   const pendingIds = activeRows.filter((row) => row.join_mode === "approval_required").map((row) => row.id);
@@ -437,10 +439,10 @@ export async function listRunsForParticipant(
 
   const rows = data as unknown as RunRow[];
   const activeRows = rows
-    .filter((row) => isRunActive(row.starts_at, row.archived_at, now))
+    .filter((row) => isRunActive(row.starts_at, row.archived_at, row.extended_until, now))
     .sort((a, b) => Date.parse(a.starts_at) - Date.parse(b.starts_at));
   const archivedRows = rows
-    .filter((row) => !isRunActive(row.starts_at, row.archived_at, now))
+    .filter((row) => !isRunActive(row.starts_at, row.archived_at, row.extended_until, now))
     .sort((a, b) => Date.parse(b.starts_at) - Date.parse(a.starts_at));
 
   const counts = await confirmedCountsForRuns(
@@ -494,6 +496,7 @@ function runRowFromPublicRpc(row: PlayerPublicRunRpcRow): { row: RunRow; confirm
       title: row.title,
       starts_at: row.starts_at,
       archived_at: row.archived_at,
+      extended_until: row.extended_until,
       max_participants: row.max_participants,
       min_points: row.min_points,
       join_mode: row.join_mode,
@@ -574,14 +577,14 @@ export async function listPlayerProfileRuns(
   }
 
   const incoming = rows
-    .filter((row) => isRunActive(row.starts_at, row.archived_at, now))
+    .filter((row) => isRunActive(row.starts_at, row.archived_at, row.extended_until, now))
     .sort((a, b) => Date.parse(a.starts_at) - Date.parse(b.starts_at))
     .slice(0, PLAYER_PROFILE_RUN_PREVIEW_LIMIT)
     .map((row) => mapRunRow(row, confirmedById.get(row.id) ?? 0, now))
     .filter((run): run is RunDetail => run !== null);
 
   const recent = rows
-    .filter((row) => !isRunActive(row.starts_at, row.archived_at, now))
+    .filter((row) => !isRunActive(row.starts_at, row.archived_at, row.extended_until, now))
     .sort((a, b) => Date.parse(b.starts_at) - Date.parse(a.starts_at))
     .slice(0, PLAYER_PROFILE_RUN_PREVIEW_LIMIT)
     .map((row) => mapArchivedRunRow(row, confirmedById.get(row.id) ?? 0, now))
@@ -760,6 +763,8 @@ export const RESTRICTED_VISIBILITY_UNVERIFIED = "Verify your account to create f
 
 export const INVITE_LIST_EMPTY_MESSAGE = "Invite-only runs need at least one invitee";
 
+export const ACTIVE_RUN_CAP_MESSAGE = "You already have 5 active runs. Archive one to create another.";
+
 export function parseInviteeIds(form: FormData): string[] {
   const ids = form
     .getAll("invitee_ids")
@@ -884,11 +889,14 @@ export function mapRunMapCategoryConstraintError(error: PostgrestErrorBlob): Run
   return null;
 }
 
-function mapRunWriteError(error: PostgrestErrorBlob): RunError | null {
+export function mapRunWriteError(error: PostgrestErrorBlob): RunError | null {
   const mappedCategory = mapRunMapCategoryConstraintError(error);
   if (mappedCategory) return mappedCategory;
 
   const blob = `${error.message} ${error.details ?? ""} ${error.hint ?? ""}`;
+  if (blob.includes("active_run_cap")) {
+    return new RunError(ACTIVE_RUN_CAP_MESSAGE);
+  }
   if (blob.includes("runs_title_max_length_chk") || blob.includes("title_max_length")) {
     return new RunError(`Title must be ${RUN_TITLE_MAX_LENGTH} characters or fewer`);
   }
@@ -965,17 +973,16 @@ async function prepareOwnedActiveRunPatch(
 
   const { data: existing, error: loadError } = await supabase
     .from("runs")
-    .select("id, max_participants")
+    .select("id, max_participants, starts_at, archived_at, extended_until")
     .eq("id", runId)
     .eq("organizer_id", userId)
     .is("archived_at", null)
-    .gt("starts_at", activeWindowStartsAfter())
     .maybeSingle();
 
   if (loadError) {
     throw new Error(`Failed to load run: ${loadError.message}`);
   }
-  if (!existing) {
+  if (!existing || !isRunActive(existing.starts_at, existing.archived_at, existing.extended_until)) {
     throw new RunError("Run not found or no longer active");
   }
 
@@ -1004,7 +1011,7 @@ async function prepareOwnedActiveRunPatch(
   if (Number.isNaN(startsAt.getTime())) {
     throw new RunError("Start time is invalid");
   }
-  if (!isRunActive(startsAt, null)) {
+  if (!isRunActive(startsAt, null, existing.extended_until)) {
     throw new RunError("Start time must keep the run active");
   }
 
@@ -1102,6 +1109,81 @@ export async function createInviteOnlyRun(
     throw new RunError("Could not create this run");
   }
   return data;
+}
+
+export async function countAudienceActiveRunsForOrganizer(
+  supabase: AppSupabaseClient,
+  organizerId: string,
+): Promise<number> {
+  const now = Date.now();
+  const { data, error } = await supabase
+    .from("runs")
+    .select("starts_at, archived_at, extended_until")
+    .eq("organizer_id", organizerId)
+    .is("archived_at", null);
+
+  if (error) {
+    throw new Error(`Failed to count active runs: ${error.message}`);
+  }
+
+  return data.filter((row) => isRunActive(row.starts_at, row.archived_at, row.extended_until, now)).length;
+}
+
+const BANNED_RUN_MUTATION_MESSAGE = "Your account is banned";
+
+export async function archiveRun(supabase: AppSupabaseClient, runId: string): Promise<void> {
+  const { data: outcome, error } = await supabase.rpc("archive_run", { p_run_id: runId });
+
+  if (error) {
+    console.error("archive_run failed", error);
+    throw new RunError("Could not archive this run");
+  }
+
+  switch (outcome) {
+    case "archived":
+      return;
+    case "already_archived":
+      throw new RunError("This run is already archived.");
+    case "not_found":
+    case "not_authenticated":
+      throw new RunError("Run not found or no longer active");
+    case "banned":
+      throw new RunError(BANNED_RUN_MUTATION_MESSAGE);
+    default:
+      console.error("archive_run returned unexpected outcome", outcome);
+      throw new RunError("Could not archive this run");
+  }
+}
+
+export type ExtendRunHours = 1 | 2 | 3 | 6;
+
+export async function extendRun(supabase: AppSupabaseClient, runId: string, hours: ExtendRunHours): Promise<void> {
+  const { data: outcome, error } = await supabase.rpc("extend_run", { p_run_id: runId, p_hours: hours });
+
+  if (error) {
+    console.error("extend_run failed", error);
+    throw new RunError("Could not extend this run");
+  }
+
+  switch (outcome) {
+    case "extended":
+      return;
+    case "not_in_progress":
+      throw new RunError("You can only extend a run that is in progress");
+    case "already_extended":
+      throw new RunError("This run has already been extended");
+    case "invalid_hours":
+      throw new RunError("Extend duration must be 1, 2, 3, or 6 hours");
+    case "not_found":
+    case "not_active":
+    case "not_authenticated":
+      throw new RunError("Run not found or no longer active");
+    case "banned":
+      throw new RunError(BANNED_RUN_MUTATION_MESSAGE);
+    default:
+      console.error("extend_run returned unexpected outcome", outcome);
+      throw new RunError("Could not extend this run");
+  }
 }
 
 /**

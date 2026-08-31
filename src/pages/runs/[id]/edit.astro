@@ -139,6 +139,7 @@ const backHref = run ? `/runs/${run.id}` : "/runs";
                   inviteeIds,
                   confirmedCount,
                   joinModeLocked,
+                  extendedUntil: run.extendedUntil,
                 }}
                 client:load
               />

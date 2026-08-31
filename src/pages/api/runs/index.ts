@@ -1,20 +1,23 @@
 import type { APIRoute } from "astro";
-import { createClient } from "@/lib/supabase";
+import { MAX_ACTIVE_RUNS_PER_ORGANIZER } from "@/lib/run-lifecycle";
 import { ProfileError, getOwnProfile, setOwnNickname } from "@/lib/services/profile";
 import {
+  ACTIVE_RUN_CAP_MESSAGE,
+  countAudienceActiveRunsForOrganizer,
   createInviteOnlyRun,
   ensureOwnProfile,
   INVITE_LIST_EMPTY_MESSAGE,
   isJoinMode,
   isUuid,
   isVisibility,
-  mapRunMapCategoryConstraintError,
+  mapRunWriteError,
   normalizeOptionalRunTitle,
   normalizeRunMapAndCategory,
   parseInviteeIds,
   RESTRICTED_VISIBILITY_UNVERIFIED,
   RunError,
 } from "@/lib/services/runs";
+import { createClient } from "@/lib/supabase";
 
 function formString(form: FormData, key: string, fallback = ""): string {
   return ((form.get(key) as string | null) ?? fallback).trim();
@@ -82,6 +85,17 @@ export const POST: APIRoute = async (context) => {
       console.error("setOwnNickname failed", err);
       return fail("Could not save nickname");
     }
+  }
+
+  let activeCount: number;
+  try {
+    activeCount = await countAudienceActiveRunsForOrganizer(supabase, user.id);
+  } catch (err) {
+    console.error("countAudienceActiveRunsForOrganizer failed", err);
+    return fail("Could not create this run");
+  }
+  if (activeCount >= MAX_ACTIVE_RUNS_PER_ORGANIZER) {
+    return fail(ACTIVE_RUN_CAP_MESSAGE);
   }
 
   if (!isVisibility(visibilityRaw)) {
@@ -195,7 +209,7 @@ export const POST: APIRoute = async (context) => {
 
   if (insertError) {
     console.error("create run insert failed", insertError);
-    const mapped = mapRunMapCategoryConstraintError(insertError);
+    const mapped = mapRunWriteError(insertError);
     if (mapped) {
       return fail(mapped.message);
     }
