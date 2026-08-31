@@ -352,15 +352,15 @@ Note: YOLO skipped human curl confirm for 2.4–2.9 (residual risk). Automated 2
 
 #### Automated
 
-- [x] 3.1 npm run lint exits 0
-- [x] 3.2 npm run build exits 0
+- [x] 3.1 npm run lint exits 0 — 0ffac8b
+- [x] 3.2 npm run build exits 0 — 0ffac8b
 
 #### Manual
 
-- [x] 3.3 Compose shows a file input; client blocks oversize/wrong MIME; successful post shows the image in the list without reload if JSON includes screenshotUrl
-- [x] 3.4 Screenshot-only comments show the image and no empty body paragraph; text+screenshot shows both
-- [x] 3.5 Guest and pending applicant still do not see the Comments section; a restricted run still 404s for outsiders (no public image URL to guess from the page)
-- [x] 3.6 Archived readers (confirmed / organizer / admin) still see images; compose and like stay hidden
-- [x] 3.7 Unseated organizer/admin can see images when they can already read, and still have no compose unless confirmed
+- [x] 3.3 Compose shows a file input; client blocks oversize/wrong MIME; successful post shows the image in the list without reload if JSON includes screenshotUrl — 0ffac8b
+- [x] 3.4 Screenshot-only comments show the image and no empty body paragraph; text+screenshot shows both — 0ffac8b
+- [x] 3.5 Guest and pending applicant still do not see the Comments section; a restricted run still 404s for outsiders (no public image URL to guess from the page) — 0ffac8b
+- [x] 3.6 Archived readers (confirmed / organizer / admin) still see images; compose and like stay hidden — 0ffac8b
+- [x] 3.7 Unseated organizer/admin can see images when they can already read, and still have no compose unless confirmed — 0ffac8b
 
 Note: YOLO skipped human UI confirm for 3.3–3.7 (residual risk). Automated 3.1–3.2 passed (`npm run lint` 0 errors, `npm run build` exit 0).
