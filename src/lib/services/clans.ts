@@ -19,6 +19,8 @@ export const CLAN_ALREADY_MEMBER = "You already belong to a clan.";
 export const CLAN_TAG_TAKEN = "That clan tag is already taken.";
 export const CLAN_PICTURE_REJECT = PICTURE_REJECT_MESSAGE;
 export const CLAN_CREATE_FAILED = "Could not create clan";
+export const CLAN_UPDATE_FAILED = "Could not update clan";
+export const CLAN_DELETE_FAILED = "Could not delete this clan";
 export const CLAN_LOAD_FAILED = "Could not load clans";
 
 export class ClanError extends Error {
@@ -46,6 +48,7 @@ export interface ClanListItem {
 }
 
 export interface ClanDetail extends ClanListItem {
+  ownerId: string;
   members: ClanMember[];
 }
 
@@ -157,7 +160,7 @@ export async function getClanById(supabase: AppSupabaseClient, id: string): Prom
 
   const { data: clan, error } = await supabase
     .from("clans")
-    .select("id, name, tag, points, picture_path")
+    .select("id, name, tag, points, picture_path, owner_id")
     .eq("id", id)
     .maybeSingle();
 
@@ -210,6 +213,7 @@ export async function getClanById(supabase: AppSupabaseClient, id: string): Prom
     tag: clan.tag,
     points: clan.points,
     picturePath: clan.picture_path,
+    ownerId: clan.owner_id,
     members,
   };
 }
@@ -275,4 +279,123 @@ export async function createClan(
   }
 
   return { id: data.id };
+}
+
+export async function updateClanAsAdmin(
+  supabase: AppSupabaseClient,
+  clanId: string,
+  input: { name: string; tag: string; pictureFile?: File | null },
+): Promise<void> {
+  if (!isUuid(clanId)) {
+    throw new ClanError(CLAN_UPDATE_FAILED);
+  }
+
+  const name = parseClanName(input.name);
+  const tag = parseClanTag(input.tag);
+
+  const { data: existing, error: loadError } = await supabase
+    .from("clans")
+    .select("id, owner_id, picture_path")
+    .eq("id", clanId)
+    .maybeSingle();
+
+  if (loadError) {
+    console.error("updateClanAsAdmin load failed", loadError);
+    throw new ClanError(CLAN_UPDATE_FAILED);
+  }
+  if (!existing) {
+    throw new ClanError(CLAN_UPDATE_FAILED);
+  }
+
+  let picturePath = existing.picture_path;
+  let uploadedPath: string | null = null;
+  const previousPath = existing.picture_path;
+
+  const pictureFile = input.pictureFile;
+  if (pictureFile && pictureFile.size > 0) {
+    try {
+      const { mime, ext } = assertPublicImageFile(pictureFile);
+      const nextPath = clanPictureObjectPath(existing.owner_id, clanId, ext);
+      if (previousPath === nextPath) {
+        await removeObject(supabase, CLAN_PICTURES_BUCKET, previousPath);
+      }
+      const bytes = new Uint8Array(await pictureFile.arrayBuffer());
+      await uploadPublicImage(supabase, {
+        bucket: CLAN_PICTURES_BUCKET,
+        path: nextPath,
+        bytes,
+        mime,
+      });
+      uploadedPath = nextPath;
+      picturePath = nextPath;
+    } catch (err) {
+      if (err instanceof StorageImageError) {
+        throw new ClanError(CLAN_PICTURE_REJECT);
+      }
+      console.error("admin clan picture upload failed", err);
+      throw new ClanError(CLAN_UPDATE_FAILED);
+    }
+  }
+
+  const { data, error } = await supabase
+    .from("clans")
+    .update({ name, tag, picture_path: picturePath })
+    .eq("id", clanId)
+    .select("id");
+
+  if (error) {
+    console.error("updateClanAsAdmin failed", error);
+    if (uploadedPath && uploadedPath !== previousPath) {
+      await removeObject(supabase, CLAN_PICTURES_BUCKET, uploadedPath);
+    }
+    const mapped = mapClanCreateConstraintError(error);
+    if (mapped) throw mapped;
+    throw new ClanError(CLAN_UPDATE_FAILED);
+  }
+
+  if (data.length === 0) {
+    if (uploadedPath && uploadedPath !== previousPath) {
+      await removeObject(supabase, CLAN_PICTURES_BUCKET, uploadedPath);
+    }
+    throw new ClanError(CLAN_UPDATE_FAILED);
+  }
+
+  if (uploadedPath && previousPath && previousPath !== uploadedPath) {
+    await removeObject(supabase, CLAN_PICTURES_BUCKET, previousPath);
+  }
+}
+
+export async function deleteClanAsAdmin(supabase: AppSupabaseClient, clanId: string): Promise<void> {
+  if (!isUuid(clanId)) {
+    throw new ClanError(CLAN_DELETE_FAILED);
+  }
+
+  const { data: existing, error: loadError } = await supabase
+    .from("clans")
+    .select("id, picture_path")
+    .eq("id", clanId)
+    .maybeSingle();
+
+  if (loadError) {
+    console.error("deleteClanAsAdmin load failed", loadError);
+    throw new ClanError(CLAN_DELETE_FAILED);
+  }
+  if (!existing) {
+    throw new ClanError(CLAN_DELETE_FAILED);
+  }
+
+  const { data, error } = await supabase.from("clans").delete().eq("id", clanId).select("id");
+
+  if (error) {
+    console.error("deleteClanAsAdmin failed", error);
+    throw new ClanError(CLAN_DELETE_FAILED);
+  }
+
+  if (data.length === 0) {
+    throw new ClanError(CLAN_DELETE_FAILED);
+  }
+
+  if (existing.picture_path) {
+    await removeObject(supabase, CLAN_PICTURES_BUCKET, existing.picture_path);
+  }
 }
