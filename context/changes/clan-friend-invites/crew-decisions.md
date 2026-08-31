@@ -22,7 +22,7 @@ Mode: **YOLO**. Crew Lead answered specialist questions; the human was asked onl
 | 2026-08-31 | 10x-impl-review p1 | APPROVED (0 findings) |
 | 2026-08-31 | 10x-implement p2 | owner picker + send/cancel APIs; commit 7e2ced6 |
 | 2026-08-31 | 10x-impl-review p2 | APPROVED (0 findings) |
-| 2026-08-31 | 10x-implement p3 | profile inbox + accept/decline APIs |
+| 2026-08-31 | 10x-implement p3 | profile inbox + accept/decline APIs; commit d9dc203 |
 
 ## Decisions the Crew Lead made (no human)
 
@@ -51,7 +51,7 @@ Mode: **YOLO**. Crew Lead answered specialist questions; the human was asked onl
 - **roadmap-skip** — Skip in-progress flip on PREDIRTY `roadmap.md`. Why: parallel release owns that dirty file.
 - **commit-p1** — YOLO ritual COMMIT_OK for Phase 1. SHA `3869abd`. Refs: #83.
 - **commit-p2** — YOLO ritual COMMIT_OK for Phase 2. SHA `7e2ced6`. Refs: #83.
-- **commit-p3** — YOLO ritual COMMIT_OK for Phase 3 after 3.1/3.2/3.3. Refs: #83. Keep `implementing` because manual Progress rows remain.
+- **commit-p3** — YOLO ritual COMMIT_OK for Phase 3. SHA `d9dc203`. Refs: #83. Keep `implementing` because manual Progress rows remain.
 - **roadmap-skip-p3** — Do not edit `context/foundation/roadmap.md` (parallel release / parent override).
 - Cite PRD v2 FR-015 (clan invites), not the old `prd.md` FR-015 (archived-run history).
 - **F3** — Clan detail error banner. Chose **fix**: `serverError && (!isAdmin || isOwner)`; do not invert `!isAdmin`.

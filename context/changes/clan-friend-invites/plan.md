@@ -365,9 +365,9 @@ Additive only: new enum, table, policies, triggers (accept DELETE, clans teardow
 
 #### Automated
 
-- [x] 3.1 npm run lint exits 0
-- [x] 3.2 npm run build exits 0
-- [x] 3.3 AGENTS.md documents clan-invite inbox on /profile and owner-only picker; PROTECTED_ROUTES still does not prefix-protect /clans
+- [x] 3.1 npm run lint exits 0 — d9dc203
+- [x] 3.2 npm run build exits 0 — d9dc203
+- [x] 3.3 AGENTS.md documents clan-invite inbox on /profile and owner-only picker; PROTECTED_ROUTES still does not prefix-protect /clans — d9dc203
 
 #### Manual
 
