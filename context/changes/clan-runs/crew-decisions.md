@@ -22,12 +22,16 @@ Mode: **YOLO**. Crew Lead answered specialist questions; the human was asked onl
 | 2026-08-31 | 10x-impl-review p1 | APPROVED |
 | 2026-08-31 | commit p1 | 9547b93 on feature/clan-runs, Refs #85 |
 | 2026-08-31 | 10x-implement p2 | owner gate + form/APIs; 2.1–2.5 [x]; 2.6–2.10 skipped YOLO |
+| 2026-08-31 | 10x-impl-review p2 | APPROVED |
+| 2026-08-31 | commit p2 | 138405f on feature/clan-runs, Refs #85 |
+| 2026-08-31 | 10x-implement p3 | Clan section + AGENTS.md; 3.1–3.6 [x]; 3.7–3.14 skipped YOLO |
+| 2026-08-31 | 10x-impl-review p3 | APPROVED |
 
 ## Decisions the Crew Lead made (no human)
 
 ### Critical
 - **scope-dashboard-bug** — Include the Dashboard "Could not load your runs" regression (archived friends-only / invite-only) in this S-21 change? Chose **yes, in-scope**. Why: user asked in the same invocation; dashboard is the organizer hub clan runs will use; the restricted-run SELECT path is the same leak/load surface FR-028 already cares about.
-- **plan-clan-id** — Store `runs.clan_id` now? Chose **A: no clan_id; live `is_same_clan(organizer_id, uid)`**. Why: membership is live like friends-only; one clan per player; leave/transfer do not exist; S-23 can add a FK later without freezing the roster.
+- **branch-contamination** — Parallel comment-screenshots commit `77e5541` landed on `feature/clan-runs` (also exists independently as `8273109` on `feature/comment-screenshots`). Chose **leave it for now; do not hard-reset**. Why: user rule forbids hard reset without explicit ask; drop it before `/gh-ship` with `git rebase --onto 138405f 77e5541 feature/clan-runs` after p3 is committed.
 
 ### Non-obvious
 - **research-first** — Hire `/10x-research` before plan? Chose **yes**. Why: new visibility axis plus a dashboard load failure needs a map of run create, RLS/SELECT, invites, and clan membership before S-21 can be planned without guessing.
@@ -52,6 +56,7 @@ Mode: **YOLO**. Crew Lead answered specialist questions; the human was asked onl
 
 - Phase 1.8 Dashboard Incoming/Past UI: skipped (YOLO residual risk). SQL smoke as authenticated organizer succeeded (SQLSTATE 00000); rendered dashboard catch copy was not click-tested.
 - Phase 2.6–2.10 create/edit/404 click-through: skipped (YOLO residual risk).
+- Phase 3.7–3.14 catalog/404/comments/dashboard click-through: skipped (YOLO residual risk).
 
 ## Stop / escape hatches
 

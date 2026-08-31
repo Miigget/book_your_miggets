@@ -356,11 +356,11 @@ None (no pgTAP). Phase 1 SQL smoke under `authenticated` / `anon` roles is the a
 
 #### Automated
 
-- [x] 2.1 isVisibility("clan_only") is true; invite-only still uses existing RPCs only
-- [x] 2.2 Create/edit API unverified vs non-owner vs owner gates behave as specified
-- [x] 2.3 CreateRunForm hides clan_only unless ownsClan or edit visibility is clan_only; no invitee fieldset
-- [x] 2.4 npm run lint passes
-- [x] 2.5 npm run build passes
+- [x] 2.1 isVisibility("clan_only") is true; invite-only still uses existing RPCs only — 138405f
+- [x] 2.2 Create/edit API unverified vs non-owner vs owner gates behave as specified — 138405f
+- [x] 2.3 CreateRunForm hides clan_only unless ownsClan or edit visibility is clan_only; no invitee fieldset — 138405f
+- [x] 2.4 npm run lint passes — 138405f
+- [x] 2.5 npm run build passes — 138405f
 
 #### Manual
 
@@ -374,12 +374,12 @@ None (no pgTAP). Phase 1 SQL smoke under `authenticated` / `anon` roles is the a
 
 #### Automated
 
-- [ ] 3.1 partitionActiveRuns never puts clan_only in publicRuns; members in clanRuns; admin leftovers in Restricted
-- [ ] 3.2 Guest /runs and landing still publicOnly; signed-in /runs does not
-- [ ] 3.3 PROTECTED_ROUTES still does not prefix-protect /runs
-- [ ] 3.4 AGENTS.md names Clan section and clan-only 404
-- [ ] 3.5 npm run lint passes
-- [ ] 3.6 npm run build passes
+- [x] 3.1 partitionActiveRuns never puts clan_only in publicRuns; members in clanRuns; admin leftovers in Restricted
+- [x] 3.2 Guest /runs and landing still publicOnly; signed-in /runs does not
+- [x] 3.3 PROTECTED_ROUTES still does not prefix-protect /runs
+- [x] 3.4 AGENTS.md names Clan section and clan-only 404
+- [x] 3.5 npm run lint passes
+- [x] 3.6 npm run build passes
 
 #### Manual
 

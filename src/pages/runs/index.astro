@@ -20,6 +20,7 @@ const filtersActive = hasActiveFilters(filters);
 let publicRuns: RunListItem[] = [];
 let friendsRuns: RunListItem[] = [];
 let invitedRuns: RunListItem[] = [];
+let clanRuns: RunListItem[] = [];
 let restrictedAdminRuns: RunListItem[] = [];
 let loadError: string | null = null;
 
@@ -30,27 +31,25 @@ if (!supabase) {
     const runs = user
       ? await listActiveRuns(supabase, filters)
       : await listActiveRuns(supabase, filters, { publicOnly: true });
-    const facts = user
-      ? await loadRunListViewerFacts(
-          supabase,
-          user.id,
-          isAdmin,
-          runs.map((run) => run.id),
-        )
-      : emptyRunListViewerFacts();
-    ({ publicRuns, friendsRuns, invitedRuns, restrictedAdminRuns } = partitionActiveRuns(runs, facts));
+    const facts = user ? await loadRunListViewerFacts(supabase, user.id, isAdmin, runs) : emptyRunListViewerFacts();
+    ({ publicRuns, friendsRuns, invitedRuns, clanRuns, restrictedAdminRuns } = partitionActiveRuns(runs, facts));
   } catch (err) {
     loadError = err instanceof Error ? err.message : "Failed to load runs.";
   }
 }
 
 const hasAnyRuns =
-  publicRuns.length > 0 || friendsRuns.length > 0 || invitedRuns.length > 0 || restrictedAdminRuns.length > 0;
+  publicRuns.length > 0 ||
+  friendsRuns.length > 0 ||
+  invitedRuns.length > 0 ||
+  clanRuns.length > 0 ||
+  restrictedAdminRuns.length > 0;
 
 const sections = [
   { title: "Public", runs: publicRuns, subtitle: null as string | null },
   { title: "Friends", runs: friendsRuns, subtitle: null },
   { title: "Invited", runs: invitedRuns, subtitle: null },
+  { title: "Clan", runs: clanRuns, subtitle: null },
   { title: "Restricted", runs: restrictedAdminRuns, subtitle: "Guests cannot see these." },
 ].filter((section) => section.runs.length > 0);
 ---
