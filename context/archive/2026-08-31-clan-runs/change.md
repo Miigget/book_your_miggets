@@ -1,10 +1,10 @@
 ---
 change_id: clan-runs
 title: Let clan owners create clan-only runs
-status: impl_reviewed
+status: archived
 created: 2026-08-31
 updated: 2026-08-31
-archived_at: null
+archived_at: 2026-08-31T13:33:03Z
 ---
 
 ## Notes
