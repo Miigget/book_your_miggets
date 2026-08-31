@@ -683,6 +683,90 @@ export async function cancelClanInvite(supabase: AppSupabaseClient, ownerId: str
   }
 }
 
+function mapAcceptClanInviteError(error: PostgrestErrorBlob): ClanError | null {
+  const blob = `${error.message} ${error.details ?? ""} ${error.hint ?? ""}`;
+  if (error.code === "23505" && blob.includes("clan_members_pkey")) {
+    return new ClanError(CLAN_ALREADY_MEMBER);
+  }
+  if (blob.includes("are_friends") || error.code === "42501") {
+    return new ClanError(CLAN_INVITE_MUST_BE_FRIENDS_WITH_OWNER);
+  }
+  return null;
+}
+
+export async function acceptClanInvite(supabase: AppSupabaseClient, viewerId: string, inviteId: string): Promise<void> {
+  if (!isUuid(viewerId) || !isUuid(inviteId)) {
+    throw new ClanError(CLAN_INVITE_NOT_PENDING);
+  }
+
+  const { data: existing, error: loadError } = await supabase
+    .from("clan_invites")
+    .select("id, inviter_id, status")
+    .eq("id", inviteId)
+    .eq("invitee_id", viewerId)
+    .maybeSingle();
+
+  if (loadError) {
+    console.error("acceptClanInvite load failed", loadError);
+    throw new ClanError(CLAN_INVITE_UPDATE_FAILED);
+  }
+
+  if (existing?.status !== "pending") {
+    throw new ClanError(CLAN_INVITE_NOT_PENDING);
+  }
+
+  const friendIds = await loadFriendIdSet(supabase, viewerId, CLAN_INVITE_UPDATE_FAILED);
+  if (!friendIds.has(existing.inviter_id)) {
+    throw new ClanError(CLAN_INVITE_MUST_BE_FRIENDS_WITH_OWNER);
+  }
+
+  const { data, error } = await supabase
+    .from("clan_invites")
+    .delete()
+    .eq("id", inviteId)
+    .eq("invitee_id", viewerId)
+    .eq("status", "pending")
+    .select("id");
+
+  if (error) {
+    console.error("acceptClanInvite failed", error);
+    const mapped = mapAcceptClanInviteError(error);
+    if (mapped) throw mapped;
+    throw new ClanError(CLAN_INVITE_UPDATE_FAILED);
+  }
+
+  if (data.length === 0) {
+    throw new ClanError(CLAN_INVITE_NOT_PENDING);
+  }
+}
+
+export async function declineClanInvite(
+  supabase: AppSupabaseClient,
+  viewerId: string,
+  inviteId: string,
+): Promise<void> {
+  if (!isUuid(viewerId) || !isUuid(inviteId)) {
+    throw new ClanError(CLAN_INVITE_NOT_PENDING);
+  }
+
+  const { data, error } = await supabase
+    .from("clan_invites")
+    .update({ status: "declined" })
+    .eq("id", inviteId)
+    .eq("invitee_id", viewerId)
+    .eq("status", "pending")
+    .select("id");
+
+  if (error) {
+    console.error("declineClanInvite failed", error);
+    throw new ClanError(CLAN_INVITE_UPDATE_FAILED);
+  }
+
+  if (data.length === 0) {
+    throw new ClanError(CLAN_INVITE_NOT_PENDING);
+  }
+}
+
 export async function listIncomingClanInvites(
   supabase: AppSupabaseClient,
   viewerId: string,

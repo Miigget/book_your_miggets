@@ -20,6 +20,9 @@ Mode: **YOLO**. Crew Lead answered specialist questions; the human was asked onl
 | 2026-08-31 | 10x-plan-review (re-review) | SOUND — F1–F6 landed; status plan_reviewed |
 | 2026-08-31 | 10x-implement p1 | schema + accept trigger; commit 3869abd on feature/clan-friend-invites |
 | 2026-08-31 | 10x-impl-review p1 | APPROVED (0 findings) |
+| 2026-08-31 | 10x-implement p2 | owner picker + send/cancel APIs; commit 7e2ced6 |
+| 2026-08-31 | 10x-impl-review p2 | APPROVED (0 findings) |
+| 2026-08-31 | 10x-implement p3 | profile inbox + accept/decline APIs |
 
 ## Decisions the Crew Lead made (no human)
 
@@ -47,6 +50,9 @@ Mode: **YOLO**. Crew Lead answered specialist questions; the human was asked onl
 - **branch** — Phase 1 ritual: `git checkout -b feature/clan-friend-invites` from main, then commit only touched set. Why: trunk branching; keep release agent’s unstaged foundation files off our commit.
 - **roadmap-skip** — Skip in-progress flip on PREDIRTY `roadmap.md`. Why: parallel release owns that dirty file.
 - **commit-p1** — YOLO ritual COMMIT_OK for Phase 1. SHA `3869abd`. Refs: #83.
+- **commit-p2** — YOLO ritual COMMIT_OK for Phase 2. SHA `7e2ced6`. Refs: #83.
+- **commit-p3** — YOLO ritual COMMIT_OK for Phase 3 after 3.1/3.2/3.3. Refs: #83. Keep `implementing` because manual Progress rows remain.
+- **roadmap-skip-p3** — Do not edit `context/foundation/roadmap.md` (parallel release / parent override).
 - Cite PRD v2 FR-015 (clan invites), not the old `prd.md` FR-015 (archived-run history).
 - **F3** — Clan detail error banner. Chose **fix**: `serverError && (!isAdmin || isOwner)`; do not invert `!isAdmin`.
 - **F4** — Copy constant. Chose **fix**: new send-path constant for owner; keep `CLAN_ALREADY_MEMBER` (“You already belong…”) for viewer/Accept PK.
@@ -60,6 +66,8 @@ Mode: **YOLO**. Crew Lead answered specialist questions; the human was asked onl
 ## Human-action gates
 
 - Phase 1 Local Studio (1.6, 1.10): skipped (YOLO residual risk) — SQL smoke + advisors covered behavior; columns/enum/unique/grants not eyeballed in Studio UI.
+- Phase 2 manual UI (2.4–2.11, 2.13): skipped (YOLO residual risk) — guest/non-owner/owner picker, forced POST copy, reopen, cancel, admin-owner banner not click-tested.
+- Phase 3 manual UI (3.4–3.9): skipped (YOLO residual risk) — Accept/Decline/Cancel click-through, unfriend stale Accept, two-pending clear, guest 404/email/runs leak not click-tested.
 
 ## Stop / escape hatches
 

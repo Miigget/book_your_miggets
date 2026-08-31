@@ -1,0 +1,105 @@
+---
+import NicknameLink from "@/components/NicknameLink.astro";
+import type { ClanInviteInboxRow } from "@/lib/services/clans";
+
+interface Props {
+  verified: boolean;
+  incoming: ClanInviteInboxRow[];
+  outgoing: ClanInviteInboxRow[];
+}
+
+const { verified, incoming, outgoing } = Astro.props;
+const empty = incoming.length === 0 && outgoing.length === 0;
+
+const buttonClass =
+  "rounded-lg border border-white/20 px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-white/10";
+const declineClass =
+  "rounded-lg border border-red-400/40 px-3 py-1.5 text-xs font-medium text-red-200 transition-colors hover:bg-red-500/20";
+---
+
+<section class="mt-8 rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur-xl">
+  <h2 class="mb-4 text-lg font-semibold text-white">Clan invites</h2>
+
+  {
+    !verified ? (
+      <p class="text-sm text-blue-100/70">Clan invites require friends with the clan owner.</p>
+    ) : empty ? (
+      <p class="text-sm text-blue-100/70">No pending clan invites.</p>
+    ) : (
+      <div class="space-y-6">
+        <div>
+          <h3 class="mb-3 text-sm font-medium text-blue-100/80">Incoming</h3>
+          {incoming.length === 0 ? (
+            <p class="text-sm text-blue-100/50">None</p>
+          ) : (
+            <ul class="space-y-3">
+              {incoming.map((row) => (
+                <li class="flex flex-wrap items-center justify-between gap-3 border-b border-white/10 pb-3 last:border-b-0 last:pb-0">
+                  <div class="min-w-0">
+                    <a
+                      href={`/clans/${row.clanId}`}
+                      class="text-purple-300 transition-colors hover:text-purple-100 hover:underline"
+                    >
+                      {row.clanName} [{row.clanTag}]
+                    </a>
+                    <p class="mt-0.5 text-sm text-blue-100/70">
+                      from <NicknameLink userId={row.userId} nickname={row.nickname} />
+                    </p>
+                  </div>
+                  <div class="flex flex-wrap gap-2">
+                    <form method="POST" action="/api/clans/invites/accept">
+                      <input type="hidden" name="invite_id" value={row.id} />
+                      <input type="hidden" name="redirect" value="/profile" />
+                      <button type="submit" class:list={[buttonClass]}>
+                        Accept
+                      </button>
+                    </form>
+                    <form method="POST" action="/api/clans/invites/decline">
+                      <input type="hidden" name="invite_id" value={row.id} />
+                      <input type="hidden" name="redirect" value="/profile" />
+                      <button type="submit" class:list={[declineClass]}>
+                        Decline
+                      </button>
+                    </form>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+
+        <div>
+          <h3 class="mb-3 text-sm font-medium text-blue-100/80">Outgoing</h3>
+          {outgoing.length === 0 ? (
+            <p class="text-sm text-blue-100/50">None</p>
+          ) : (
+            <ul class="space-y-3">
+              {outgoing.map((row) => (
+                <li class="flex flex-wrap items-center justify-between gap-3 border-b border-white/10 pb-3 last:border-b-0 last:pb-0">
+                  <div class="min-w-0">
+                    <a
+                      href={`/clans/${row.clanId}`}
+                      class="text-purple-300 transition-colors hover:text-purple-100 hover:underline"
+                    >
+                      {row.clanName} [{row.clanTag}]
+                    </a>
+                    <p class="mt-0.5 text-sm text-blue-100/70">
+                      to <NicknameLink userId={row.userId} nickname={row.nickname} />
+                    </p>
+                  </div>
+                  <form method="POST" action="/api/clans/invites/cancel">
+                    <input type="hidden" name="invite_id" value={row.id} />
+                    <input type="hidden" name="redirect" value="/profile" />
+                    <button type="submit" class:list={[buttonClass]}>
+                      Cancel
+                    </button>
+                  </form>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+      </div>
+    )
+  }
+</section>

@@ -344,10 +344,10 @@ Additive only: new enum, table, policies, triggers (accept DELETE, clans teardow
 
 #### Automated
 
-- [x] 2.1 npm run lint exits 0
-- [x] 2.2 npm run build exits 0
-- [x] 2.3 PROTECTED_ROUTES has /clans/new and not /clans; friend-graph load on clan detail is owner-only
-- [x] 2.12 Page-level ?error= is serverError && (!isAdmin || isOwner); AdminClanControls still gets serverError; not inverted to admin-only
+- [x] 2.1 npm run lint exits 0 — 7e2ced6
+- [x] 2.2 npm run build exits 0 — 7e2ced6
+- [x] 2.3 PROTECTED_ROUTES has /clans/new and not /clans; friend-graph load on clan detail is owner-only — 7e2ced6
+- [x] 2.12 Page-level ?error= is serverError && (!isAdmin || isOwner); AdminClanControls still gets serverError; not inverted to admin-only — 7e2ced6
 
 #### Manual
 
@@ -365,9 +365,9 @@ Additive only: new enum, table, policies, triggers (accept DELETE, clans teardow
 
 #### Automated
 
-- [ ] 3.1 npm run lint exits 0
-- [ ] 3.2 npm run build exits 0
-- [ ] 3.3 AGENTS.md documents clan-invite inbox on /profile and owner-only picker; PROTECTED_ROUTES still does not prefix-protect /clans
+- [x] 3.1 npm run lint exits 0
+- [x] 3.2 npm run build exits 0
+- [x] 3.3 AGENTS.md documents clan-invite inbox on /profile and owner-only picker; PROTECTED_ROUTES still does not prefix-protect /clans
 
 #### Manual
 
