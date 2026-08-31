@@ -28,6 +28,12 @@ Mode: **YOLO**. Crew Lead answered specialist questions; the human was asked onl
 | 2026-08-31T13:50 | 10x-plan-review | SOUND; F1–F3 FIXED; status plan_reviewed |
 | 2026-08-31T13:52 | git | branch feature/manual-archive-and-extend from origin/main; clan-runs WIP in stash@{0} |
 | 2026-08-31T14:05 | 10x-implement p1 | mismatch: no clan_only on main; Crew Lead adapt S-15 |
+| 2026-08-31T14:25 | 10x-implement p1 | commit fd08d41; 1.9 N/A; worktree /tmp/bym-s24 |
+| 2026-08-31T14:26 | gh-change-sync | #88 In progress (implementing) |
+| 2026-08-31T14:40 | 10x-impl-review p1 | APPROVED 0 findings |
+| 2026-08-31T15:00 | 10x-implement p2 | commit c9f6275; app lifecycle + 5-cap |
+| 2026-08-31T15:15 | 10x-impl-review p2 | APPROVED 0 findings |
+| 2026-08-31T16:05 | 10x-implement p3 | HTTP/UI/docs; 3.5–3.12 skipped YOLO |
 
 ## Decisions the Crew Lead made (no human)
 
@@ -44,6 +50,8 @@ Mode: **YOLO**. Crew Lead answered specialist questions; the human was asked onl
 - **F3-banned-archive** — Plan allowed banned organizer archive; middleware blocks all non-auth POST. Chose **Fix A: align RPC with middleware; do not exempt the banned gate**. Why: no new write hole; admin can still archive; unban then organizer archives.
 - **phase-1-commit** — Ritual phase-end commit. Chose **COMMIT_OK**. Why: YOLO authorizes phase-end commits; never push. Refs #88.
 - **p1-rls-base** — Live RLS on this branch is S-15, not clan_only. Chose **adapt from S-15 (A)**; skip mixing S-21. Why: S-24 is parallel with Stream A; copying clan_only would put unshipped S-21 enum/RLS on this PR. When S-21 merges it retargets `is_run_active_row`. Progress 1.9 = N/A on this branch.
+- **phase-2-commit** — Ritual phase-end commit. Chose **COMMIT_OK**. Why: YOLO authorizes phase-end commits; never push. Refs #88.
+- **phase-3-commit** — Ritual phase-end (and epilogue if the skill runs it). Chose **COMMIT_OK**. Why: YOLO; last phase + SHA write-back. Refs #88.
 
 ### Non-obvious
 
@@ -69,7 +77,9 @@ Mode: **YOLO**. Crew Lead answered specialist questions; the human was asked onl
 
 ## Human-action gates
 
-- none yet
+- Phase 1 Studio 1.12–1.13: skipped (YOLO residual risk)
+- Phase 2 UI 2.6–2.14: skipped (YOLO residual risk; Archive/Extend UI is Phase 3)
+- Phase 3 UI 3.5–3.12: skipped (YOLO residual risk; Archive/Extend click-through, cap UX, player Incoming/Recent, home preview not verified in a browser)
 
 ## Stop / escape hatches
 
@@ -77,4 +87,4 @@ Mode: **YOLO**. Crew Lead answered specialist questions; the human was asked onl
 
 ## GitHub
 
-- change-sync: #88 events new, planned, plan_reviewed (Backlog, link-roadmap)
+- change-sync: #88 events new, planned, plan_reviewed, implementing (In progress, link-roadmap)

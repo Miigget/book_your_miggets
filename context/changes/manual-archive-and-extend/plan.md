@@ -414,11 +414,11 @@ Worker `Date` vs Postgres `now()` on `extended_until` can disagree by seconds (s
 
 #### Automated
 
-- [x] 2.1 npm run lint exits 0
-- [x] 2.2 npm run build exits 0
-- [x] 2.3 No remaining RUN_GRACE_MS / activeWindowStartsAfter / archiveDeadlineAt callers under src/
-- [x] 2.4 mapRunRow / inventory splits use isRunActive including extended_until
-- [x] 2.5 Create API contains the 5-active fail string; archiveRun / extendRun exist
+- [x] 2.1 npm run lint exits 0 — c9f6275
+- [x] 2.2 npm run build exits 0 — c9f6275
+- [x] 2.3 No remaining RUN_GRACE_MS / activeWindowStartsAfter / archiveDeadlineAt callers under src/ — c9f6275
+- [x] 2.4 mapRunRow / inventory splits use isRunActive including extended_until — c9f6275
+- [x] 2.5 Create API contains the 5-active fail string; archiveRun / extendRun exist — c9f6275
 
 #### Manual
 
@@ -436,10 +436,10 @@ Worker `Date` vs Postgres `now()` on `extended_until` can disagree by seconds (s
 
 #### Automated
 
-- [ ] 3.1 npm run lint exits 0
-- [ ] 3.2 npm run build exits 0
-- [ ] 3.3 AGENTS.md documents archive/extend POST paths and the 5-cap; PROTECTED_ROUTES still does not prefix-protect /runs
-- [ ] 3.4 prd.md Guardrails / US-01 Then no longer claim a 1-hour auto-archive
+- [x] 3.1 npm run lint exits 0
+- [x] 3.2 npm run build exits 0
+- [x] 3.3 AGENTS.md documents archive/extend POST paths and the 5-cap; PROTECTED_ROUTES still does not prefix-protect /runs
+- [x] 3.4 prd.md Guardrails / US-01 Then no longer claim a 1-hour auto-archive
 
 #### Manual
 
