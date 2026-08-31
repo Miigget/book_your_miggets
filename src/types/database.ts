@@ -34,6 +34,72 @@ export type Database = {
   }
   public: {
     Tables: {
+      clan_invites: {
+        Row: {
+          clan_id: string
+          created_at: string
+          id: string
+          invitee_id: string
+          inviter_id: string
+          status: Database["public"]["Enums"]["clan_invite_status"]
+          updated_at: string
+        }
+        Insert: {
+          clan_id: string
+          created_at?: string
+          id?: string
+          invitee_id: string
+          inviter_id: string
+          status?: Database["public"]["Enums"]["clan_invite_status"]
+          updated_at?: string
+        }
+        Update: {
+          clan_id?: string
+          created_at?: string
+          id?: string
+          invitee_id?: string
+          inviter_id?: string
+          status?: Database["public"]["Enums"]["clan_invite_status"]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "clan_invites_clan_id_fkey"
+            columns: ["clan_id"]
+            isOneToOne: false
+            referencedRelation: "clans"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "clan_invites_invitee_id_fkey"
+            columns: ["invitee_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "clan_invites_invitee_id_fkey"
+            columns: ["invitee_id"]
+            isOneToOne: false
+            referencedRelation: "public_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "clan_invites_inviter_id_fkey"
+            columns: ["inviter_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "clan_invites_inviter_id_fkey"
+            columns: ["inviter_id"]
+            isOneToOne: false
+            referencedRelation: "public_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       clan_members: {
         Row: {
           clan_id: string
@@ -727,6 +793,7 @@ export type Database = {
       }
     }
     Enums: {
+      clan_invite_status: "pending" | "declined"
       friend_request_status: "pending" | "accepted" | "declined"
       join_mode: "approval_required" | "auto_join"
       nickname_change_request_status: "pending" | "accepted" | "denied"
@@ -863,6 +930,7 @@ export const Constants = {
   },
   public: {
     Enums: {
+      clan_invite_status: ["pending", "declined"],
       friend_request_status: ["pending", "accepted", "declined"],
       join_mode: ["approval_required", "auto_join"],
       nickname_change_request_status: ["pending", "accepted", "denied"],
