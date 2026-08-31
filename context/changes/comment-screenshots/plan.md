@@ -333,18 +333,18 @@ Note: YOLO skipped human Studio confirm for 1.6 (residual risk). Bucket + column
 
 #### Automated
 
-- [x] 2.1 npm run lint exits 0
-- [x] 2.2 npm run build exits 0
-- [x] 2.3 PUBLIC_IMAGE_MAX_BYTES remains 1_048_576; COMMENT_SCREENSHOT_MAX_BYTES is 5_242_880; clan callers of uploadPublicImage do not pass a higher cap
+- [x] 2.1 npm run lint exits 0 — a9f04d2
+- [x] 2.2 npm run build exits 0 — a9f04d2
+- [x] 2.3 PUBLIC_IMAGE_MAX_BYTES remains 1_048_576; COMMENT_SCREENSHOT_MAX_BYTES is 5_242_880; clan callers of uploadPublicImage do not pass a higher cap — a9f04d2
 
 #### Manual
 
-- [x] 2.4 Confirmed participant: screenshot-only, text+screenshot, and text-only POST all succeed; returned screenshotUrl is signed (not /object/public/)
-- [x] 2.5 Empty body without file, file over 5 MiB, and wrong MIME fail with the fixed screenshot/empty strings on ?commentError= (never Storage error.message)
-- [x] 2.6 Guest, pending applicant, and unseated organizer/admin (not confirmed) cannot post a screenshot
-- [x] 2.7 Admin comment delete removes the row; the object is gone or remove failure is only logged
-- [x] 2.8 Clan picture upload still rejects files over 1 MiB with the existing picture string
-- [x] 2.9 Text (including text+screenshot) over 1000 chars fails with "Comment must be 1000 characters or fewer", not a generic PostgREST dump
+- [x] 2.4 Confirmed participant: screenshot-only, text+screenshot, and text-only POST all succeed; returned screenshotUrl is signed (not /object/public/) — a9f04d2
+- [x] 2.5 Empty body without file, file over 5 MiB, and wrong MIME fail with the fixed screenshot/empty strings on ?commentError= (never Storage error.message) — a9f04d2
+- [x] 2.6 Guest, pending applicant, and unseated organizer/admin (not confirmed) cannot post a screenshot — a9f04d2
+- [x] 2.7 Admin comment delete removes the row; the object is gone or remove failure is only logged — a9f04d2
+- [x] 2.8 Clan picture upload still rejects files over 1 MiB with the existing picture string — a9f04d2
+- [x] 2.9 Text (including text+screenshot) over 1000 chars fails with "Comment must be 1000 characters or fewer", not a generic PostgREST dump — a9f04d2
 
 Note: YOLO skipped human curl confirm for 2.4–2.9 (residual risk). Automated 2.1–2.3 passed (`npm run lint` 0 errors, `npm run build` exit 0; clan `uploadPublicImage` callers omit `maxBytes`).
 
@@ -352,13 +352,15 @@ Note: YOLO skipped human curl confirm for 2.4–2.9 (residual risk). Automated 2
 
 #### Automated
 
-- [ ] 3.1 npm run lint exits 0
-- [ ] 3.2 npm run build exits 0
+- [x] 3.1 npm run lint exits 0
+- [x] 3.2 npm run build exits 0
 
 #### Manual
 
-- [ ] 3.3 Compose shows a file input; client blocks oversize/wrong MIME; successful post shows the image in the list without reload if JSON includes screenshotUrl
-- [ ] 3.4 Screenshot-only comments show the image and no empty body paragraph; text+screenshot shows both
-- [ ] 3.5 Guest and pending applicant still do not see the Comments section; a restricted run still 404s for outsiders (no public image URL to guess from the page)
-- [ ] 3.6 Archived readers (confirmed / organizer / admin) still see images; compose and like stay hidden
-- [ ] 3.7 Unseated organizer/admin can see images when they can already read, and still have no compose unless confirmed
+- [x] 3.3 Compose shows a file input; client blocks oversize/wrong MIME; successful post shows the image in the list without reload if JSON includes screenshotUrl
+- [x] 3.4 Screenshot-only comments show the image and no empty body paragraph; text+screenshot shows both
+- [x] 3.5 Guest and pending applicant still do not see the Comments section; a restricted run still 404s for outsiders (no public image URL to guess from the page)
+- [x] 3.6 Archived readers (confirmed / organizer / admin) still see images; compose and like stay hidden
+- [x] 3.7 Unseated organizer/admin can see images when they can already read, and still have no compose unless confirmed
+
+Note: YOLO skipped human UI confirm for 3.3–3.7 (residual risk). Automated 3.1–3.2 passed (`npm run lint` 0 errors, `npm run build` exit 0).
