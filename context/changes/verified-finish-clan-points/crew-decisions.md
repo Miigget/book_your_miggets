@@ -3,7 +3,7 @@ change_id: verified-finish-clan-points
 mode: YOLO
 started: 2026-09-01
 updated: 2026-09-01
-status: in-progress
+status: complete
 ---
 
 # Crew decisions — verified-finish-clan-points
@@ -24,7 +24,9 @@ Mode: **YOLO**. Crew Lead answered specialist questions; the human was asked onl
 | 2026-09-01 | 10x-impl-review p1 | APPROVED |
 | 2026-09-01 | 10x-implement p2 | App API; commit f798410 |
 | 2026-09-01 | 10x-impl-review p2 | APPROVED |
-| 2026-09-01 | 10x-implement p3 | Admin control, Verified-finish chip, AGENTS.md |
+| 2026-09-01 | 10x-implement p3 | UI + AGENTS.md; commit a4517b2; epilogue 4bd17eb; status implemented |
+| 2026-09-01 | 10x-impl-review | full APPROVED; status impl_reviewed |
+| 2026-09-01 | 10x-archive | pending — YOLO auto-archive despite remaining manual Progress rows |
 
 ## Decisions the Crew Lead made (no human)
 
@@ -32,6 +34,7 @@ Mode: **YOLO**. Crew Lead answered specialist questions; the human was asked onl
 - **q-verify-after-archive** — When may admin mark verified-finish if the organizer archived first? Chose **B: whenever `completed_at` is set, including archived**. Why: FR-022 requires completed, not audience-active; Archive already frees the 5-cap and signed screenshot URLs still work for admin; rejecting archived would let organizers strand points.
 - **q-null-map** — What if `map_id` is null on a completed clan run? Chose **A: reject with `no_map` (do not stamp, do not award)**. Why: FR-019 awards map points; a successful verify with 0 or a badge-without-award is easy to misread as a writer failure, and map cannot be edited after Complete.
 - **q-unverify** — Can admin revoke verified-finish / subtract points? Chose **A: no undo — one-shot stamp; `already_verified` does not add again**. Why: same contract as Complete; smallest S-23; no negative-points writer; mistaken over-award is accepted residual risk until a later admin tool.
+- **archive-with-manuals** — Archive despite unchecked manual Progress rows? Chose **yes (YOLO auto-archive)**. Why: remaining rows are human-action gates skipped by YOLO, not incomplete implementation; full impl-review APPROVED.
 
 ### Non-obvious
 - **intent-from-roadmap** — New folder had no freeform intent. Chose **seed Notes from S-23 roadmap outcome** instead of only humanizing the slug. Why: change-id is the roadmap Change ID; empty-intent humanize would drop FR-019/022/023/018/030/US-02 scope, the S-22/S-20 prereqs, and the parked `/teamrank` scrape.
@@ -46,7 +49,7 @@ Mode: **YOLO**. Crew Lead answered specialist questions; the human was asked onl
 - gh-change-sync 1:1 link (change-id equals roadmap S-23 Change ID; no `--parent`)
 - Branch `feature/verified-finish-clan-points` from up-to-date `main` before phase commits (AGENTS.md trunk)
 - Plan-review F1/F2 LOW already patched in plan.md — proceed SOUND without re-plan
-- Phase-end commits: YOLO `COMMIT_OK`; unrelated dirty stay unstaged; `Refs: #87`
+- Phase-end and archive commits: YOLO `COMMIT_OK`; unrelated dirty stay unstaged; `Refs: #87`
 
 ## Decisions escalated to the human
 
@@ -56,7 +59,7 @@ Mode: **YOLO**. Crew Lead answered specialist questions; the human was asked onl
 
 - Phase 1.5 SQL-editor replay: skipped (YOLO residual risk; automated smoke ran against local Postgres)
 - Phase 2.4–2.6 cookie-session HTTP: skipped (YOLO residual risk)
-- Phase 3.2–3.8 browser path: skipped (YOLO residual risk)
+- Phase 3.2–3.8 browser/UI click-through: skipped (YOLO residual risk)
 
 ## Stop / escape hatches
 
@@ -64,4 +67,10 @@ Mode: **YOLO**. Crew Lead answered specialist questions; the human was asked onl
 
 ## GitHub
 
-- change-sync: #87 events new → Backlog (link-roadmap S-23); planned → Backlog; plan_reviewed pending
+- change-sync: #87 (link-roadmap S-23)
+  - new → Backlog
+  - planned → Backlog
+  - plan_reviewed → Backlog
+  - implementing → In progress
+  - implemented → In review
+  - archived → pending
