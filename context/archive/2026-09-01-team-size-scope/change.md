@@ -1,10 +1,10 @@
 ---
 change_id: team-size-scope
 title: Team-size bands under Advanced settings
-status: impl_reviewed
+status: archived
 created: 2026-09-01
 updated: 2026-09-01
-archived_at: null
+archived_at: 2026-09-01T14:42:17Z
 ---
 
 ## Notes
