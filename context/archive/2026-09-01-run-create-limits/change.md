@@ -1,10 +1,10 @@
 ---
 change_id: run-create-limits
 title: Capacity 64 and schedule bounds
-status: implemented
+status: archived
 created: 2026-09-01
 updated: 2026-09-01
-archived_at: null
+archived_at: 2026-09-01T12:56:08Z
 ---
 
 ## Notes
