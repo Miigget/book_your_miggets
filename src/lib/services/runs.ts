@@ -21,6 +21,7 @@ export interface RunListItem {
   startsAt: string;
   extendedUntil: string | null;
   completedAt: string | null;
+  verifiedAt: string | null;
   maxParticipants: number;
   minPoints: number;
   joinMode: Enums<"join_mode">;
@@ -57,6 +58,7 @@ const RUN_SELECT = `
   archived_at,
   extended_until,
   completed_at,
+  verified_at,
   max_participants,
   min_points,
   join_mode,
@@ -86,6 +88,7 @@ interface RunRow {
   archived_at: string | null;
   extended_until: string | null;
   completed_at: string | null;
+  verified_at: string | null;
   max_participants: number;
   min_points: number;
   join_mode: Enums<"join_mode">;
@@ -158,6 +161,7 @@ function runFieldsFromRow(row: RunRow, confirmedCount: number) {
     startsAt: row.starts_at,
     extendedUntil: row.extended_until,
     completedAt: row.completed_at,
+    verifiedAt: row.verified_at,
     maxParticipants: row.max_participants,
     minPoints: row.min_points,
     joinMode: row.join_mode,
@@ -509,6 +513,7 @@ function runRowFromPublicRpc(row: PlayerPublicRunRpcRow): { row: RunRow; confirm
       archived_at: row.archived_at,
       extended_until: row.extended_until,
       completed_at: null,
+      verified_at: null,
       max_participants: row.max_participants,
       min_points: row.min_points,
       join_mode: row.join_mode,
@@ -1203,6 +1208,36 @@ export async function completeClanRun(supabase: AppSupabaseClient, runId: string
     default:
       console.error("complete_clan_run returned unexpected outcome", outcome);
       throw new RunError("Could not complete this clan run");
+  }
+}
+
+export async function verifyClanRunFinish(supabase: AppSupabaseClient, runId: string): Promise<void> {
+  const { data: outcome, error } = await supabase.rpc("verify_clan_run_finish", { p_run_id: runId });
+
+  if (error) {
+    console.error("verify_clan_run_finish failed", error);
+    throw new RunError("Could not verify this clan run");
+  }
+
+  switch (outcome) {
+    case "verified":
+      return;
+    case "already_verified":
+      throw new RunError("This clan run is already verified.");
+    case "not_completed":
+      throw new RunError("This clan run is not completed yet");
+    case "not_clan_only":
+      throw new RunError("Only a completed clan-only run can be marked verified-finish");
+    case "no_map":
+      throw new RunError("This clan run has no map, so clan points cannot be awarded");
+    case "no_clan":
+      throw new RunError("This organizer has no clan to award points to");
+    case "not_found":
+    case "not_authenticated":
+      throw new RunError("Run not found or no longer active");
+    default:
+      console.error("verify_clan_run_finish returned unexpected outcome", outcome);
+      throw new RunError("Could not verify this clan run");
   }
 }
 

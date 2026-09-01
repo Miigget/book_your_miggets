@@ -622,6 +622,7 @@ export type Database = {
           starts_at: string
           title: string | null
           updated_at: string
+          verified_at: string | null
           visibility: Database["public"]["Enums"]["run_visibility"]
         }
         Insert: {
@@ -639,6 +640,7 @@ export type Database = {
           starts_at: string
           title?: string | null
           updated_at?: string
+          verified_at?: string | null
           visibility?: Database["public"]["Enums"]["run_visibility"]
         }
         Update: {
@@ -656,6 +658,7 @@ export type Database = {
           starts_at?: string
           title?: string | null
           updated_at?: string
+          verified_at?: string | null
           visibility?: Database["public"]["Enums"]["run_visibility"]
         }
         Relationships: [
@@ -824,6 +827,7 @@ export type Database = {
         }
         Returns: undefined
       }
+      verify_clan_run_finish: { Args: { p_run_id: string }; Returns: string }
     }
     Enums: {
       clan_invite_status: "pending" | "declined"

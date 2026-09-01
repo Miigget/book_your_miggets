@@ -120,7 +120,11 @@ const isBanned = Boolean(Astro.locals.profile?.isBanned);
 const canPostOrLike = own?.status === "confirmed" && !isArchived && !isBanned;
 const isOrganizer = Boolean(user?.id && user.id === run?.organizerId);
 const isCompleted = Boolean(run?.completedAt);
-const showCompletedChip = isCompleted && run?.lifecyclePhase !== "archived";
+const isVerifiedFinish = Boolean(run?.verifiedAt);
+const hideInProgressChip = isCompleted || isVerifiedFinish;
+const showCompletedChip = isCompleted && !isVerifiedFinish && run?.lifecyclePhase !== "archived";
+const showVerifiedFinishChip = isVerifiedFinish;
+const showVerifyFinish = run?.visibility === "clan_only" && isCompleted && !isVerifiedFinish && run.map != null;
 const showComplete =
   run != null &&
   isOrganizer &&
@@ -177,7 +181,12 @@ function formatReleasedOn(value: string | null): string {
                   Status: <span class="text-emerald-200">Completed</span>
                 </p>
               )}
-              {run.lifecyclePhase === "in_progress" && !showCompletedChip && (
+              {showVerifiedFinishChip && (
+                <p class="mt-2 text-sm text-blue-100/80">
+                  Status: <span class="text-emerald-200">Verified-finish</span>
+                </p>
+              )}
+              {run.lifecyclePhase === "in_progress" && !hideInProgressChip && (
                 <p class="mt-2 text-sm text-blue-100/80">
                   Status: <span class="text-amber-200">In progress / already started</span>
                 </p>
@@ -352,7 +361,12 @@ function formatReleasedOn(value: string | null): string {
 
             {isAdmin && (
               <section class="mb-8 rounded-xl border border-red-400/20 bg-red-500/5 px-5 py-5 backdrop-blur-xl">
-                <AdminRunControls client:load runId={run.id} showArchive={!isArchived} />
+                <AdminRunControls
+                  client:load
+                  runId={run.id}
+                  showArchive={!isArchived}
+                  showVerifyFinish={showVerifyFinish}
+                />
               </section>
             )}
           </>
