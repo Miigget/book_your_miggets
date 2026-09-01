@@ -319,28 +319,28 @@ Local app (typically `http://localhost:4321`) with Supabase already running:
 
 #### Automated
 
-- [x] 1.1 Migration applies on local Supabase
-- [x] 1.2 `npm run db:types` succeeds; `completed_at` and `complete_clan_run` appear in generated types
-- [x] 1.3 SQL smoke: complete stamps, points unchanged, comments still insert, roster/extend frozen (pending INSERT, confirmed leave DELETE, organizer participant UPDATE fail), GRANT closed
-- [x] 1.4 SQL smoke negatives: non-organizer `not_found`, public `not_clan_only`, upcoming `not_in_progress`
+- [x] 1.1 Migration applies on local Supabase — 8412266
+- [x] 1.2 `npm run db:types` succeeds; `completed_at` and `complete_clan_run` appear in generated types — 8412266
+- [x] 1.3 SQL smoke: complete stamps, points unchanged, comments still insert, roster/extend frozen (pending INSERT, confirmed leave DELETE, organizer participant UPDATE fail), GRANT closed — 8412266
+- [x] 1.4 SQL smoke negatives: non-organizer `not_found`, public `not_clan_only`, upcoming `not_in_progress` — 8412266
 
 #### Manual
 
-- [x] 1.5 Local Supabase running; smoke SQL replayable from the SQL editor if desired
+- [x] 1.5 Local Supabase running; smoke SQL replayable from the SQL editor if desired — 8412266
 
 ### Phase 2: App API — complete service, freeze gates, error strings
 
 #### Automated
 
-- [ ] 2.1 `npx astro sync` and `npm run lint` pass
-- [ ] 2.2 `npm run build` passes
-- [ ] 2.3 `completeClanRun` and `completedAt` typecheck against generated types
+- [x] 2.1 `npx astro sync` and `npm run lint` pass
+- [x] 2.2 `npm run build` passes
+- [x] 2.3 `completeClanRun` and `completedAt` typecheck against generated types
 
 #### Manual
 
-- [ ] 2.4 Owner POST complete redirects; repeat shows already-completed domain error
-- [ ] 2.5 Apply / leave / extend / edit fail; comment post still works; points unchanged
-- [ ] 2.6 Non-owner and guest POSTs do not leak (missing/sign-in, not 403)
+- [x] 2.4 Owner POST complete redirects; repeat shows already-completed domain error
+- [x] 2.5 Apply / leave / extend / edit fail; comment post still works; points unchanged
+- [x] 2.6 Non-owner and guest POSTs do not leak (missing/sign-in, not 403)
 
 ### Phase 3: Owner Complete control, Completed chip, AGENTS.md
 

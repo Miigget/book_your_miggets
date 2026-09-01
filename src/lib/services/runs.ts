@@ -20,6 +20,7 @@ export interface RunListItem {
   title: string | null;
   startsAt: string;
   extendedUntil: string | null;
+  completedAt: string | null;
   maxParticipants: number;
   minPoints: number;
   joinMode: Enums<"join_mode">;
@@ -55,6 +56,7 @@ const RUN_SELECT = `
   starts_at,
   archived_at,
   extended_until,
+  completed_at,
   max_participants,
   min_points,
   join_mode,
@@ -83,6 +85,7 @@ interface RunRow {
   starts_at: string;
   archived_at: string | null;
   extended_until: string | null;
+  completed_at: string | null;
   max_participants: number;
   min_points: number;
   join_mode: Enums<"join_mode">;
@@ -154,6 +157,7 @@ function runFieldsFromRow(row: RunRow, confirmedCount: number) {
     title: row.title,
     startsAt: row.starts_at,
     extendedUntil: row.extended_until,
+    completedAt: row.completed_at,
     maxParticipants: row.max_participants,
     minPoints: row.min_points,
     joinMode: row.join_mode,
@@ -357,6 +361,7 @@ export async function getOwnedActiveRunForEdit(
   }
   if (!data) return null;
   if (!isRunActive(data.starts_at, data.archived_at, data.extended_until, now)) return null;
+  if (data.completed_at) return null;
 
   return mapRunRow(data, 0, now);
 }
@@ -503,6 +508,7 @@ function runRowFromPublicRpc(row: PlayerPublicRunRpcRow): { row: RunRow; confirm
       starts_at: row.starts_at,
       archived_at: row.archived_at,
       extended_until: row.extended_until,
+      completed_at: null,
       max_participants: row.max_participants,
       min_points: row.min_points,
       join_mode: row.join_mode,
@@ -984,7 +990,7 @@ async function prepareOwnedActiveRunPatch(
 
   const { data: existing, error: loadError } = await supabase
     .from("runs")
-    .select("id, max_participants, starts_at, archived_at, extended_until")
+    .select("id, max_participants, starts_at, archived_at, extended_until, completed_at")
     .eq("id", runId)
     .eq("organizer_id", userId)
     .is("archived_at", null)
@@ -994,6 +1000,9 @@ async function prepareOwnedActiveRunPatch(
     throw new Error(`Failed to load run: ${loadError.message}`);
   }
   if (!existing || !isRunActive(existing.starts_at, existing.archived_at, existing.extended_until)) {
+    throw new RunError("Run not found or no longer active");
+  }
+  if (existing.completed_at) {
     throw new RunError("Run not found or no longer active");
   }
 
@@ -1166,6 +1175,37 @@ export async function archiveRun(supabase: AppSupabaseClient, runId: string): Pr
   }
 }
 
+export async function completeClanRun(supabase: AppSupabaseClient, runId: string): Promise<void> {
+  const { data: outcome, error } = await supabase.rpc("complete_clan_run", { p_run_id: runId });
+
+  if (error) {
+    console.error("complete_clan_run failed", error);
+    throw new RunError("Could not complete this clan run");
+  }
+
+  switch (outcome) {
+    case "completed":
+      return;
+    case "already_completed":
+      throw new RunError("This clan run is already completed.");
+    case "not_in_progress":
+      throw new RunError("You can only complete a clan run that is in progress");
+    case "not_clan_only":
+      throw new RunError("Only a clan-only run can be marked completed");
+    case "not_owner":
+      throw new RunError(CLAN_ONLY_OWNER_REQUIRED);
+    case "not_found":
+    case "not_authenticated":
+    case "not_active":
+      throw new RunError("Run not found or no longer active");
+    case "banned":
+      throw new RunError(BANNED_RUN_MUTATION_MESSAGE);
+    default:
+      console.error("complete_clan_run returned unexpected outcome", outcome);
+      throw new RunError("Could not complete this clan run");
+  }
+}
+
 export type ExtendRunHours = 1 | 2 | 3 | 6;
 
 export async function extendRun(supabase: AppSupabaseClient, runId: string, hours: ExtendRunHours): Promise<void> {
@@ -1183,6 +1223,8 @@ export async function extendRun(supabase: AppSupabaseClient, runId: string, hour
       throw new RunError("You can only extend a run that is in progress");
     case "already_extended":
       throw new RunError("This run has already been extended");
+    case "already_completed":
+      throw new RunError("This clan run is completed and cannot be extended");
     case "invalid_hours":
       throw new RunError("Extend duration must be 1, 2, 3, or 6 hours");
     case "not_found":
