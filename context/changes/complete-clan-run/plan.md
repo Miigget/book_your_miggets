@@ -332,27 +332,27 @@ Local app (typically `http://localhost:4321`) with Supabase already running:
 
 #### Automated
 
-- [x] 2.1 `npx astro sync` and `npm run lint` pass
-- [x] 2.2 `npm run build` passes
-- [x] 2.3 `completeClanRun` and `completedAt` typecheck against generated types
+- [x] 2.1 `npx astro sync` and `npm run lint` pass — bd48c2f
+- [x] 2.2 `npm run build` passes — bd48c2f
+- [x] 2.3 `completeClanRun` and `completedAt` typecheck against generated types — bd48c2f
 
 #### Manual
 
-- [x] 2.4 Owner POST complete redirects; repeat shows already-completed domain error
-- [x] 2.5 Apply / leave / extend / edit fail; comment post still works; points unchanged
-- [x] 2.6 Non-owner and guest POSTs do not leak (missing/sign-in, not 403)
+- [x] 2.4 Owner POST complete redirects; repeat shows already-completed domain error — bd48c2f
+- [x] 2.5 Apply / leave / extend / edit fail; comment post still works; points unchanged — bd48c2f
+- [x] 2.6 Non-owner and guest POSTs do not leak (missing/sign-in, not 403) — bd48c2f
 
 ### Phase 3: Owner Complete control, Completed chip, AGENTS.md
 
 #### Automated
 
-- [ ] 3.1 `npx astro sync`, `npm run lint`, and `npm run build` pass
+- [x] 3.1 `npx astro sync`, `npm run lint`, and `npm run build` pass
 
 #### Manual
 
-- [ ] 3.2 Owner Complete confirm → Completed chip on detail, Clan, dashboard; Edit/Extend gone; Archive stays; comments still post; roster frozen; points unchanged
-- [ ] 3.3 Upcoming has no Complete button
-- [ ] 3.4 Archive after Complete leaves the active list and frees the 5-cap; Past, Recent, archived `/runs/{id}` show Archived not Completed
-- [ ] 3.5 Guest/non-member 404; public/friends-only have no Complete
-- [ ] 3.6 Other clan owner cannot complete this run
-- [ ] 3.7 Admin sees Completed if they can view; Archive/Delete unchanged; no verify control
+- [x] 3.2 Owner Complete confirm → Completed chip on detail, Clan, dashboard; Edit/Extend gone; Archive stays; comments still post; roster frozen; points unchanged
+- [x] 3.3 Upcoming has no Complete button
+- [x] 3.4 Archive after Complete leaves the active list and frees the 5-cap; Past, Recent, archived `/runs/{id}` show Archived not Completed
+- [x] 3.5 Guest/non-member 404; public/friends-only have no Complete
+- [x] 3.6 Other clan owner cannot complete this run
+- [x] 3.7 Admin sees Completed if they can view; Archive/Delete unchanged; no verify control

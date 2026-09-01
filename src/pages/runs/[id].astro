@@ -8,7 +8,9 @@ import OrganizerRunLifecycleControls from "@/components/runs/OrganizerRunLifecyc
 import RunComments from "@/components/runs/RunComments";
 import RunParticipantActions from "@/components/runs/RunParticipantActions";
 import { formatStart } from "@/lib/format-date";
+import type { ActiveRunLifecyclePhase } from "@/lib/run-lifecycle";
 import { createClient } from "@/lib/supabase";
+import { userOwnsClan } from "@/lib/services/clans";
 import { listCommentsForRun, type RunComment } from "@/lib/services/comments";
 import {
   getOwnParticipation,
@@ -49,6 +51,7 @@ let nickname: string | null = null;
 let isVerified = false;
 let comments: RunComment[] = [];
 let canReadComments = false;
+let ownsClan = false;
 
 if (!id) {
   pageError = "missing";
@@ -84,10 +87,14 @@ if (!id) {
         nickname = ownProfile.nickname;
         isVerified = ownProfile.isVerified;
         if (isOrganizer) {
-          [pending, denied] = await Promise.all([
+          const [pendingRows, deniedRows, owns] = await Promise.all([
             listPendingParticipants(supabase, run.id),
             listDeniedParticipants(supabase, run.id),
+            userOwnsClan(supabase, user.id),
           ]);
+          pending = pendingRows;
+          denied = deniedRows;
+          ownsClan = owns;
         }
       }
       canReadComments =
@@ -112,9 +119,21 @@ const isArchived = run?.lifecyclePhase === "archived";
 const isBanned = Boolean(Astro.locals.profile?.isBanned);
 const canPostOrLike = own?.status === "confirmed" && !isArchived && !isBanned;
 const isOrganizer = Boolean(user?.id && user.id === run?.organizerId);
+const isCompleted = Boolean(run?.completedAt);
+const showCompletedChip = isCompleted && run?.lifecyclePhase !== "archived";
+const showComplete =
+  run != null &&
+  isOrganizer &&
+  run.visibility === "clan_only" &&
+  run.lifecyclePhase === "in_progress" &&
+  !isCompleted &&
+  ownsClan &&
+  !isArchived;
 const confirmedCount = confirmed.length;
 const archivedBackHref = archivedSource === "admin" ? "/admin" : "/dashboard?tab=past";
 const archivedBackLabel = archivedSource === "admin" ? "← Admin" : "← Dashboard";
+const organizerLifecyclePhase: ActiveRunLifecyclePhase =
+  run && run.lifecyclePhase !== "archived" ? run.lifecyclePhase : "upcoming";
 
 function formatReleasedOn(value: string | null): string {
   if (!value) return "Unknown";
@@ -153,7 +172,12 @@ function formatReleasedOn(value: string | null): string {
               <h1 class="min-w-0 bg-gradient-to-r from-blue-200 to-purple-200 bg-clip-text text-3xl font-bold break-all text-transparent sm:text-4xl">
                 {run.displayTitle}
               </h1>
-              {run.lifecyclePhase === "in_progress" && (
+              {showCompletedChip && (
+                <p class="mt-2 text-sm text-blue-100/80">
+                  Status: <span class="text-emerald-200">Completed</span>
+                </p>
+              )}
+              {run.lifecyclePhase === "in_progress" && !showCompletedChip && (
                 <p class="mt-2 text-sm text-blue-100/80">
                   Status: <span class="text-amber-200">In progress / already started</span>
                 </p>
@@ -168,18 +192,22 @@ function formatReleasedOn(value: string | null): string {
               </p>
               {isOrganizer && !isArchived && (
                 <div class="mt-3 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
-                  <a
-                    href={`/runs/${run.id}/edit`}
-                    class="text-sm text-purple-300 transition-colors hover:text-purple-100 hover:underline"
-                  >
-                    Edit
-                  </a>
+                  {!isCompleted && (
+                    <a
+                      href={`/runs/${run.id}/edit`}
+                      class="text-sm text-purple-300 transition-colors hover:text-purple-100 hover:underline"
+                    >
+                      Edit
+                    </a>
+                  )}
                   <OrganizerRunLifecycleControls
                     client:load
                     runId={run.id}
-                    lifecyclePhase={run.lifecyclePhase}
+                    lifecyclePhase={organizerLifecyclePhase}
                     extendedUntil={run.extendedUntil}
                     timeZone={Astro.locals.timeZone}
+                    showComplete={showComplete}
+                    completedAt={run.completedAt}
                   />
                 </div>
               )}
@@ -302,6 +330,7 @@ function formatReleasedOn(value: string | null): string {
                   denied={denied.map((p) => ({ id: p.id, userId: p.userId, nickname: p.nickname }))}
                   commentsMounted={canReadComments}
                   serverError={serverError}
+                  rosterFrozen={isCompleted}
                 />
               )}
             </section>

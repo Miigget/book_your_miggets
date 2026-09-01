@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Archive, Clock } from "lucide-react";
+import { Archive, CheckCircle2, Clock } from "lucide-react";
 import { ServerError } from "@/components/auth/ServerError";
 import { Button } from "@/components/ui/button";
 import { fetchFormJson } from "@/lib/fetch-form-json";
@@ -14,13 +14,22 @@ interface Props {
   lifecyclePhase: ActiveRunLifecyclePhase;
   extendedUntil: string | null;
   timeZone?: string;
+  showComplete?: boolean;
+  completedAt?: string | null;
 }
 
-export default function OrganizerRunLifecycleControls({ runId, lifecyclePhase, extendedUntil, timeZone }: Props) {
+export default function OrganizerRunLifecycleControls({
+  runId,
+  lifecyclePhase,
+  extendedUntil,
+  timeZone,
+  showComplete = false,
+  completedAt = null,
+}: Props) {
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
 
-  const canExtend = lifecyclePhase === "in_progress" && extendedUntil == null;
+  const canExtend = lifecyclePhase === "in_progress" && extendedUntil == null && completedAt == null;
   const scheduledLeave = extendedUntil != null;
 
   async function postLifecycle(form: HTMLFormElement, fallback: string): Promise<void> {
@@ -44,6 +53,15 @@ export default function OrganizerRunLifecycleControls({ runId, lifecyclePhase, e
     }
   }
 
+  async function onComplete(e: React.SubmitEvent<HTMLFormElement>) {
+    e.preventDefault();
+    const ok = window.confirm(
+      "This marks the clan run completed for later admin verify. It does not archive and does not award clan points. Complete this run?",
+    );
+    if (!ok) return;
+    await postLifecycle(e.currentTarget, "Could not complete this clan run");
+  }
+
   async function onArchive(e: React.SubmitEvent<HTMLFormElement>) {
     e.preventDefault();
     const ok = window.confirm(
@@ -65,6 +83,21 @@ export default function OrganizerRunLifecycleControls({ runId, lifecyclePhase, e
     <div className={cn("flex flex-col gap-3")}>
       <ServerError message={error} />
       <div className={cn("flex flex-wrap items-center gap-2")}>
+        {showComplete ? (
+          <form
+            method="POST"
+            action={`/api/runs/${runId}/complete`}
+            onSubmit={(event) => {
+              event.preventDefault();
+              void onComplete(event);
+            }}
+          >
+            <Button type="submit" size="sm" className={cn("rounded-lg")} disabled={busy}>
+              <CheckCircle2 className="size-4" />
+              Complete
+            </Button>
+          </form>
+        ) : null}
         <form
           method="POST"
           action={`/api/runs/${runId}/archive`}

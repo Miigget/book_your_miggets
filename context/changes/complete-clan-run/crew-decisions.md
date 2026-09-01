@@ -22,6 +22,10 @@ Mode: **YOLO**. Crew Lead answered specialist questions; the human was asked onl
 | 2026-09-01 | 10x-plan | REVISE pass applied F1–F4 to plan.md |
 | 2026-09-01 | 10x-plan-review | re-review SOUND; leftover F1 FIXED (no userOwnsClan pre-check); F2 observation ACCEPTED |
 | 2026-09-01 | 10x-implement | Phase 1 SQL contract (`completed_at`, `complete_clan_run`, roster freeze) |
+| 2026-09-01 | 10x-impl-review | Phase 1 APPROVED (0 findings) |
+| 2026-09-01 | 10x-implement | Phase 2 API (`POST /api/runs/{id}/complete`, freeze gates) |
+| 2026-09-01 | 10x-impl-review | Phase 2 APPROVED (0 findings) |
+| 2026-09-01 | 10x-implement | Phase 3 UI (`Complete` control, Completed chip, AGENTS.md) |
 
 ## Decisions the Crew Lead made (no human)
 
@@ -67,6 +71,8 @@ Mode: **YOLO**. Crew Lead answered specialist questions; the human was asked onl
 ## Human-action gates
 
 - Phase 1.5 Studio/SQL-editor replay: skipped (YOLO residual risk). Automated authenticated smokes 1.1–1.4 passed (18/18) against local Supabase; Studio click-through not required this phase.
+- Phase 2.4–2.6 browser click-through: skipped (YOLO residual risk). Same assertions covered by curl against local Worker (complete, freeze, comments, leak/sign-in).
+- Phase 3.2–3.7 browser click-through: skipped (YOLO residual risk). Automated 3.1 passed (`npx astro sync`, `npm run lint` 0 errors, `npm run build`). No browser MCP in this specialist session.
 
 ## Stop / escape hatches
 
@@ -74,4 +80,4 @@ Mode: **YOLO**. Crew Lead answered specialist questions; the human was asked onl
 
 ## GitHub
 
-- change-sync: #86 events new, planned, plan_reviewed (link-roadmap S-22 → Backlog)
+- change-sync: #86 events new, planned, plan_reviewed, implementing (link-roadmap S-22 → In progress)

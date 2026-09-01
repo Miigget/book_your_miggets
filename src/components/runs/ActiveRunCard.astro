@@ -8,6 +8,7 @@ interface Props {
 }
 
 const { run } = Astro.props;
+const showCompleted = Boolean(run.completedAt) && run.lifecyclePhase !== "archived";
 ---
 
 <div
@@ -21,7 +22,12 @@ const { run } = Astro.props;
       >
         {run.displayTitle}
       </a>
-      {run.lifecyclePhase === "in_progress" && <span class="ml-2 text-sm font-medium text-amber-200">In progress</span>}
+      {showCompleted && <span class="ml-2 text-sm font-medium text-emerald-200">Completed</span>}
+      {
+        run.lifecyclePhase === "in_progress" && !showCompleted && (
+          <span class="ml-2 text-sm font-medium text-amber-200">In progress</span>
+        )
+      }
     </h3>
     <time class="shrink-0 text-sm text-blue-100/70" datetime={run.startsAt}>
       {formatStart(run.startsAt, Astro.locals.timeZone)}
