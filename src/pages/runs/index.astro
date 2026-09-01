@@ -46,10 +46,10 @@ const hasAnyRuns =
   restrictedAdminRuns.length > 0;
 
 const sections = [
-  { title: "Public", runs: publicRuns, subtitle: null as string | null },
+  { title: "Invite only", runs: invitedRuns, subtitle: null as string | null },
   { title: "Friends", runs: friendsRuns, subtitle: null },
-  { title: "Invited", runs: invitedRuns, subtitle: null },
   { title: "Clan", runs: clanRuns, subtitle: null },
+  { title: "Public", runs: publicRuns, subtitle: null },
   { title: "Restricted", runs: restrictedAdminRuns, subtitle: "Guests cannot see these." },
 ].filter((section) => section.runs.length > 0);
 ---

@@ -194,7 +194,19 @@ function matchesMapOrOrganizer(row: RunRow, query: string): boolean {
   return mapName.includes(needle) || nickname.includes(needle) || category.includes(needle);
 }
 
-async function confirmedCountsForRuns(supabase: AppSupabaseClient, runIds: string[]): Promise<Map<string, number>> {
+/** Keep `.in("run_id", …)` URLs short; paginate so PostgREST max-rows cannot under-count. */
+const PARTICIPANT_COUNT_ID_CHUNK = 80;
+const PARTICIPANT_COUNT_PAGE = 1000;
+
+/**
+ * One (chunked) SELECT instead of one HEAD per run. Dashboard listed ~26 organizer runs
+ * twice (created + joined) and blew the Workers Free 50-subrequest cap.
+ */
+async function participantCountsForRuns(
+  supabase: AppSupabaseClient,
+  runIds: string[],
+  status: Enums<"participant_status">,
+): Promise<Map<string, number>> {
   const counts = new Map<string, number>();
   for (const id of runIds) {
     counts.set(id, 0);
@@ -202,50 +214,46 @@ async function confirmedCountsForRuns(supabase: AppSupabaseClient, runIds: strin
 
   if (runIds.length === 0) return counts;
 
-  await Promise.all(
-    runIds.map(async (id) => {
-      const { count, error } = await supabase
+  const fail = (message: string) => {
+    const prefix =
+      status === "pending" ? "Failed to count pending participants" : "Failed to count confirmed participants";
+    return new Error(`${prefix}: ${message}`);
+  };
+
+  for (let i = 0; i < runIds.length; i += PARTICIPANT_COUNT_ID_CHUNK) {
+    const chunk = runIds.slice(i, i + PARTICIPANT_COUNT_ID_CHUNK);
+    let offset = 0;
+    for (;;) {
+      const { data, error } = await supabase
         .from("run_participants")
-        .select("id", { count: "exact", head: true })
-        .eq("run_id", id)
-        .eq("status", "confirmed");
+        .select("run_id")
+        .in("run_id", chunk)
+        .eq("status", status)
+        .order("id")
+        .range(offset, offset + PARTICIPANT_COUNT_PAGE - 1);
 
       if (error) {
-        throw new Error(`Failed to count confirmed participants: ${error.message}`);
+        throw fail(error.message);
       }
 
-      counts.set(id, count ?? 0);
-    }),
-  );
+      for (const row of data) {
+        counts.set(row.run_id, (counts.get(row.run_id) ?? 0) + 1);
+      }
+
+      if (data.length < PARTICIPANT_COUNT_PAGE) break;
+      offset += PARTICIPANT_COUNT_PAGE;
+    }
+  }
 
   return counts;
 }
 
+async function confirmedCountsForRuns(supabase: AppSupabaseClient, runIds: string[]): Promise<Map<string, number>> {
+  return participantCountsForRuns(supabase, runIds, "confirmed");
+}
+
 async function pendingCountsForRuns(supabase: AppSupabaseClient, runIds: string[]): Promise<Map<string, number>> {
-  const counts = new Map<string, number>();
-  for (const id of runIds) {
-    counts.set(id, 0);
-  }
-
-  if (runIds.length === 0) return counts;
-
-  await Promise.all(
-    runIds.map(async (id) => {
-      const { count, error } = await supabase
-        .from("run_participants")
-        .select("id", { count: "exact", head: true })
-        .eq("run_id", id)
-        .eq("status", "pending");
-
-      if (error) {
-        throw new Error(`Failed to count pending participants: ${error.message}`);
-      }
-
-      counts.set(id, count ?? 0);
-    }),
-  );
-
-  return counts;
+  return participantCountsForRuns(supabase, runIds, "pending");
 }
 
 export interface ListActiveRunsOptions {
@@ -381,28 +389,24 @@ export async function listRunsForOrganizer(
     .sort((a, b) => Date.parse(b.starts_at) - Date.parse(a.starts_at));
 
   const pendingIds = activeRows.filter((row) => row.join_mode === "approval_required").map((row) => row.id);
-  const [activeCounts, archivedCounts, pendingCounts] = await Promise.all([
+  const [confirmedCounts, pendingCounts] = await Promise.all([
     confirmedCountsForRuns(
       supabase,
-      activeRows.map((row) => row.id),
-    ),
-    confirmedCountsForRuns(
-      supabase,
-      archivedRows.map((row) => row.id),
+      rows.map((row) => row.id),
     ),
     pendingCountsForRuns(supabase, pendingIds),
   ]);
 
   const active = activeRows
     .map((row) => {
-      const mapped = mapRunRow(row, activeCounts.get(row.id) ?? 0, now);
+      const mapped = mapRunRow(row, confirmedCounts.get(row.id) ?? 0, now);
       if (!mapped) return null;
       return { ...mapped, pendingCount: pendingCounts.get(row.id) ?? 0 };
     })
     .filter((run): run is OrganizerRunListItem => run !== null);
 
   const archived = archivedRows
-    .map((row) => mapArchivedRunRow(row, archivedCounts.get(row.id) ?? 0, now))
+    .map((row) => mapArchivedRunRow(row, confirmedCounts.get(row.id) ?? 0, now))
     .filter((run): run is ArchivedRunDetail => run !== null);
 
   return { active, archived };
