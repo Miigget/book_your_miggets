@@ -1,7 +1,7 @@
 ---
 change_id: complete-clan-run
 title: Let clan owners mark a clan-only run completed
-status: implemented
+status: impl_reviewed
 created: 2026-09-01
 updated: 2026-09-01
 archived_at: null

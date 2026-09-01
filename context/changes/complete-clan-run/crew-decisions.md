@@ -3,7 +3,7 @@ change_id: complete-clan-run
 mode: YOLO
 started: 2026-09-01
 updated: 2026-09-01
-status: in-progress
+status: complete
 ---
 
 # Crew decisions — complete-clan-run
@@ -26,6 +26,8 @@ Mode: **YOLO**. Crew Lead answered specialist questions; the human was asked onl
 | 2026-09-01 | 10x-implement | Phase 2 API (`POST /api/runs/{id}/complete`, freeze gates) |
 | 2026-09-01 | 10x-impl-review | Phase 2 APPROVED (0 findings) |
 | 2026-09-01 | 10x-implement | Phase 3 UI (`Complete` control, Completed chip, AGENTS.md) |
+| 2026-09-01 | 10x-impl-review | Phase 3 APPROVED (0 findings) |
+| 2026-09-01 | 10x-impl-review | full APPROVED (0 findings); status impl_reviewed |
 
 ## Decisions the Crew Lead made (no human)
 
@@ -80,4 +82,4 @@ Mode: **YOLO**. Crew Lead answered specialist questions; the human was asked onl
 
 ## GitHub
 
-- change-sync: #86 events new, planned, plan_reviewed, implementing (link-roadmap S-22 → In progress)
+- change-sync: #86 events new, planned, plan_reviewed, implementing, implemented (link-roadmap S-22 → In review); archived pending
