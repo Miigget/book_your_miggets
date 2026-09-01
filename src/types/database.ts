@@ -609,6 +609,7 @@ export type Database = {
       runs: {
         Row: {
           archived_at: string | null
+          auto_join_min: number | null
           completed_at: string | null
           created_at: string
           extended_until: string | null
@@ -627,6 +628,7 @@ export type Database = {
         }
         Insert: {
           archived_at?: string | null
+          auto_join_min?: number | null
           completed_at?: string | null
           created_at?: string
           extended_until?: string | null
@@ -645,6 +647,7 @@ export type Database = {
         }
         Update: {
           archived_at?: string | null
+          auto_join_min?: number | null
           completed_at?: string | null
           created_at?: string
           extended_until?: string | null
@@ -731,6 +734,7 @@ export type Database = {
       complete_clan_run: { Args: { p_run_id: string }; Returns: string }
       create_invite_only_run: {
         Args: {
+          p_auto_join_min?: number
           p_invitee_ids: string[]
           p_join_mode: Database["public"]["Enums"]["join_mode"]
           p_map_category: string
@@ -814,6 +818,7 @@ export type Database = {
       }
       set_run_visibility_and_invites: {
         Args: {
+          p_auto_join_min?: number
           p_invitee_ids: string[]
           p_join_mode?: Database["public"]["Enums"]["join_mode"]
           p_map_category: string
@@ -823,6 +828,7 @@ export type Database = {
           p_run_id: string
           p_starts_at: string
           p_title: string
+          p_update_auto_join_min?: boolean
           p_visibility: Database["public"]["Enums"]["run_visibility"]
         }
         Returns: undefined

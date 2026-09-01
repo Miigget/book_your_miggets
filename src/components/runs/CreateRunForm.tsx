@@ -15,6 +15,7 @@ import {
   isStartsAtWithinOneYear,
   MAX_RUN_CAPACITY,
   oneYearAhead,
+  parseAutoJoinMin,
   STARTS_AT_FUTURE_MESSAGE,
   STARTS_AT_ONE_YEAR_MESSAGE,
 } from "@/lib/run-limits";
@@ -41,6 +42,7 @@ export interface CreateRunFormEditValues {
   maxParticipants: number;
   minPoints: number;
   joinMode: CreateRunFormJoinMode;
+  autoJoinMin: number | null;
   visibility: CreateRunFormVisibility;
   inviteeIds: string[];
   confirmedCount: number;
@@ -95,6 +97,8 @@ export default function CreateRunForm({
   );
   const [minPoints, setMinPoints] = useState(edit ? String(edit.minPoints) : "0");
   const [joinMode, setJoinMode] = useState<CreateRunFormJoinMode>(edit?.joinMode ?? "approval_required");
+  const [autoJoinMin, setAutoJoinMin] = useState(edit?.autoJoinMin != null ? String(edit.autoJoinMin) : "");
+  const [advancedOpen, setAdvancedOpen] = useState(edit?.autoJoinMin != null);
   const [visibility, setVisibility] = useState<CreateRunFormVisibility>(edit?.visibility ?? "public");
   const [selectedInviteeIds, setSelectedInviteeIds] = useState<Set<string>>(() => new Set(edit?.inviteeIds ?? []));
   const [errors, setErrors] = useState<{
@@ -103,6 +107,7 @@ export default function CreateRunForm({
     starts_at?: string;
     max_participants?: string;
     min_points?: string;
+    auto_join_min?: string;
     invitee_ids?: string;
   }>({});
   const showInvitePicker = visibility === "invite_only" && (isEdit || isVerified);
@@ -168,6 +173,13 @@ export default function CreateRunForm({
     const points = Number.parseInt(minPoints, 10);
     if (!Number.isFinite(points) || points < 0) {
       next.min_points = "Must be 0 or greater";
+    }
+
+    if (!edit?.joinModeLocked && Number.isFinite(capacity) && capacity > 0) {
+      const parsedMin = parseAutoJoinMin(autoJoinMin, capacity);
+      if (!parsedMin.ok) {
+        next.auto_join_min = parsedMin.message;
+      }
     }
 
     if (visibility === "invite_only" && selectedInviteeIds.size < 1) {
@@ -328,9 +340,55 @@ export default function CreateRunForm({
           </option>
         </select>
         {edit?.joinModeLocked && (
-          <p className="mt-1 text-xs text-blue-100/50">Join mode cannot be changed after someone has applied.</p>
+          <p className="mt-1 text-xs text-blue-100/50">
+            Join mode and team-size cannot be changed after someone has applied.
+          </p>
         )}
       </div>
+
+      <details
+        className="rounded-xl border border-white/10 bg-white/5 px-4 py-3"
+        open={advancedOpen}
+        onToggle={(event) => {
+          setAdvancedOpen(event.currentTarget.open);
+        }}
+      >
+        <summary className="cursor-pointer text-sm font-medium text-white">Advanced settings</summary>
+        <div className="mt-4">
+          <label htmlFor="auto_join_min" className="mb-1 block text-sm text-blue-100/80">
+            Auto-join first
+          </label>
+          <div className="relative">
+            <Users className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-white/40" />
+            <input
+              id="auto_join_min"
+              name={edit?.joinModeLocked ? undefined : "auto_join_min"}
+              type="number"
+              min={1}
+              step={1}
+              value={autoJoinMin}
+              disabled={Boolean(edit?.joinModeLocked)}
+              onChange={(e) => {
+                setAutoJoinMin(e.target.value);
+                if (errors.auto_join_min) setErrors((prev) => ({ ...prev, auto_join_min: undefined }));
+              }}
+              placeholder="Optional"
+              className={cn(
+                "w-full rounded-lg border bg-white/10 py-2 pr-3 pl-10 text-white transition-colors focus:ring-2 focus:outline-none",
+                errors.auto_join_min ? "border-red-400/60 focus:ring-red-400" : "border-white/20 focus:ring-purple-400",
+                edit?.joinModeLocked && "cursor-not-allowed opacity-60",
+              )}
+            />
+          </div>
+          {errors.auto_join_min ? (
+            <p className="mt-1 text-xs text-red-300">{errors.auto_join_min}</p>
+          ) : (
+            <p className="mt-1 text-xs text-blue-100/40">
+              Leave empty to use join mode only. The organizer counts toward this number.
+            </p>
+          )}
+        </div>
+      </details>
 
       {canChooseVisibility ? (
         <div>

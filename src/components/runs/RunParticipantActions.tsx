@@ -27,6 +27,7 @@ interface Props {
   organizerId: string;
   viewerUserId: string | null;
   joinMode: Enums<"join_mode">;
+  autoJoinMin: number | null;
   maxParticipants: number;
   isGuest: boolean;
   isBanned: boolean;
@@ -47,6 +48,7 @@ export default function RunParticipantActions({
   organizerId,
   viewerUserId,
   joinMode,
+  autoJoinMin,
   maxParticipants,
   isGuest,
   isBanned,
@@ -73,8 +75,9 @@ export default function RunParticipantActions({
   const [busy, setBusy] = useState<string | null>(null);
 
   const confirmedCount = confirmed.length;
-  const isAutoJoin = joinMode === "auto_join";
-  const autoJoinFull = isAutoJoin && confirmedCount >= maxParticipants;
+  const hasBand = autoJoinMin != null;
+  const isJoinCta = (hasBand && confirmedCount < autoJoinMin) || (!hasBand && joinMode === "auto_join");
+  const runFull = (hasBand || joinMode === "auto_join") && confirmedCount >= maxParticipants;
 
   function validateNickname(): boolean {
     const trimmed = nick.trim();
@@ -323,7 +326,7 @@ export default function RunParticipantActions({
         </p>
       )}
 
-      {!rosterFrozen && !isBanned && autoJoinFull && ownStatus === null && (
+      {!rosterFrozen && !isBanned && runFull && ownStatus === null && (
         <div className="space-y-2">
           <Button type="button" disabled className="w-full rounded-lg bg-white/10 px-4 py-2 font-medium text-white/60">
             <UserPlus className="size-4" />
@@ -333,7 +336,7 @@ export default function RunParticipantActions({
         </div>
       )}
 
-      {!rosterFrozen && !isBanned && !autoJoinFull && !nickname && ownStatus === null && isVerified && (
+      {!rosterFrozen && !isBanned && !runFull && !nickname && ownStatus === null && isVerified && (
         <div className="rounded-xl border border-amber-400/30 bg-amber-500/10 px-4 py-3">
           <p className="text-sm text-amber-100/90">
             Request a nickname on your{" "}
@@ -345,7 +348,7 @@ export default function RunParticipantActions({
         </div>
       )}
 
-      {!rosterFrozen && !isBanned && !autoJoinFull && !nickname && ownStatus === null && !isVerified && (
+      {!rosterFrozen && !isBanned && !runFull && !nickname && ownStatus === null && !isVerified && (
         <form
           method="POST"
           action="/api/profile/nickname"
@@ -376,7 +379,7 @@ export default function RunParticipantActions({
         </form>
       )}
 
-      {!rosterFrozen && !isBanned && !autoJoinFull && nickname && ownStatus === null && (
+      {!rosterFrozen && !isBanned && !runFull && nickname && ownStatus === null && (
         <form
           method="POST"
           action={`/api/runs/${runId}/apply`}
@@ -386,11 +389,11 @@ export default function RunParticipantActions({
           }}
         >
           <SubmitButton
-            pendingText={isAutoJoin ? "Joining..." : "Applying..."}
+            pendingText={isJoinCta ? "Joining..." : "Applying..."}
             icon={<UserPlus className="size-4" />}
             busy={busy === "apply"}
           >
-            {isAutoJoin ? "Join run" : "Apply to join"}
+            {isJoinCta ? "Join run" : "Apply to join"}
           </SubmitButton>
         </form>
       )}

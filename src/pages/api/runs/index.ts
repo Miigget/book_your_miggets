@@ -6,6 +6,7 @@ import {
   isAllowedRunCapacity,
   isStartsAtInFuture,
   isStartsAtWithinOneYear,
+  parseAutoJoinMin,
   STARTS_AT_FUTURE_MESSAGE,
   STARTS_AT_ONE_YEAR_MESSAGE,
 } from "@/lib/run-limits";
@@ -43,6 +44,7 @@ export const POST: APIRoute = async (context) => {
   const maxParticipantsRaw = formString(form, "max_participants");
   const minPointsRaw = formString(form, "min_points", "0");
   const joinModeRaw = formString(form, "join_mode");
+  const autoJoinMinRaw = formString(form, "auto_join_min");
   const nicknameRaw = formString(form, "nickname");
   const visibilityRaw = formString(form, "visibility", "public");
   const inviteeIds = parseInviteeIds(form);
@@ -201,6 +203,12 @@ export const POST: APIRoute = async (context) => {
     return fail("Join mode is invalid");
   }
 
+  const parsedAutoJoinMin = parseAutoJoinMin(autoJoinMinRaw, maxParticipants);
+  if (!parsedAutoJoinMin.ok) {
+    return fail(parsedAutoJoinMin.message);
+  }
+  const autoJoinMin = parsedAutoJoinMin.value;
+
   if (visibilityRaw === "invite_only") {
     try {
       const runId = await createInviteOnlyRun(supabase, user.id, {
@@ -211,6 +219,7 @@ export const POST: APIRoute = async (context) => {
         maxParticipants,
         minPoints,
         joinMode: joinModeRaw,
+        autoJoinMin,
         inviteeIds,
       });
       return context.redirect(`/runs/${runId}`);
@@ -234,6 +243,7 @@ export const POST: APIRoute = async (context) => {
       max_participants: maxParticipants,
       min_points: minPoints,
       join_mode: joinModeRaw,
+      auto_join_min: autoJoinMin,
       visibility: visibilityRaw,
       archived_at: null,
     })

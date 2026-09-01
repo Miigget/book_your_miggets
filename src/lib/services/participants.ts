@@ -160,14 +160,14 @@ export async function countConfirmedParticipants(supabase: AppSupabaseClient, ru
 async function loadActiveRunForMutation(
   supabase: AppSupabaseClient,
   runId: string,
-): Promise<{ id: string; join_mode: Enums<"join_mode">; organizer_id: string }> {
+): Promise<{ id: string; join_mode: Enums<"join_mode">; auto_join_min: number | null; organizer_id: string }> {
   if (!isUuid(runId)) {
     throw new ParticipantError("Invalid run");
   }
 
   const { data, error } = await supabase
     .from("runs")
-    .select("id, join_mode, organizer_id, starts_at, archived_at, extended_until, completed_at")
+    .select("id, join_mode, auto_join_min, organizer_id, starts_at, archived_at, extended_until, completed_at")
     .eq("id", runId)
     .is("archived_at", null)
     .maybeSingle();
@@ -184,10 +184,17 @@ async function loadActiveRunForMutation(
     throw new ParticipantError(CLAN_RUN_COMPLETED_FROZEN);
   }
 
-  return { id: data.id, join_mode: data.join_mode, organizer_id: data.organizer_id };
+  return {
+    id: data.id,
+    join_mode: data.join_mode,
+    auto_join_min: data.auto_join_min,
+    organizer_id: data.organizer_id,
+  };
 }
 
-async function autoJoinRun(supabase: AppSupabaseClient, runId: string): Promise<void> {
+type AutoJoinRpcOutcome = "confirmed" | "already_confirmed" | "band_full";
+
+async function autoJoinRun(supabase: AppSupabaseClient, runId: string): Promise<AutoJoinRpcOutcome> {
   const { data: outcome, error } = await supabase.rpc("auto_join_run", { p_run_id: runId });
 
   if (error) {
@@ -200,7 +207,9 @@ async function autoJoinRun(supabase: AppSupabaseClient, runId: string): Promise<
     case "already_confirmed":
       // already_confirmed is idempotent success: a double-submit race resolves
       // here once the run-row lock serializes the two requests.
-      return;
+      return outcome;
+    case "band_full":
+      return "band_full";
     case "full":
       throw new ParticipantError("This run is already full");
     case "already_pending":
@@ -250,13 +259,18 @@ export async function applyToRun(
     }
   }
 
-  if (run.join_mode === "auto_join") {
-    await autoJoinRun(supabase, runId);
-    const own = await getOwnParticipation(supabase, runId, userId);
-    if (own?.status !== "confirmed") {
-      throw new ParticipantError("Could not apply to this run");
+  if (run.join_mode === "auto_join" || run.auto_join_min != null) {
+    const outcome = await autoJoinRun(supabase, runId);
+    if (outcome === "confirmed" || outcome === "already_confirmed") {
+      const own = await getOwnParticipation(supabase, runId, userId);
+      if (own?.status !== "confirmed") {
+        throw new ParticipantError("Could not apply to this run");
+      }
+      return { status: "confirmed", participantId: own.id };
     }
-    return { status: "confirmed", participantId: own.id };
+    const _bandFull: "band_full" = outcome;
+    void _bandFull;
+    // band_full only: fall through to pending insert — never the confirmed post-check
   }
 
   const { data, error } = await supabase

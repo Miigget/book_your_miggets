@@ -33,6 +33,7 @@ export const POST: APIRoute = async (context) => {
   const maxParticipantsRaw = formString(form, "max_participants");
   const minPointsRaw = formString(form, "min_points", "0");
   const joinModeRaw = formString(form, "join_mode");
+  const autoJoinMinRaw = formString(form, "auto_join_min");
   const visibilityRaw = formString(form, "visibility", "public");
   const inviteeIds = parseInviteeIds(form);
 
@@ -95,6 +96,7 @@ export const POST: APIRoute = async (context) => {
     maxParticipants: maxParticipantsRaw,
     minPoints: minPointsRaw,
     joinMode: joinModeRaw,
+    autoJoinMin: autoJoinMinRaw,
     visibility: visibilityRaw,
   };
 

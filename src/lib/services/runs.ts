@@ -2,10 +2,12 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import { isMapCategory } from "@/lib/map-categories";
 import { getRunLifecyclePhase, isRunActive, type ActiveRunLifecyclePhase } from "@/lib/run-lifecycle";
 import {
+  AUTO_JOIN_MIN_RANGE_MESSAGE,
   CAPACITY_INVALID_MESSAGE,
   CAPACITY_MAX_MESSAGE,
   isAllowedRunCapacity,
   isStartsAtWithinOneYear,
+  parseAutoJoinMin,
   STARTS_AT_ONE_YEAR_MESSAGE,
 } from "@/lib/run-limits";
 import { utcDayRange, type RunListFilters } from "@/lib/run-list-filters";
@@ -32,6 +34,7 @@ export interface RunListItem {
   maxParticipants: number;
   minPoints: number;
   joinMode: Enums<"join_mode">;
+  autoJoinMin: number | null;
   visibility: Enums<"run_visibility">;
   displayTitle: string;
   map: RunMap | null;
@@ -69,6 +72,7 @@ const RUN_SELECT = `
   max_participants,
   min_points,
   join_mode,
+  auto_join_min,
   visibility,
   created_at,
   organizer_id,
@@ -99,6 +103,7 @@ interface RunRow {
   max_participants: number;
   min_points: number;
   join_mode: Enums<"join_mode">;
+  auto_join_min: number | null;
   visibility: Enums<"run_visibility">;
   created_at: string;
   organizer_id: string;
@@ -172,6 +177,7 @@ function runFieldsFromRow(row: RunRow, confirmedCount: number) {
     maxParticipants: row.max_participants,
     minPoints: row.min_points,
     joinMode: row.join_mode,
+    autoJoinMin: row.auto_join_min,
     visibility: row.visibility,
     createdAt: row.created_at,
     map,
@@ -404,7 +410,9 @@ export async function listRunsForOrganizer(
     .filter((row) => !isRunActive(row.starts_at, row.archived_at, row.extended_until, now))
     .sort((a, b) => Date.parse(b.starts_at) - Date.parse(a.starts_at));
 
-  const pendingIds = activeRows.filter((row) => row.join_mode === "approval_required").map((row) => row.id);
+  const pendingIds = activeRows
+    .filter((row) => row.join_mode === "approval_required" || row.auto_join_min != null)
+    .map((row) => row.id);
   const [confirmedCounts, pendingCounts] = await Promise.all([
     confirmedCountsForRuns(
       supabase,
@@ -524,6 +532,7 @@ function runRowFromPublicRpc(row: PlayerPublicRunRpcRow): { row: RunRow; confirm
       max_participants: row.max_participants,
       min_points: row.min_points,
       join_mode: row.join_mode,
+      auto_join_min: null,
       visibility: row.visibility,
       created_at: row.created_at,
       organizer_id: row.organizer_id,
@@ -889,6 +898,7 @@ export interface UpdateRunInput {
   maxParticipants: string;
   minPoints: string;
   joinMode: string;
+  autoJoinMin: string;
   visibility: string;
 }
 
@@ -901,6 +911,9 @@ interface PreparedRunPatch {
   minPoints: number;
   /** Null when join mode is locked — omit from UPDATE / pass null to the RPC. */
   joinMode: Enums<"join_mode"> | null;
+  /** When false, omit from PostgREST patch and omit invite `p_update_auto_join_min`. */
+  updateAutoJoinMin: boolean;
+  autoJoinMin: number | null;
   visibility: Enums<"run_visibility">;
 }
 
@@ -930,7 +943,10 @@ export function mapRunWriteError(error: PostgrestErrorBlob): RunError | null {
     return new RunError(`Title must be ${RUN_TITLE_MAX_LENGTH} characters or fewer`);
   }
   if (blob.includes("join_mode_locked")) {
-    return new RunError("Join mode cannot be changed after someone has applied");
+    return new RunError("Join mode and team-size cannot be changed after someone has applied");
+  }
+  if (blob.includes("runs_auto_join_min_chk")) {
+    return new RunError(AUTO_JOIN_MIN_RANGE_MESSAGE);
   }
   if (blob.includes("capacity_below_confirmed")) {
     return new RunError("Capacity cannot be below the confirmed roster");
@@ -1002,7 +1018,7 @@ async function prepareOwnedActiveRunPatch(
 
   const { data: existing, error: loadError } = await supabase
     .from("runs")
-    .select("id, max_participants, starts_at, archived_at, extended_until, completed_at")
+    .select("id, max_participants, auto_join_min, starts_at, archived_at, extended_until, completed_at")
     .eq("id", runId)
     .eq("organizer_id", userId)
     .is("archived_at", null)
@@ -1089,6 +1105,25 @@ async function prepareOwnedActiveRunPatch(
     joinMode = input.joinMode;
   }
 
+  let updateAutoJoinMin = false;
+  let autoJoinMin: number | null = null;
+  if (joinModeLocked) {
+    if (
+      maxParticipants !== existing.max_participants &&
+      existing.auto_join_min != null &&
+      maxParticipants < existing.auto_join_min
+    ) {
+      throw new RunError(AUTO_JOIN_MIN_RANGE_MESSAGE);
+    }
+  } else {
+    const parsedMin = parseAutoJoinMin(input.autoJoinMin, maxParticipants);
+    if (!parsedMin.ok) {
+      throw new RunError(parsedMin.message);
+    }
+    updateAutoJoinMin = true;
+    autoJoinMin = parsedMin.value;
+  }
+
   return {
     title,
     mapId,
@@ -1097,6 +1132,8 @@ async function prepareOwnedActiveRunPatch(
     maxParticipants,
     minPoints,
     joinMode,
+    updateAutoJoinMin,
+    autoJoinMin,
     visibility: input.visibility,
   };
 }
@@ -1109,6 +1146,7 @@ export interface CreateInviteOnlyRunInput {
   maxParticipants: number;
   minPoints: number;
   joinMode: Enums<"join_mode">;
+  autoJoinMin: number | null;
   inviteeIds: string[];
 }
 
@@ -1134,6 +1172,7 @@ export async function createInviteOnlyRun(
     p_max_participants: input.maxParticipants,
     p_min_points: input.minPoints,
     p_join_mode: input.joinMode,
+    p_auto_join_min: input.autoJoinMin,
     p_invitee_ids: input.inviteeIds,
   } as Database["public"]["Functions"]["create_invite_only_run"]["Args"]);
 
@@ -1313,6 +1352,7 @@ export async function updateRun(
     min_points: number;
     visibility: Enums<"run_visibility">;
     join_mode?: Enums<"join_mode">;
+    auto_join_min?: number | null;
   } = {
     title: prepared.title,
     map_id: prepared.mapId,
@@ -1325,6 +1365,9 @@ export async function updateRun(
 
   if (prepared.joinMode) {
     patch.join_mode = prepared.joinMode;
+  }
+  if (prepared.updateAutoJoinMin) {
+    patch.auto_join_min = prepared.autoJoinMin;
   }
 
   const { data: updated, error: updateError } = await supabase
@@ -1384,6 +1427,7 @@ export async function setRunVisibilityAndInvites(
     p_max_participants: prepared.maxParticipants,
     p_min_points: prepared.minPoints,
     ...(prepared.joinMode ? { p_join_mode: prepared.joinMode } : {}),
+    ...(prepared.updateAutoJoinMin ? { p_update_auto_join_min: true, p_auto_join_min: prepared.autoJoinMin } : {}),
   } as Database["public"]["Functions"]["set_run_visibility_and_invites"]["Args"]);
 
   if (error) {
