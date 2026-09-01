@@ -250,6 +250,12 @@ function formatReleasedOn(value: string | null): string {
                   <dt class="text-blue-100/50">Join mode</dt>
                   <dd class="mt-0.5 text-white">{formatJoinMode(run.joinMode)}</dd>
                 </div>
+                {run.autoJoinMin != null ? (
+                  <div>
+                    <dt class="text-blue-100/50">Auto-join first</dt>
+                    <dd class="mt-0.5 text-white">{run.autoJoinMin}</dd>
+                  </div>
+                ) : null}
                 <div>
                   <dt class="text-blue-100/50">Visibility</dt>
                   <dd class="mt-0.5 text-white">{formatVisibility(run.visibility)}</dd>
@@ -327,6 +333,7 @@ function formatReleasedOn(value: string | null): string {
                   organizerId={run.organizerId}
                   viewerUserId={user?.id ?? null}
                   joinMode={run.joinMode}
+                  autoJoinMin={run.autoJoinMin}
                   maxParticipants={run.maxParticipants}
                   isGuest={!user}
                   isBanned={isBanned}

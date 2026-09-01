@@ -338,8 +338,8 @@ First occupant of Advanced settings on the shared create/edit form. Detail expla
 
 #### Automated
 
-- [x] 2.1 `npm run lint`
-- [x] 2.2 `npm run build`
+- [x] 2.1 `npm run lint` — c7f2d21
+- [x] 2.2 `npm run build` — c7f2d21
 
 #### Manual
 
@@ -353,9 +353,9 @@ First occupant of Advanced settings on the shared create/edit form. Detail expla
 
 #### Automated
 
-- [ ] 3.1 `npm run lint`
-- [ ] 3.2 `npm run build`
-- [ ] 3.3 `AGENTS.md` documents S-26 invariants
+- [x] 3.1 `npm run lint`
+- [x] 3.2 `npm run build`
+- [x] 3.3 `AGENTS.md` documents S-26 invariants
 
 #### Manual
 

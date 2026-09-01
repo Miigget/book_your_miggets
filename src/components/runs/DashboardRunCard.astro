@@ -70,12 +70,15 @@ const showCompleted = Boolean(run.completedAt) && !isArchived;
       <dd class="inline text-blue-100/90">{formatVisibility(run.visibility)}</dd>
     </div>
     {
-      pendingCount !== null && run.joinMode === "approval_required" && !isArchived && (
-        <div>
-          <dt class="inline">Pending: </dt>
-          <dd class="inline text-blue-100/90">{pendingCount}</dd>
-        </div>
-      )
+      pendingCount !== null &&
+        pendingCount > 0 &&
+        !isArchived &&
+        (run.joinMode === "approval_required" || run.autoJoinMin != null) && (
+          <div>
+            <dt class="inline">Pending: </dt>
+            <dd class="inline text-blue-100/90">{pendingCount}</dd>
+          </div>
+        )
     }
     {
       run.map ? (
