@@ -203,8 +203,8 @@ No migration. Existing `max_participants` > 64 stay until the organizer changes 
 
 #### Automated
 
-- [x] 1.1 `npm run lint` passes
-- [x] 1.2 `npm run build` passes
+- [x] 1.1 `npm run lint` passes — b4fd1d5
+- [x] 1.2 `npm run build` passes — b4fd1d5
 
 #### Manual
 
@@ -221,8 +221,8 @@ No migration. Existing `max_participants` > 64 stay until the organizer changes 
 
 #### Automated
 
-- [ ] 2.1 `npm run lint` passes
-- [ ] 2.2 `npm run build` passes
+- [x] 2.1 `npm run lint` passes
+- [x] 2.2 `npm run build` passes
 
 #### Manual
 
