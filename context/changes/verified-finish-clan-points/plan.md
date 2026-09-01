@@ -306,10 +306,10 @@ Local app (typically `http://localhost:4321`) with Supabase already running:
 
 #### Automated
 
-- [x] 1.1 Migration applies on local Supabase
-- [x] 1.2 `npm run db:types` succeeds; `verified_at` and `verify_clan_run_finish` appear in generated types
-- [x] 1.3 SQL smoke: verify stamps and awards once; Complete does not award; archive-then-verify works; comments still insert while audience-active; GRANT closed on `verified_at` and `clans.points`
-- [x] 1.4 SQL smoke negatives: non-admin `not_found`, `no_map` does not stamp, `not_completed`, `not_clan_only`
+- [x] 1.1 Migration applies on local Supabase — b05ae82
+- [x] 1.2 `npm run db:types` succeeds; `verified_at` and `verify_clan_run_finish` appear in generated types — b05ae82
+- [x] 1.3 SQL smoke: verify stamps and awards once; Complete does not award; archive-then-verify works; comments still insert while audience-active; GRANT closed on `verified_at` and `clans.points` — b05ae82
+- [x] 1.4 SQL smoke negatives: non-admin `not_found`, `no_map` does not stamp, `not_completed`, `not_clan_only` — b05ae82
 
 #### Manual
 
@@ -319,9 +319,9 @@ Local app (typically `http://localhost:4321`) with Supabase already running:
 
 #### Automated
 
-- [ ] 2.1 `npx astro sync` and `npm run lint` pass
-- [ ] 2.2 `npm run build` passes
-- [ ] 2.3 `verifyClanRunFinish` and `verifiedAt` typecheck against generated types
+- [x] 2.1 `npx astro sync` and `npm run lint` pass
+- [x] 2.2 `npm run build` passes
+- [x] 2.3 `verifyClanRunFinish` and `verifiedAt` typecheck against generated types
 
 #### Manual
 

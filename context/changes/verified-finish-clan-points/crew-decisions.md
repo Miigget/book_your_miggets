@@ -20,6 +20,8 @@ Mode: **YOLO**. Crew Lead answered specialist questions; the human was asked onl
 | 2026-09-01 | 10x-plan | DECISION_REQUEST round-2 (unverify, roster, chip) |
 | 2026-09-01 | 10x-plan | plan.md + plan-brief.md; status planned |
 | 2026-09-01 | 10x-plan-review | SOUND; F1/F2 LOW patched in plan; status plan_reviewed |
+| 2026-09-01 | 10x-implement p1 | SQL contract; commit b05ae82; status implementing |
+| 2026-09-01 | 10x-impl-review p1 | APPROVED |
 
 ## Decisions the Crew Lead made (no human)
 
@@ -49,7 +51,7 @@ Mode: **YOLO**. Crew Lead answered specialist questions; the human was asked onl
 
 ## Human-action gates
 
-- none yet
+- Phase 1.5 SQL-editor replay: skipped (YOLO residual risk; automated smoke ran against local Postgres)
 
 ## Stop / escape hatches
 
