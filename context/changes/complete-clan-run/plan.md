@@ -346,13 +346,13 @@ Local app (typically `http://localhost:4321`) with Supabase already running:
 
 #### Automated
 
-- [x] 3.1 `npx astro sync`, `npm run lint`, and `npm run build` pass
+- [x] 3.1 `npx astro sync`, `npm run lint`, and `npm run build` pass — 907970f
 
 #### Manual
 
-- [x] 3.2 Owner Complete confirm → Completed chip on detail, Clan, dashboard; Edit/Extend gone; Archive stays; comments still post; roster frozen; points unchanged
-- [x] 3.3 Upcoming has no Complete button
-- [x] 3.4 Archive after Complete leaves the active list and frees the 5-cap; Past, Recent, archived `/runs/{id}` show Archived not Completed
-- [x] 3.5 Guest/non-member 404; public/friends-only have no Complete
-- [x] 3.6 Other clan owner cannot complete this run
-- [x] 3.7 Admin sees Completed if they can view; Archive/Delete unchanged; no verify control
+- [x] 3.2 Owner Complete confirm → Completed chip on detail, Clan, dashboard; Edit/Extend gone; Archive stays; comments still post; roster frozen; points unchanged — 907970f
+- [x] 3.3 Upcoming has no Complete button — 907970f
+- [x] 3.4 Archive after Complete leaves the active list and frees the 5-cap; Past, Recent, archived `/runs/{id}` show Archived not Completed — 907970f
+- [x] 3.5 Guest/non-member 404; public/friends-only have no Complete — 907970f
+- [x] 3.6 Other clan owner cannot complete this run — 907970f
+- [x] 3.7 Admin sees Completed if they can view; Archive/Delete unchanged; no verify control — 907970f
