@@ -3,7 +3,7 @@ project: "Book Your Miggets"
 version: 3
 status: draft
 created: 2026-08-27
-updated: 2026-08-31
+updated: 2026-09-01
 prd_version: 2
 main_goal: quality
 top_blocker: none
@@ -37,7 +37,7 @@ Both tracks must work; shipping only clans or only the run-loop extras is not do
 | S-19 | clan-friend-invites | (clan owner) invite friends into the clan | S-18, shipped friends | FR-015, US-02 | done |
 | S-20 | comment-screenshots | (confirmed participant) attach screenshots in comments without widening ACL | shipped run comments | FR-001, FR-027, US-01, US-02 | done |
 | S-21 | clan-runs | (owner/officer) create a clan run and invite clan members | S-18, S-19, shipped run create | FR-020, FR-028, US-02 | done |
-| S-22 | complete-clan-run | (owner/officer) mark a clan run completed | S-21 | FR-021, US-02 | proposed |
+| S-22 | complete-clan-run | (owner/officer) mark a clan run completed | S-21 | FR-021, US-02 | in-progress |
 | S-23 | verified-finish-clan-points | (admin) mark verified-finish; clan points and ranking update only then | S-22, S-20, shipped admin role | FR-019, FR-022, FR-023, FR-018, FR-030, US-02 | proposed |
 | S-24 | manual-archive-and-extend | archive via button or extend ≤ 6h; 1-hour auto-archive gone; max 5 active runs | shipped active list + 1-hour window | FR-002, FR-003, FR-004, FR-008, FR-024, US-01 | done |
 | S-25 | run-create-limits | set capacity default/max 64; cannot schedule in the past or > 1 year ahead | shipped run create/edit | FR-006, FR-007, US-01 | ready |
@@ -150,7 +150,7 @@ Shipped product (previous roadmap, all `done`): F-01 + S-01…S-17 — create/li
 - **Blockers:** —
 - **Unknowns:** —
 - **Risk:** junk in the admin verify queue is accepted (PRD); the failure mode is adding points on complete — that stays locked until S-23.
-- **Status:** proposed
+- **Status:** in-progress
 
 ### S-23: Verified-finish and clan points
 
