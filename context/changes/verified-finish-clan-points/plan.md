@@ -333,7 +333,7 @@ Local app (typically `http://localhost:4321`) with Supabase already running:
 
 #### Automated
 
-- [x] 3.1 `npx astro sync`, `npm run lint`, and `npm run build` pass
+- [x] 3.1 `npx astro sync`, `npm run lint`, and `npm run build` pass — a4517b2
 
 #### Manual
 

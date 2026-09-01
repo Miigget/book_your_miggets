@@ -1,7 +1,7 @@
 ---
 change_id: verified-finish-clan-points
 title: Let admins mark verified-finish and award clan points
-status: implementing
+status: implemented
 created: 2026-09-01
 updated: 2026-09-01
 archived_at: null
