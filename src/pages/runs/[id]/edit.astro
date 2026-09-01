@@ -3,6 +3,7 @@ import Layout from "@/layouts/Layout.astro";
 import PageChrome from "@/components/PageChrome.astro";
 import CreateRunForm from "@/components/runs/CreateRunForm";
 import { createClient } from "@/lib/supabase";
+import { userOwnsClan } from "@/lib/services/clans";
 import { listPublicFriends, type PublicFriend } from "@/lib/services/friends";
 import { countConfirmedParticipants } from "@/lib/services/participants";
 import {
@@ -27,6 +28,7 @@ let friends: PublicFriend[] = [];
 let inviteeIds: string[] = [];
 let confirmedCount = 0;
 let joinModeLocked = false;
+let ownsClan = false;
 let pageError: "missing" | "config" | "load" | null = null;
 
 if (!id || !isUuid(id)) {
@@ -39,7 +41,7 @@ if (!id || !isUuid(id)) {
     if (!run) {
       pageError = "missing";
     } else if (!isBanned) {
-      const [mapRows, confirmed, others, friendRows, snapshotIds] = await Promise.all([
+      const [mapRows, confirmed, others, friendRows, snapshotIds, owns] = await Promise.all([
         listMapsForPicker(supabase),
         countConfirmedParticipants(supabase, run.id),
         supabase
@@ -49,6 +51,7 @@ if (!id || !isUuid(id)) {
           .neq("user_id", user.id),
         listPublicFriends(supabase, user.id),
         listRunInviteeIds(supabase, run.id),
+        userOwnsClan(supabase, user.id),
       ]);
       if (others.error) {
         throw new Error(`Failed to count participants: ${others.error.message}`);
@@ -57,6 +60,7 @@ if (!id || !isUuid(id)) {
       confirmedCount = confirmed;
       joinModeLocked = (others.count ?? 0) > 0;
       inviteeIds = snapshotIds;
+      ownsClan = owns;
       const friendIdSet = new Set(friendRows.map((friend) => friend.id));
       const leftoverIds = snapshotIds.filter((id) => !friendIdSet.has(id));
       const leftovers = await listPublicNicknamesByIds(supabase, leftoverIds);
@@ -125,6 +129,7 @@ const backHref = run ? `/runs/${run.id}` : "/runs";
                 nickname={null}
                 isVerified={false}
                 friends={friends}
+                ownsClan={ownsClan}
                 serverError={error}
                 edit={{
                   runId: run.id,
@@ -139,6 +144,7 @@ const backHref = run ? `/runs/${run.id}` : "/runs";
                   inviteeIds,
                   confirmedCount,
                   joinModeLocked,
+                  extendedUntil: run.extendedUntil,
                 }}
                 client:load
               />

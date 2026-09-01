@@ -35,11 +35,11 @@ Both tracks must work; shipping only clans or only the run-loop extras is not do
 | F-02 | clan-domain-schema | (foundation) minimal clan schema + guest/member/admin RLS landed | — | Access Control Changes, FR-014, FR-028 | done |
 | S-18 | create-clan-directory | create a clan; guests browse directory, details, and points ranking | F-02, shipped verified members + public profiles | FR-014, FR-016, FR-017, FR-018, FR-028, FR-029, FR-030, US-02 | done |
 | S-19 | clan-friend-invites | (clan owner) invite friends into the clan | S-18, shipped friends | FR-015, US-02 | done |
-| S-20 | comment-screenshots | (confirmed participant) attach screenshots in comments without widening ACL | shipped run comments | FR-001, FR-027, US-01, US-02 | ready |
-| S-21 | clan-runs | (owner/officer) create a clan run and invite clan members | S-18, S-19, shipped run create | FR-020, FR-028, US-02 | proposed |
+| S-20 | comment-screenshots | (confirmed participant) attach screenshots in comments without widening ACL | shipped run comments | FR-001, FR-027, US-01, US-02 | done |
+| S-21 | clan-runs | (owner/officer) create a clan run and invite clan members | S-18, S-19, shipped run create | FR-020, FR-028, US-02 | done |
 | S-22 | complete-clan-run | (owner/officer) mark a clan run completed | S-21 | FR-021, US-02 | proposed |
 | S-23 | verified-finish-clan-points | (admin) mark verified-finish; clan points and ranking update only then | S-22, S-20, shipped admin role | FR-019, FR-022, FR-023, FR-018, FR-030, US-02 | proposed |
-| S-24 | manual-archive-and-extend | archive via button or extend ≤ 6h; 1-hour auto-archive gone; max 5 active runs | shipped active list + 1-hour window | FR-002, FR-003, FR-004, FR-008, FR-024, US-01 | ready |
+| S-24 | manual-archive-and-extend | archive via button or extend ≤ 6h; 1-hour auto-archive gone; max 5 active runs | shipped active list + 1-hour window | FR-002, FR-003, FR-004, FR-008, FR-024, US-01 | done |
 | S-25 | run-create-limits | set capacity default/max 64; cannot schedule in the past or > 1 year ahead | shipped run create/edit | FR-006, FR-007, US-01 | ready |
 | S-26 | team-size-scope | set min auto-join / max approval bands under Advanced settings | shipped approval + auto-join | FR-005, FR-025, FR-026, US-01 | ready |
 | S-27 | multi-map-runs | attach multiple maps to one run for a single session | shipped run create + category-only | FR-009, US-01 | ready |
@@ -125,7 +125,7 @@ Shipped product (previous roadmap, all `done`): F-01 + S-01…S-17 — create/li
 - **Blockers:** —
 - **Unknowns:** —
 - **Risk:** abuse (size/NSFW) is accepted in the PRD; the slice still must not open comment read/write to guests or pending applicants. Needed by S-23 as the in-app `/teamrank` + finish-line proof path, but admin still checks in-game by hand.
-- **Status:** ready
+- **Status:** done
 
 ### S-21: Clan runs
 
@@ -138,7 +138,7 @@ Shipped product (previous roadmap, all `done`): F-01 + S-01…S-17 — create/li
 - **Unknowns:**
   - Is a clan run a new audience on the existing run, or a separate listing? — Owner: user. Block: no. Candidate default: same run entity, audience = clan members + admin, never mixed into the guest public stack.
 - **Risk:** reusing run create without a new visibility axis will either leak onto `/runs` or fork a second scheduler. Join Stream A here so S-22/S-23 have a real clan session to complete.
-- **Status:** proposed
+- **Status:** done
 
 ### S-22: Mark a clan run completed
 
@@ -174,7 +174,7 @@ Shipped product (previous roadmap, all `done`): F-01 + S-01…S-17 — create/li
 - **Blockers:** —
 - **Unknowns:** —
 - **Risk:** this is the blast radius on shipped lifecycle (derived 1-hour window + RLS). Quality sequences it in parallel with Stream A, not after clans are finished. Pairing the 5-run cap here so removing auto-archive does not leave organizers stuck at 5 with no way to free a slot.
-- **Status:** ready
+- **Status:** done
 
 ### S-25: Capacity 64 and schedule bounds
 
@@ -324,3 +324,6 @@ Previous full roadmap archived 2026-08-27 → `context/foundation/archive/2026-0
 - **F-02: (foundation) the smallest clan tables exist (clan, membership with owner as the first member, points defaulting to 0) with per-role RLS so a verified member can insert a clan, a guest can read the public directory/details, and friends-only / invite-only runs still cannot leak through clan rows.** — Archived 2026-08-27 → `context/archive/2026-08-27-clan-domain-schema/`. Lesson: —.
 - **S-18: verified member can create a clan (name, tag, profile picture); guests can browse all clans, open details (name, tag, picture, members, points), and see clans ranked by points (zeros until S-23).** — Archived 2026-08-27 → `context/archive/2026-08-27-create-clan-directory/`. Lesson: —.
 - **S-19: clan owner can invite friends to join the clan; accepted members appear on the clan roster guests already see.** — Archived 2026-08-31 → `context/archive/2026-08-31-clan-friend-invites/`. Lesson: —.
+- **S-20: confirmed participant can attach screenshots in comments on a run they were accepted to; who can post or read does not widen.** — Archived 2026-08-31 → `context/archive/2026-08-31-comment-screenshots/`. Lesson: —.
+- **S-21: clan owner or officer can create a clan run and invite clan members to participate; guests and non-members do not see it as a public run, and friends-only / invite-only runs still do not leak.** — Archived 2026-08-31 → `context/archive/2026-08-31-clan-runs/`. Lesson: —.
+- **S-24: organizer or admin can archive a run via a button; organizer can extend an in-progress run by at most 6 hours; the 1-hour auto-archive window is gone; an organizer may have at most 5 non-archived runs (archiving frees a slot). Guests still browse/filter the public active list.** — Archived 2026-08-31 → `context/archive/2026-08-31-manual-archive-and-extend/`. Lesson: —.

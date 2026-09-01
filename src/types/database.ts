@@ -475,6 +475,7 @@ export type Database = {
           created_at: string
           id: string
           run_id: string
+          screenshot_path: string | null
         }
         Insert: {
           author_id: string
@@ -482,6 +483,7 @@ export type Database = {
           created_at?: string
           id?: string
           run_id: string
+          screenshot_path?: string | null
         }
         Update: {
           author_id?: string
@@ -489,6 +491,7 @@ export type Database = {
           created_at?: string
           id?: string
           run_id?: string
+          screenshot_path?: string | null
         }
         Relationships: [
           {
@@ -607,6 +610,7 @@ export type Database = {
         Row: {
           archived_at: string | null
           created_at: string
+          extended_until: string | null
           id: string
           join_mode: Database["public"]["Enums"]["join_mode"]
           map_category: string | null
@@ -622,6 +626,7 @@ export type Database = {
         Insert: {
           archived_at?: string | null
           created_at?: string
+          extended_until?: string | null
           id?: string
           join_mode?: Database["public"]["Enums"]["join_mode"]
           map_category?: string | null
@@ -637,6 +642,7 @@ export type Database = {
         Update: {
           archived_at?: string | null
           created_at?: string
+          extended_until?: string | null
           id?: string
           join_mode?: Database["public"]["Enums"]["join_mode"]
           map_category?: string | null
@@ -708,9 +714,14 @@ export type Database = {
       }
     }
     Functions: {
+      archive_run: { Args: { p_run_id: string }; Returns: string }
       are_friends: { Args: { a: string; b: string }; Returns: boolean }
       auto_join_run: { Args: { p_run_id: string }; Returns: string }
       can_view_run: { Args: { p_run_id: string }; Returns: boolean }
+      comment_screenshot_object_run_id: {
+        Args: { p_name: string }
+        Returns: string
+      }
       create_invite_only_run: {
         Args: {
           p_invitee_ids: string[]
@@ -744,18 +755,28 @@ export type Database = {
           isSetofReturn: false
         }
       }
+      extend_run: {
+        Args: { p_hours: number; p_run_id: string }
+        Returns: string
+      }
       is_admin: { Args: never; Returns: boolean }
       is_confirmed_participant: { Args: { p_run_id: string }; Returns: boolean }
       is_not_banned: { Args: never; Returns: boolean }
+      is_run_active_row: {
+        Args: { p_archived_at: string; p_extended_until: string }
+        Returns: boolean
+      }
       is_run_in_active_window: { Args: { p_run_id: string }; Returns: boolean }
       is_run_invitee: { Args: { p_run_id: string }; Returns: boolean }
       is_run_organizer: { Args: { p_run_id: string }; Returns: boolean }
+      is_same_clan: { Args: { a: string; b: string }; Returns: boolean }
       list_player_public_runs: {
         Args: { p_user_id: string }
         Returns: {
           archived_at: string
           confirmed_count: number
           created_at: string
+          extended_until: string
           id: string
           join_mode: Database["public"]["Enums"]["join_mode"]
           map_category: string
@@ -798,7 +819,7 @@ export type Database = {
       join_mode: "approval_required" | "auto_join"
       nickname_change_request_status: "pending" | "accepted" | "denied"
       participant_status: "pending" | "confirmed" | "denied"
-      run_visibility: "public" | "friends_only" | "invite_only"
+      run_visibility: "public" | "friends_only" | "invite_only" | "clan_only"
       user_role: "member" | "admin"
     }
     CompositeTypes: {
@@ -935,7 +956,7 @@ export const Constants = {
       join_mode: ["approval_required", "auto_join"],
       nickname_change_request_status: ["pending", "accepted", "denied"],
       participant_status: ["pending", "confirmed", "denied"],
-      run_visibility: ["public", "friends_only", "invite_only"],
+      run_visibility: ["public", "friends_only", "invite_only", "clan_only"],
       user_role: ["member", "admin"],
     },
   },

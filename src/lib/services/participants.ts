@@ -1,4 +1,4 @@
-import { activeWindowStartsAfter } from "@/lib/run-lifecycle";
+import { isRunActive } from "@/lib/run-lifecycle";
 import type { Enums } from "@/types/database";
 import { ensureOwnProfile, getOwnNickname, isUuid, type AppSupabaseClient } from "@/lib/services/runs";
 
@@ -165,21 +165,20 @@ async function loadActiveRunForMutation(
 
   const { data, error } = await supabase
     .from("runs")
-    .select("id, join_mode, organizer_id")
+    .select("id, join_mode, organizer_id, starts_at, archived_at, extended_until")
     .eq("id", runId)
     .is("archived_at", null)
-    .gt("starts_at", activeWindowStartsAfter())
     .maybeSingle();
 
   if (error) {
     throw new Error(`Failed to load run: ${error.message}`);
   }
 
-  if (!data) {
+  if (!data || !isRunActive(data.starts_at, data.archived_at, data.extended_until)) {
     throw new ParticipantError("Run not found or no longer active");
   }
 
-  return data;
+  return { id: data.id, join_mode: data.join_mode, organizer_id: data.organizer_id };
 }
 
 async function autoJoinRun(supabase: AppSupabaseClient, runId: string): Promise<void> {

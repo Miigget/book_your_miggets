@@ -4,6 +4,7 @@ import Banner from "@/components/Banner.astro";
 import NicknameLink from "@/components/NicknameLink.astro";
 import PageChrome from "@/components/PageChrome.astro";
 import AdminRunControls from "@/components/runs/AdminRunControls";
+import OrganizerRunLifecycleControls from "@/components/runs/OrganizerRunLifecycleControls";
 import RunComments from "@/components/runs/RunComments";
 import RunParticipantActions from "@/components/runs/RunParticipantActions";
 import { formatStart } from "@/lib/format-date";
@@ -166,14 +167,26 @@ function formatReleasedOn(value: string | null): string {
                 Organized by <NicknameLink userId={run.organizerId} nickname={run.organizerNickname} />
               </p>
               {isOrganizer && !isArchived && (
-                <p class="mt-3">
+                <div class="mt-3 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
                   <a
                     href={`/runs/${run.id}/edit`}
                     class="text-sm text-purple-300 transition-colors hover:text-purple-100 hover:underline"
                   >
                     Edit
                   </a>
-                </p>
+                  <OrganizerRunLifecycleControls
+                    client:load
+                    runId={run.id}
+                    lifecyclePhase={run.lifecyclePhase}
+                    extendedUntil={run.extendedUntil}
+                    timeZone={Astro.locals.timeZone}
+                  />
+                </div>
+              )}
+              {(isOrganizer || isAdmin) && serverError && (
+                <div class="mt-4 overflow-hidden rounded-lg">
+                  <Banner variant="error">{serverError}</Banner>
+                </div>
               )}
             </header>
 
@@ -310,12 +323,7 @@ function formatReleasedOn(value: string | null): string {
 
             {isAdmin && (
               <section class="mb-8 rounded-xl border border-red-400/20 bg-red-500/5 px-5 py-5 backdrop-blur-xl">
-                {isArchived && serverError && (
-                  <div class="mb-4 overflow-hidden rounded-lg">
-                    <Banner variant="error">{serverError}</Banner>
-                  </div>
-                )}
-                <AdminRunControls client:load runId={run.id} />
+                <AdminRunControls client:load runId={run.id} showArchive={!isArchived} />
               </section>
             )}
           </>

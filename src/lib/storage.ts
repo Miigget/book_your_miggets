@@ -2,11 +2,17 @@ import type { AppSupabaseClient } from "@/lib/services/runs";
 
 export const CLAN_PICTURES_BUCKET = "clan-pictures";
 
+export const COMMENT_SCREENSHOTS_BUCKET = "comment-screenshots";
+
 export const PUBLIC_IMAGE_MIME_TYPES = new Set(["image/jpeg", "image/png", "image/webp"]);
 
 export const PUBLIC_IMAGE_MAX_BYTES = 1_048_576;
 
+export const COMMENT_SCREENSHOT_MAX_BYTES = 5_242_880;
+
 export const PICTURE_REJECT_MESSAGE = "Picture must be a JPEG, PNG, or WebP under 1 MB.";
+
+export const SCREENSHOT_REJECT_MESSAGE = "Screenshot must be a JPEG, PNG, or WebP under 5 MB.";
 
 const MIME_TO_EXT: Record<string, string> = {
   "image/jpeg": "jpg",
@@ -29,18 +35,31 @@ export function clanPictureObjectPath(ownerId: string, clanId: string, ext: stri
   return `${ownerId.toLowerCase()}/${clanId.toLowerCase()}.${ext}`;
 }
 
-export function assertPublicImage(bytes: ArrayBuffer | Uint8Array, mime: string): void {
+export function commentScreenshotObjectPath(authorId: string, runId: string, commentId: string, ext: string): string {
+  return `${authorId.toLowerCase()}/${runId.toLowerCase()}/${commentId.toLowerCase()}.${ext}`;
+}
+
+export function assertPublicImage(
+  bytes: ArrayBuffer | Uint8Array,
+  mime: string,
+  maxBytes = PUBLIC_IMAGE_MAX_BYTES,
+  rejectMessage = PICTURE_REJECT_MESSAGE,
+): void {
   const size = bytes.byteLength;
-  if (size <= 0 || size > PUBLIC_IMAGE_MAX_BYTES || !PUBLIC_IMAGE_MIME_TYPES.has(mime)) {
-    throw new StorageImageError();
+  if (size <= 0 || size > maxBytes || !PUBLIC_IMAGE_MIME_TYPES.has(mime)) {
+    throw new StorageImageError(rejectMessage);
   }
 }
 
-export function assertPublicImageFile(file: File): { mime: string; ext: string } {
+export function assertPublicImageFile(
+  file: File,
+  maxBytes = PUBLIC_IMAGE_MAX_BYTES,
+  rejectMessage = PICTURE_REJECT_MESSAGE,
+): { mime: string; ext: string } {
   const mime = file.type.trim().toLowerCase();
   const ext = extensionForImageMime(mime);
-  if (!ext || file.size <= 0 || file.size > PUBLIC_IMAGE_MAX_BYTES) {
-    throw new StorageImageError();
+  if (!ext || file.size <= 0 || file.size > maxBytes) {
+    throw new StorageImageError(rejectMessage);
   }
   return { mime, ext };
 }
@@ -61,9 +80,18 @@ function isBucketLimitFailure(error: { message?: string; statusCode?: string | n
 
 export async function uploadPublicImage(
   supabase: AppSupabaseClient,
-  options: { bucket: string; path: string; bytes: ArrayBuffer | Uint8Array; mime: string },
+  options: {
+    bucket: string;
+    path: string;
+    bytes: ArrayBuffer | Uint8Array;
+    mime: string;
+    maxBytes?: number;
+    rejectMessage?: string;
+  },
 ): Promise<void> {
-  assertPublicImage(options.bytes, options.mime);
+  const maxBytes = options.maxBytes ?? PUBLIC_IMAGE_MAX_BYTES;
+  const rejectMessage = options.rejectMessage ?? PICTURE_REJECT_MESSAGE;
+  assertPublicImage(options.bytes, options.mime, maxBytes, rejectMessage);
   const { error } = await supabase.storage.from(options.bucket).upload(options.path, options.bytes, {
     contentType: options.mime,
     upsert: false,
@@ -71,7 +99,7 @@ export async function uploadPublicImage(
   if (!error) return;
   console.error("storage upload failed", error);
   if (isBucketLimitFailure(error)) {
-    throw new StorageImageError();
+    throw new StorageImageError(rejectMessage);
   }
   throw new Error("upload_failed");
 }
@@ -79,6 +107,20 @@ export async function uploadPublicImage(
 export function publicObjectUrl(supabase: AppSupabaseClient, bucket: string, path: string): string {
   const { data } = supabase.storage.from(bucket).getPublicUrl(path);
   return data.publicUrl;
+}
+
+export async function createSignedObjectUrl(
+  supabase: AppSupabaseClient,
+  bucket: string,
+  path: string,
+  expiresIn = 3600,
+): Promise<string | null> {
+  const { data, error } = await supabase.storage.from(bucket).createSignedUrl(path, expiresIn);
+  if (error) {
+    console.error("storage signed url failed", error);
+    return null;
+  }
+  return data.signedUrl;
 }
 
 export async function removeObject(supabase: AppSupabaseClient, bucket: string, path: string): Promise<void> {

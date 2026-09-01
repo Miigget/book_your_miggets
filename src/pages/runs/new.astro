@@ -4,8 +4,15 @@ import PageChrome from "@/components/PageChrome.astro";
 import CreateRunForm from "@/components/runs/CreateRunForm";
 import { createClient } from "@/lib/supabase";
 import { getOwnProfile } from "@/lib/services/profile";
+import { userOwnsClan } from "@/lib/services/clans";
 import { listPublicFriends, type PublicFriend } from "@/lib/services/friends";
-import { listMapsForPicker, type MapPickerItem } from "@/lib/services/runs";
+import { MAX_ACTIVE_RUNS_PER_ORGANIZER } from "@/lib/run-lifecycle";
+import {
+  ACTIVE_RUN_CAP_MESSAGE,
+  countAudienceActiveRunsForOrganizer,
+  listMapsForPicker,
+  type MapPickerItem,
+} from "@/lib/services/runs";
 
 const supabase = createClient(Astro.request.headers, Astro.cookies);
 const { user } = Astro.locals;
@@ -16,18 +23,29 @@ let maps: MapPickerItem[] = [];
 let nickname: string | null = null;
 let isVerified = false;
 let friends: PublicFriend[] = [];
+let ownsClan = false;
 let loadError: string | null = null;
+let atActiveCap = false;
 
 if (!supabase || !user) {
   loadError = "Supabase is not configured.";
 } else if (!isBanned) {
   try {
-    const [mapRows, own] = await Promise.all([listMapsForPicker(supabase), getOwnProfile(supabase, user.id)]);
-    maps = mapRows;
-    nickname = own.nickname;
-    isVerified = own.isVerified;
-    if (own.isVerified) {
-      friends = await listPublicFriends(supabase, user.id);
+    const activeCount = await countAudienceActiveRunsForOrganizer(supabase, user.id);
+    atActiveCap = activeCount >= MAX_ACTIVE_RUNS_PER_ORGANIZER;
+    if (!atActiveCap) {
+      const [mapRows, own] = await Promise.all([listMapsForPicker(supabase), getOwnProfile(supabase, user.id)]);
+      maps = mapRows;
+      nickname = own.nickname;
+      isVerified = own.isVerified;
+      if (own.isVerified) {
+        const [friendRows, owns] = await Promise.all([
+          listPublicFriends(supabase, user.id),
+          userOwnsClan(supabase, user.id),
+        ]);
+        friends = friendRows;
+        ownsClan = owns;
+      }
     }
   } catch (err) {
     loadError = err instanceof Error ? err.message : "Failed to load create form.";
@@ -59,6 +77,10 @@ if (!supabase || !user) {
         </p>
       ) : loadError ? (
         <p class="rounded-lg border border-red-400/30 bg-red-500/10 px-4 py-3 text-sm text-red-100">{loadError}</p>
+      ) : atActiveCap ? (
+        <p class="rounded-lg border border-amber-400/30 bg-amber-500/10 px-4 py-3 text-sm text-amber-100">
+          {error ?? ACTIVE_RUN_CAP_MESSAGE}
+        </p>
       ) : (
         <div class="rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur-xl">
           <CreateRunForm
@@ -66,6 +88,7 @@ if (!supabase || !user) {
             nickname={nickname}
             isVerified={isVerified}
             friends={friends}
+            ownsClan={ownsClan}
             serverError={error}
             client:load
           />

@@ -13,7 +13,7 @@ const selectClass =
   "w-full rounded-lg border border-white/20 bg-white/10 px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-purple-400";
 
 export type CreateRunFormJoinMode = "approval_required" | "auto_join";
-export type CreateRunFormVisibility = "public" | "friends_only" | "invite_only";
+export type CreateRunFormVisibility = "public" | "friends_only" | "invite_only" | "clan_only";
 
 export interface CreateRunFormFriend {
   id: string;
@@ -33,6 +33,7 @@ export interface CreateRunFormEditValues {
   inviteeIds: string[];
   confirmedCount: number;
   joinModeLocked: boolean;
+  extendedUntil: string | null;
 }
 
 interface Props {
@@ -40,6 +41,7 @@ interface Props {
   nickname: string | null;
   isVerified: boolean;
   friends?: CreateRunFormFriend[];
+  ownsClan?: boolean;
   serverError?: string | null;
   edit?: CreateRunFormEditValues;
 }
@@ -61,6 +63,7 @@ export default function CreateRunForm({
   nickname: initialNickname,
   isVerified,
   friends = [],
+  ownsClan = false,
   serverError,
   edit,
 }: Props) {
@@ -68,6 +71,7 @@ export default function CreateRunForm({
   const needsNickname = !isEdit && !initialNickname && !isVerified;
   const verifiedNeedsRequest = !isEdit && !initialNickname && isVerified;
   const canChooseVisibility = isEdit || isVerified;
+  const showClanOnlyOption = ownsClan || edit?.visibility === "clan_only";
   const [nickname, setNickname] = useState("");
   const [title, setTitle] = useState(edit?.title ?? "");
   const [mapId, setMapId] = useState(edit?.mapId ?? "");
@@ -118,8 +122,8 @@ export default function CreateRunForm({
       const d = parseLocalDatetime(startsAtLocal);
       if (!d) {
         next.starts_at = "Start time is invalid";
-      } else if (isEdit) {
-        if (!isRunActive(d, null)) {
+      } else if (edit) {
+        if (!isRunActive(d, null, edit.extendedUntil)) {
           next.starts_at = "Start time must keep the run active";
         }
       } else if (d.getTime() <= Date.now()) {
@@ -322,13 +326,20 @@ export default function CreateRunForm({
             <option value="invite_only" className="bg-slate-900">
               Invite only
             </option>
+            {showClanOnlyOption && (
+              <option value="clan_only" className="bg-slate-900">
+                Clan only
+              </option>
+            )}
           </select>
           <p className="mt-1 text-xs text-blue-100/50">
-            {visibility === "friends_only"
-              ? "Only your current friends can find this run."
-              : visibility === "invite_only"
-                ? "Only the friends you pick can find this run."
-                : "Anyone can find this run on the public list."}
+            {visibility === "clan_only"
+              ? "Only current members of your clan can find this run."
+              : visibility === "friends_only"
+                ? "Only your current friends can find this run."
+                : visibility === "invite_only"
+                  ? "Only the friends you pick can find this run."
+                  : "Anyone can find this run on the public list."}
           </p>
         </div>
       ) : (

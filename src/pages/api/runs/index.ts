@@ -1,20 +1,25 @@
 import type { APIRoute } from "astro";
-import { createClient } from "@/lib/supabase";
+import { MAX_ACTIVE_RUNS_PER_ORGANIZER } from "@/lib/run-lifecycle";
+import { ClanError, userOwnsClan } from "@/lib/services/clans";
 import { ProfileError, getOwnProfile, setOwnNickname } from "@/lib/services/profile";
 import {
+  ACTIVE_RUN_CAP_MESSAGE,
+  CLAN_ONLY_OWNER_REQUIRED,
+  countAudienceActiveRunsForOrganizer,
   createInviteOnlyRun,
   ensureOwnProfile,
   INVITE_LIST_EMPTY_MESSAGE,
   isJoinMode,
   isUuid,
   isVisibility,
-  mapRunMapCategoryConstraintError,
+  mapRunWriteError,
   normalizeOptionalRunTitle,
   normalizeRunMapAndCategory,
   parseInviteeIds,
   RESTRICTED_VISIBILITY_UNVERIFIED,
   RunError,
 } from "@/lib/services/runs";
+import { createClient } from "@/lib/supabase";
 
 function formString(form: FormData, key: string, fallback = ""): string {
   return ((form.get(key) as string | null) ?? fallback).trim();
@@ -84,11 +89,37 @@ export const POST: APIRoute = async (context) => {
     }
   }
 
+  let activeCount: number;
+  try {
+    activeCount = await countAudienceActiveRunsForOrganizer(supabase, user.id);
+  } catch (err) {
+    console.error("countAudienceActiveRunsForOrganizer failed", err);
+    return fail("Could not create this run");
+  }
+  if (activeCount >= MAX_ACTIVE_RUNS_PER_ORGANIZER) {
+    return fail(ACTIVE_RUN_CAP_MESSAGE);
+  }
+
   if (!isVisibility(visibilityRaw)) {
     return fail("Visibility is invalid");
   }
   if (!ownProfile.isVerified && visibilityRaw !== "public") {
     return fail(RESTRICTED_VISIBILITY_UNVERIFIED);
+  }
+  if (visibilityRaw === "clan_only") {
+    let ownsClan = false;
+    try {
+      ownsClan = await userOwnsClan(supabase, user.id);
+    } catch (err) {
+      if (err instanceof ClanError) {
+        console.error("userOwnsClan failed", err);
+        return fail("Could not create this run");
+      }
+      throw err;
+    }
+    if (!ownsClan) {
+      return fail(CLAN_ONLY_OWNER_REQUIRED);
+    }
   }
   if (visibilityRaw === "invite_only" && inviteeIds.length < 1) {
     return fail(INVITE_LIST_EMPTY_MESSAGE);
@@ -195,7 +226,7 @@ export const POST: APIRoute = async (context) => {
 
   if (insertError) {
     console.error("create run insert failed", insertError);
-    const mapped = mapRunMapCategoryConstraintError(insertError);
+    const mapped = mapRunWriteError(insertError);
     if (mapped) {
       return fail(mapped.message);
     }
