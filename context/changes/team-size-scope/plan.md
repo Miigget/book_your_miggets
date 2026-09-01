@@ -323,9 +323,9 @@ First occupant of Advanced settings on the shared create/edit form. Detail expla
 
 #### Automated
 
-- [x] 1.1 Local migration applies (`npx supabase migration up` or `npx supabase db reset`)
-- [x] 1.2 `npm run db:types` — `auto_join_min` on `runs`; `join_mode` still two values; invite RPC Args updated
-- [x] 1.3 `npm run lint` on regenerated types
+- [x] 1.1 Local migration applies (`npx supabase migration up` or `npx supabase db reset`) — 7d31915
+- [x] 1.2 `npm run db:types` — `auto_join_min` on `runs`; `join_mode` still two values; invite RPC Args updated — 7d31915
+- [x] 1.3 `npm run lint` on regenerated types — 7d31915
 
 #### Manual
 
@@ -338,8 +338,8 @@ First occupant of Advanced settings on the shared create/edit form. Detail expla
 
 #### Automated
 
-- [ ] 2.1 `npm run lint`
-- [ ] 2.2 `npm run build`
+- [x] 2.1 `npm run lint`
+- [x] 2.2 `npm run build`
 
 #### Manual
 
