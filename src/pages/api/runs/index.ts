@@ -1,8 +1,10 @@
 import type { APIRoute } from "astro";
 import { MAX_ACTIVE_RUNS_PER_ORGANIZER } from "@/lib/run-lifecycle";
+import { ClanError, userOwnsClan } from "@/lib/services/clans";
 import { ProfileError, getOwnProfile, setOwnNickname } from "@/lib/services/profile";
 import {
   ACTIVE_RUN_CAP_MESSAGE,
+  CLAN_ONLY_OWNER_REQUIRED,
   countAudienceActiveRunsForOrganizer,
   createInviteOnlyRun,
   ensureOwnProfile,
@@ -103,6 +105,21 @@ export const POST: APIRoute = async (context) => {
   }
   if (!ownProfile.isVerified && visibilityRaw !== "public") {
     return fail(RESTRICTED_VISIBILITY_UNVERIFIED);
+  }
+  if (visibilityRaw === "clan_only") {
+    let ownsClan = false;
+    try {
+      ownsClan = await userOwnsClan(supabase, user.id);
+    } catch (err) {
+      if (err instanceof ClanError) {
+        console.error("userOwnsClan failed", err);
+        return fail("Could not create this run");
+      }
+      throw err;
+    }
+    if (!ownsClan) {
+      return fail(CLAN_ONLY_OWNER_REQUIRED);
+    }
   }
   if (visibilityRaw === "invite_only" && inviteeIds.length < 1) {
     return fail(INVITE_LIST_EMPTY_MESSAGE);

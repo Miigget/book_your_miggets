@@ -6,12 +6,15 @@ export interface RunListViewerFacts {
   friendIds: ReadonlySet<string>;
   invitedRunIds: ReadonlySet<string>;
   confirmedRunIds: ReadonlySet<string>;
+  viewerClanId: string | null;
+  organizerClanByUserId: ReadonlyMap<string, string>;
 }
 
 export interface PartitionedActiveRuns {
   publicRuns: RunListItem[];
   friendsRuns: RunListItem[];
   invitedRuns: RunListItem[];
+  clanRuns: RunListItem[];
   restrictedAdminRuns: RunListItem[];
 }
 
@@ -22,6 +25,8 @@ export function emptyRunListViewerFacts(isAdmin = false): RunListViewerFacts {
     friendIds: new Set(),
     invitedRunIds: new Set(),
     confirmedRunIds: new Set(),
+    viewerClanId: null,
+    organizerClanByUserId: new Map(),
   };
 }
 
@@ -33,15 +38,20 @@ export async function loadRunListViewerFacts(
   supabase: AppSupabaseClient,
   viewerId: string,
   isAdmin: boolean,
-  runIds: readonly string[],
+  runs: readonly RunListItem[],
 ): Promise<RunListViewerFacts> {
   if (!isUuid(viewerId)) {
     return { ...emptyRunListViewerFacts(isAdmin), viewerId };
   }
 
-  const listedIds = runIds.filter((id) => isUuid(id));
+  const listedIds = runs.map((run) => run.id).filter((id) => isUuid(id));
+  const clanOrganizerIds = [
+    ...new Set(
+      runs.filter((run) => run.visibility === "clan_only" && isUuid(run.organizerId)).map((run) => run.organizerId),
+    ),
+  ];
 
-  const [friendsResult, invitesResult, confirmedResult] = await Promise.all([
+  const [friendsResult, invitesResult, confirmedResult, viewerClanResult, organizerClansResult] = await Promise.all([
     supabase.from("public_friendships").select("friend_id").eq("user_id", viewerId),
     supabase.from("run_invites").select("run_id").eq("user_id", viewerId),
     listedIds.length === 0
@@ -52,12 +62,41 @@ export async function loadRunListViewerFacts(
           .eq("user_id", viewerId)
           .eq("status", "confirmed")
           .in("run_id", listedIds),
+    supabase.from("clan_members").select("clan_id").eq("user_id", viewerId).maybeSingle(),
+    clanOrganizerIds.length === 0
+      ? Promise.resolve({ data: [] as { user_id: string; clan_id: string }[], error: null })
+      : supabase.from("clan_members").select("user_id, clan_id").in("user_id", clanOrganizerIds),
   ]);
 
-  if (friendsResult.error || invitesResult.error || confirmedResult.error) {
-    console.error("loadRunListViewerFacts failed", friendsResult.error ?? invitesResult.error ?? confirmedResult.error);
+  if (
+    friendsResult.error ||
+    invitesResult.error ||
+    confirmedResult.error ||
+    viewerClanResult.error ||
+    organizerClansResult.error
+  ) {
+    console.error(
+      "loadRunListViewerFacts failed",
+      friendsResult.error ??
+        invitesResult.error ??
+        confirmedResult.error ??
+        viewerClanResult.error ??
+        organizerClansResult.error,
+    );
     throw new Error("Failed to load runs.");
   }
+
+  const organizerClanByUserId = new Map<string, string>();
+  for (const row of organizerClansResult.data) {
+    if (isUuid(row.user_id) && isUuid(row.clan_id)) {
+      organizerClanByUserId.set(row.user_id, row.clan_id);
+    }
+  }
+
+  const viewerClanId =
+    typeof viewerClanResult.data?.clan_id === "string" && isUuid(viewerClanResult.data.clan_id)
+      ? viewerClanResult.data.clan_id
+      : null;
 
   return {
     viewerId,
@@ -65,6 +104,8 @@ export async function loadRunListViewerFacts(
     friendIds: uuidSet(friendsResult.data.map((row) => row.friend_id)),
     invitedRunIds: uuidSet(invitesResult.data.map((row) => row.run_id)),
     confirmedRunIds: uuidSet(confirmedResult.data.map((row) => row.run_id)),
+    viewerClanId,
+    organizerClanByUserId,
   };
 }
 
@@ -80,11 +121,20 @@ function inInvitedSection(run: RunListItem, facts: RunListViewerFacts): boolean 
   return facts.viewerId === run.organizerId || facts.invitedRunIds.has(run.id) || facts.confirmedRunIds.has(run.id);
 }
 
-/** Presentational split. Never put friends_only / invite_only into Public, including for admins. */
+function inClanSection(run: RunListItem, facts: RunListViewerFacts): boolean {
+  if (run.visibility !== "clan_only" || !facts.viewerId) return false;
+  if (facts.viewerId === run.organizerId || facts.confirmedRunIds.has(run.id)) return true;
+  const viewerClanId = facts.viewerClanId;
+  if (!viewerClanId) return false;
+  return facts.organizerClanByUserId.get(run.organizerId) === viewerClanId;
+}
+
+/** Presentational split. Never put friends_only / invite_only / clan_only into Public, including for admins. */
 export function partitionActiveRuns(runs: readonly RunListItem[], facts: RunListViewerFacts): PartitionedActiveRuns {
   const publicRuns: RunListItem[] = [];
   const friendsRuns: RunListItem[] = [];
   const invitedRuns: RunListItem[] = [];
+  const clanRuns: RunListItem[] = [];
   const restrictedAdminRuns: RunListItem[] = [];
 
   for (const run of runs) {
@@ -100,10 +150,14 @@ export function partitionActiveRuns(runs: readonly RunListItem[], facts: RunList
       invitedRuns.push(run);
       continue;
     }
+    if (inClanSection(run, facts)) {
+      clanRuns.push(run);
+      continue;
+    }
     if (facts.isAdmin) {
       restrictedAdminRuns.push(run);
     }
   }
 
-  return { publicRuns, friendsRuns, invitedRuns, restrictedAdminRuns };
+  return { publicRuns, friendsRuns, invitedRuns, clanRuns, restrictedAdminRuns };
 }

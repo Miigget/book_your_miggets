@@ -4,6 +4,7 @@ import PageChrome from "@/components/PageChrome.astro";
 import CreateRunForm from "@/components/runs/CreateRunForm";
 import { createClient } from "@/lib/supabase";
 import { getOwnProfile } from "@/lib/services/profile";
+import { userOwnsClan } from "@/lib/services/clans";
 import { listPublicFriends, type PublicFriend } from "@/lib/services/friends";
 import { MAX_ACTIVE_RUNS_PER_ORGANIZER } from "@/lib/run-lifecycle";
 import {
@@ -22,6 +23,7 @@ let maps: MapPickerItem[] = [];
 let nickname: string | null = null;
 let isVerified = false;
 let friends: PublicFriend[] = [];
+let ownsClan = false;
 let loadError: string | null = null;
 let atActiveCap = false;
 
@@ -37,7 +39,12 @@ if (!supabase || !user) {
       nickname = own.nickname;
       isVerified = own.isVerified;
       if (own.isVerified) {
-        friends = await listPublicFriends(supabase, user.id);
+        const [friendRows, owns] = await Promise.all([
+          listPublicFriends(supabase, user.id),
+          userOwnsClan(supabase, user.id),
+        ]);
+        friends = friendRows;
+        ownsClan = owns;
       }
     }
   } catch (err) {
@@ -81,6 +88,7 @@ if (!supabase || !user) {
             nickname={nickname}
             isVerified={isVerified}
             friends={friends}
+            ownsClan={ownsClan}
             serverError={error}
             client:load
           />
