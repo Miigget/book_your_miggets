@@ -353,9 +353,9 @@ First occupant of Advanced settings on the shared create/edit form. Detail expla
 
 #### Automated
 
-- [x] 3.1 `npm run lint`
-- [x] 3.2 `npm run build`
-- [x] 3.3 `AGENTS.md` documents S-26 invariants
+- [x] 3.1 `npm run lint` — dce78d4
+- [x] 3.2 `npm run build` — dce78d4
+- [x] 3.3 `AGENTS.md` documents S-26 invariants — dce78d4
 
 #### Manual
 
