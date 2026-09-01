@@ -1,4 +1,4 @@
-import { activeWindowStartsAfter } from "@/lib/run-lifecycle";
+import { isRunActive } from "@/lib/run-lifecycle";
 import { getOwnParticipation } from "@/lib/services/participants";
 import type { AppSupabaseClient } from "@/lib/services/runs";
 import {
@@ -77,17 +77,16 @@ async function requireConfirmedParticipant(
 async function requireActiveRun(supabase: AppSupabaseClient, runId: string): Promise<void> {
   const { data, error } = await supabase
     .from("runs")
-    .select("id")
+    .select("id, starts_at, archived_at, extended_until")
     .eq("id", runId)
     .is("archived_at", null)
-    .gt("starts_at", activeWindowStartsAfter())
     .maybeSingle();
 
   if (error) {
     throw new Error(`Failed to load run: ${error.message}`);
   }
 
-  if (!data) {
+  if (!data || !isRunActive(data.starts_at, data.archived_at, data.extended_until)) {
     throw new CommentError("Run not found or no longer active");
   }
 }

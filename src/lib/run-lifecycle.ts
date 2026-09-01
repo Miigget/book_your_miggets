@@ -1,5 +1,4 @@
-/** One-hour grace after `starts_at` before a run leaves the active window (FR-013). */
-export const RUN_GRACE_MS = 3_600_000;
+export const MAX_ACTIVE_RUNS_PER_ORGANIZER = 5;
 
 export type RunLifecyclePhase = "upcoming" | "in_progress" | "archived";
 
@@ -14,34 +13,39 @@ function startsAtMs(startsAt: string | Date): number {
   return typeof startsAt === "string" ? Date.parse(startsAt) : startsAt.getTime();
 }
 
-/** Lower bound for `starts_at` queries: still inside upcoming-or-grace window. */
-export function activeWindowStartsAfter(now?: Date | number): string {
-  return new Date(resolveNow(now) - RUN_GRACE_MS).toISOString();
-}
-
-/** Instant when the run leaves the active window (`starts_at + 1h`). */
-export function archiveDeadlineAt(startsAt: string | Date): Date {
-  return new Date(startsAtMs(startsAt) + RUN_GRACE_MS);
-}
-
-export function getRunLifecyclePhase(startsAt: string | Date, now?: Date | number): RunLifecyclePhase {
-  const t = resolveNow(now);
-  const start = startsAtMs(startsAt);
-  if (Number.isNaN(start)) return "archived";
-  if (t < start) return "upcoming";
-  if (t < start + RUN_GRACE_MS) return "in_progress";
-  return "archived";
+function instantMs(value: string | Date): number {
+  return typeof value === "string" ? Date.parse(value) : value.getTime();
 }
 
 /**
- * Active ⇔ no stamped archive and still inside the grace-or-upcoming window.
- * Non-null `archivedAt` wins even if `starts_at` is still inside the time window.
+ * Audience-active ⇔ no stamp and not elapsed extend.
+ * `startsAt` is unused for the boolean (kept so call sites stay readable).
  */
 export function isRunActive(
   startsAt: string | Date,
   archivedAt: string | Date | null | undefined,
+  extendedUntil: string | Date | null | undefined,
   now?: Date | number,
 ): boolean {
+  void startsAt;
   if (archivedAt != null) return false;
-  return getRunLifecyclePhase(startsAt, now) !== "archived";
+  if (extendedUntil != null) {
+    const deadline = instantMs(extendedUntil);
+    if (!Number.isNaN(deadline) && resolveNow(now) >= deadline) return false;
+  }
+  return true;
+}
+
+export function getRunLifecyclePhase(
+  startsAt: string | Date,
+  archivedAt: string | Date | null | undefined,
+  extendedUntil: string | Date | null | undefined,
+  now?: Date | number,
+): RunLifecyclePhase {
+  if (!isRunActive(startsAt, archivedAt, extendedUntil, now)) return "archived";
+  const t = resolveNow(now);
+  const start = startsAtMs(startsAt);
+  if (Number.isNaN(start)) return "archived";
+  if (t < start) return "upcoming";
+  return "in_progress";
 }

@@ -3,7 +3,7 @@ project: "Book Your Miggets"
 version: 2
 status: draft
 created: 2026-07-16
-updated: 2026-08-19
+updated: 2026-08-31
 context_type: greenfield
 product_type: web-app
 target_scale:
@@ -61,7 +61,7 @@ MVP (v1) is shipped. The next increment adds identity, trust, and private-run vi
 ### Guardrails
 
 - Run creation completes in under 1 minute; applying to a run takes under 30 seconds.
-- Past runs do not clutter the active list — runs move to archive 1 hour after scheduled start time (archived, not deleted).
+- Past runs do not clutter the active list — the organizer or an admin archives a run (optional organizer extend of at most 6 hours, then derived exit); archived, not deleted. An organizer may have at most 5 audience-active runs.
 
 ## User Stories
 
@@ -69,7 +69,7 @@ MVP (v1) is shipped. The next increment adds identity, trust, and private-run vi
 
 - **Given** a registered organizer and an active KoG community player looking for a run,
 - **When** the organizer creates a run with map, time, capacity, minimum points threshold, and approval-required join mode, and a player applies to join,
-- **Then** the organizer can accept or deny the applicant, confirmed players appear on the participant list, and the run remains on the active list until 1 hour after its scheduled start time, after which it moves to an archive visible to confirmed participants.
+- **Then** the organizer can accept or deny the applicant, confirmed players appear on the participant list, and the run remains on the active list until the organizer or an admin archives it (or an optional organizer extend of at most 6 hours elapses). Confirmed participants can reopen the archive. An organizer may have at most 5 audience-active runs.
 
 ### US-02: Player auto-joins a run
 
