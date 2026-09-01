@@ -6,6 +6,18 @@ import { SubmitButton } from "@/components/auth/SubmitButton";
 import { MapPicker } from "@/components/runs/MapPicker";
 import { formatLocalDatetimeValue, parseLocalDatetime } from "@/lib/format-date";
 import { isRunActive } from "@/lib/run-lifecycle";
+import {
+  CAPACITY_INVALID_MESSAGE,
+  CAPACITY_MAX_MESSAGE,
+  DEFAULT_RUN_CAPACITY,
+  isAllowedRunCapacity,
+  isStartsAtInFuture,
+  isStartsAtWithinOneYear,
+  MAX_RUN_CAPACITY,
+  oneYearAhead,
+  STARTS_AT_FUTURE_MESSAGE,
+  STARTS_AT_ONE_YEAR_MESSAGE,
+} from "@/lib/run-limits";
 import { cn } from "@/lib/utils";
 import { INVITE_LIST_EMPTY_MESSAGE, RUN_TITLE_MAX_LENGTH, type MapPickerItem } from "@/lib/services/runs";
 
@@ -78,7 +90,9 @@ export default function CreateRunForm({
   const [startsAtLocal, setStartsAtLocal] = useState(() =>
     edit ? startsAtToLocalDatetime(edit.startsAt) : defaultLocalStartsAt(),
   );
-  const [maxParticipants, setMaxParticipants] = useState(edit ? String(edit.maxParticipants) : "2");
+  const [maxParticipants, setMaxParticipants] = useState(
+    edit ? String(edit.maxParticipants) : String(DEFAULT_RUN_CAPACITY),
+  );
   const [minPoints, setMinPoints] = useState(edit ? String(edit.minPoints) : "0");
   const [joinMode, setJoinMode] = useState<CreateRunFormJoinMode>(edit?.joinMode ?? "approval_required");
   const [visibility, setVisibility] = useState<CreateRunFormVisibility>(edit?.visibility ?? "public");
@@ -98,6 +112,10 @@ export default function CreateRunForm({
     const d = parseLocalDatetime(startsAtLocal);
     return d ? d.toISOString() : "";
   }, [startsAtLocal]);
+
+  const [scheduleHintNow] = useState(() => Date.now());
+  const startsAtMaxLocal = formatLocalDatetimeValue(oneYearAhead(scheduleHintNow));
+  const startsAtMinLocal = isEdit ? undefined : formatLocalDatetimeValue(new Date(scheduleHintNow));
 
   function validate() {
     const next: typeof errors = {};
@@ -125,17 +143,26 @@ export default function CreateRunForm({
       } else if (edit) {
         if (!isRunActive(d, null, edit.extendedUntil)) {
           next.starts_at = "Start time must keep the run active";
+        } else if (!isStartsAtWithinOneYear(d)) {
+          next.starts_at = STARTS_AT_ONE_YEAR_MESSAGE;
         }
-      } else if (d.getTime() <= Date.now()) {
-        next.starts_at = "Start time must be in the future";
+      } else {
+        const now = Date.now();
+        if (!isStartsAtInFuture(d, now)) {
+          next.starts_at = STARTS_AT_FUTURE_MESSAGE;
+        } else if (!isStartsAtWithinOneYear(d, now)) {
+          next.starts_at = STARTS_AT_ONE_YEAR_MESSAGE;
+        }
       }
     }
 
     const capacity = Number.parseInt(maxParticipants, 10);
     if (!Number.isFinite(capacity) || capacity <= 0) {
-      next.max_participants = "Must be a whole number greater than 0";
+      next.max_participants = CAPACITY_INVALID_MESSAGE;
     } else if (edit && capacity !== edit.maxParticipants && capacity < edit.confirmedCount) {
       next.max_participants = "Capacity cannot be below the confirmed roster";
+    } else if (!isAllowedRunCapacity(capacity, edit?.maxParticipants)) {
+      next.max_participants = CAPACITY_MAX_MESSAGE;
     }
 
     const points = Number.parseInt(minPoints, 10);
@@ -232,6 +259,8 @@ export default function CreateRunForm({
             id="starts_at_local"
             type="datetime-local"
             value={startsAtLocal}
+            min={startsAtMinLocal}
+            max={startsAtMaxLocal}
             onChange={(e) => {
               setStartsAtLocal(e.target.value);
               if (errors.starts_at) setErrors((prev) => ({ ...prev, starts_at: undefined }));
@@ -256,8 +285,9 @@ export default function CreateRunForm({
             setMaxParticipants(v);
             if (errors.max_participants) setErrors((prev) => ({ ...prev, max_participants: undefined }));
           }}
-          placeholder="2"
+          placeholder={String(DEFAULT_RUN_CAPACITY)}
           error={errors.max_participants}
+          hint={<p className="mt-1 text-xs text-blue-100/40">1–{MAX_RUN_CAPACITY}</p>}
           icon={<Users className="size-4" />}
         />
         <FormField
