@@ -319,9 +319,9 @@ Local app (typically `http://localhost:4321`) with Supabase already running:
 
 #### Automated
 
-- [x] 2.1 `npx astro sync` and `npm run lint` pass
-- [x] 2.2 `npm run build` passes
-- [x] 2.3 `verifyClanRunFinish` and `verifiedAt` typecheck against generated types
+- [x] 2.1 `npx astro sync` and `npm run lint` pass — f798410
+- [x] 2.2 `npm run build` passes — f798410
+- [x] 2.3 `verifyClanRunFinish` and `verifiedAt` typecheck against generated types — f798410
 
 #### Manual
 
@@ -333,7 +333,7 @@ Local app (typically `http://localhost:4321`) with Supabase already running:
 
 #### Automated
 
-- [ ] 3.1 `npx astro sync`, `npm run lint`, and `npm run build` pass
+- [x] 3.1 `npx astro sync`, `npm run lint`, and `npm run build` pass
 
 #### Manual
 

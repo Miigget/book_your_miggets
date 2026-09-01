@@ -22,6 +22,9 @@ Mode: **YOLO**. Crew Lead answered specialist questions; the human was asked onl
 | 2026-09-01 | 10x-plan-review | SOUND; F1/F2 LOW patched in plan; status plan_reviewed |
 | 2026-09-01 | 10x-implement p1 | SQL contract; commit b05ae82; status implementing |
 | 2026-09-01 | 10x-impl-review p1 | APPROVED |
+| 2026-09-01 | 10x-implement p2 | App API; commit f798410 |
+| 2026-09-01 | 10x-impl-review p2 | APPROVED |
+| 2026-09-01 | 10x-implement p3 | Admin control, Verified-finish chip, AGENTS.md |
 
 ## Decisions the Crew Lead made (no human)
 
@@ -52,6 +55,8 @@ Mode: **YOLO**. Crew Lead answered specialist questions; the human was asked onl
 ## Human-action gates
 
 - Phase 1.5 SQL-editor replay: skipped (YOLO residual risk; automated smoke ran against local Postgres)
+- Phase 2.4–2.6 cookie-session HTTP: skipped (YOLO residual risk)
+- Phase 3.2–3.8 browser path: skipped (YOLO residual risk)
 
 ## Stop / escape hatches
 

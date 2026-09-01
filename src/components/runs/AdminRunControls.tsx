@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Archive, Trash2 } from "lucide-react";
+import { Archive, BadgeCheck, Trash2 } from "lucide-react";
 import { ServerError } from "@/components/auth/ServerError";
 import { Button } from "@/components/ui/button";
 import { fetchFormJson } from "@/lib/fetch-form-json";
@@ -8,9 +8,10 @@ import { cn } from "@/lib/utils";
 interface Props {
   runId: string;
   showArchive?: boolean;
+  showVerifyFinish?: boolean;
 }
 
-export default function AdminRunControls({ runId, showArchive = false }: Props) {
+export default function AdminRunControls({ runId, showArchive = false, showVerifyFinish = false }: Props) {
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
 
@@ -35,6 +36,15 @@ export default function AdminRunControls({ runId, showArchive = false }: Props) 
     }
   }
 
+  async function onVerifyFinish(e: React.SubmitEvent<HTMLFormElement>) {
+    e.preventDefault();
+    const ok = window.confirm(
+      "Confirm you checked in-game /teamrank that declared participants finished. This awards clan points from the map and cannot be undone. Mark verified-finish?",
+    );
+    if (!ok) return;
+    await postAdmin(e.currentTarget, "Could not verify this clan run", `/runs/${runId}`);
+  }
+
   async function onArchive(e: React.SubmitEvent<HTMLFormElement>) {
     e.preventDefault();
     const ok = window.confirm("This run will leave the active list. Archive this run?");
@@ -53,6 +63,21 @@ export default function AdminRunControls({ runId, showArchive = false }: Props) 
     <div className="space-y-3">
       <h3 className="text-sm font-semibold tracking-wide text-white/80 uppercase">Admin</h3>
       <ServerError message={error} />
+      {showVerifyFinish ? (
+        <form
+          method="POST"
+          action={`/api/admin/runs/${runId}/verify-finish`}
+          onSubmit={(event) => {
+            event.preventDefault();
+            void onVerifyFinish(event);
+          }}
+        >
+          <Button type="submit" variant="outline" size="sm" className={cn("rounded-lg")} disabled={busy}>
+            <BadgeCheck className="size-4" />
+            Mark verified-finish
+          </Button>
+        </form>
+      ) : null}
       {showArchive ? (
         <form
           method="POST"
