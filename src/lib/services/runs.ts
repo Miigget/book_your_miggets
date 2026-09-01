@@ -1,6 +1,13 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { isMapCategory } from "@/lib/map-categories";
 import { getRunLifecyclePhase, isRunActive, type ActiveRunLifecyclePhase } from "@/lib/run-lifecycle";
+import {
+  CAPACITY_INVALID_MESSAGE,
+  CAPACITY_MAX_MESSAGE,
+  isAllowedRunCapacity,
+  isStartsAtWithinOneYear,
+  STARTS_AT_ONE_YEAR_MESSAGE,
+} from "@/lib/run-limits";
 import { utcDayRange, type RunListFilters } from "@/lib/run-list-filters";
 import { countConfirmedParticipants, getOwnParticipation } from "@/lib/services/participants";
 import type { Database, Enums, Tables } from "@/types/database";
@@ -1039,10 +1046,16 @@ async function prepareOwnedActiveRunPatch(
   if (!isRunActive(startsAt, null, existing.extended_until)) {
     throw new RunError("Start time must keep the run active");
   }
+  if (!isStartsAtWithinOneYear(startsAt)) {
+    throw new RunError(STARTS_AT_ONE_YEAR_MESSAGE);
+  }
 
   const maxParticipants = Number.parseInt(input.maxParticipants, 10);
   if (!Number.isFinite(maxParticipants) || maxParticipants <= 0) {
-    throw new RunError("Capacity must be a whole number greater than 0");
+    throw new RunError(CAPACITY_INVALID_MESSAGE);
+  }
+  if (!isAllowedRunCapacity(maxParticipants, existing.max_participants)) {
+    throw new RunError(CAPACITY_MAX_MESSAGE);
   }
 
   const minPoints = Number.parseInt(input.minPoints, 10);

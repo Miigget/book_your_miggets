@@ -1,5 +1,14 @@
 import type { APIRoute } from "astro";
 import { MAX_ACTIVE_RUNS_PER_ORGANIZER } from "@/lib/run-lifecycle";
+import {
+  CAPACITY_INVALID_MESSAGE,
+  CAPACITY_MAX_MESSAGE,
+  isAllowedRunCapacity,
+  isStartsAtInFuture,
+  isStartsAtWithinOneYear,
+  STARTS_AT_FUTURE_MESSAGE,
+  STARTS_AT_ONE_YEAR_MESSAGE,
+} from "@/lib/run-limits";
 import { ClanError, userOwnsClan } from "@/lib/services/clans";
 import { ProfileError, getOwnProfile, setOwnNickname } from "@/lib/services/profile";
 import {
@@ -167,13 +176,20 @@ export const POST: APIRoute = async (context) => {
   if (Number.isNaN(startsAt.getTime())) {
     return fail("Start time is invalid");
   }
-  if (startsAt.getTime() <= Date.now()) {
-    return fail("Start time must be in the future");
+  const now = Date.now();
+  if (!isStartsAtInFuture(startsAt, now)) {
+    return fail(STARTS_AT_FUTURE_MESSAGE);
+  }
+  if (!isStartsAtWithinOneYear(startsAt, now)) {
+    return fail(STARTS_AT_ONE_YEAR_MESSAGE);
   }
 
   const maxParticipants = Number.parseInt(maxParticipantsRaw, 10);
   if (!Number.isFinite(maxParticipants) || maxParticipants <= 0) {
-    return fail("Capacity must be a whole number greater than 0");
+    return fail(CAPACITY_INVALID_MESSAGE);
+  }
+  if (!isAllowedRunCapacity(maxParticipants)) {
+    return fail(CAPACITY_MAX_MESSAGE);
   }
 
   const minPoints = Number.parseInt(minPointsRaw, 10);
