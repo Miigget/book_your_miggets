@@ -1,13 +1,14 @@
 import React, { useState } from "react";
-import { Heart, MessageSquare, Trash2 } from "lucide-react";
+import { Heart, ImagePlus, MessageSquare, Trash2 } from "lucide-react";
 import { ServerError } from "@/components/auth/ServerError";
 import { SubmitButton } from "@/components/auth/SubmitButton";
 import { NicknameLink } from "@/components/NicknameLink";
 import { Button } from "@/components/ui/button";
 import { fetchFormJson } from "@/lib/fetch-form-json";
 import { formatStart } from "@/lib/format-date";
-import { cn } from "@/lib/utils";
 import type { RunComment } from "@/lib/services/comments";
+import { COMMENT_SCREENSHOT_MAX_BYTES, PUBLIC_IMAGE_MIME_TYPES, SCREENSHOT_REJECT_MESSAGE } from "@/lib/storage";
+import { cn } from "@/lib/utils";
 
 interface Props {
   runId: string;
@@ -28,6 +29,14 @@ export default function RunComments({ runId, comments, canPostOrLike, isAdmin, c
   async function onPost(e: React.SubmitEvent<HTMLFormElement>) {
     e.preventDefault();
     const form = e.currentTarget;
+    const screenshotInput = form.elements.namedItem("screenshot");
+    if (screenshotInput instanceof HTMLInputElement) {
+      const file = screenshotInput.files?.[0];
+      if (file && (file.size > COMMENT_SCREENSHOT_MAX_BYTES || !PUBLIC_IMAGE_MIME_TYPES.has(file.type))) {
+        setError(SCREENSHOT_REJECT_MESSAGE);
+        return;
+      }
+    }
     setPosting(true);
     setError(null);
     try {
@@ -184,7 +193,12 @@ export default function RunComments({ runId, comments, canPostOrLike, isAdmin, c
                 </div>
               </div>
 
-              <p className={cn("mt-3 min-w-0 text-sm break-all whitespace-pre-wrap text-white")}>{comment.body}</p>
+              {comment.body ? (
+                <p className={cn("mt-3 min-w-0 text-sm break-all whitespace-pre-wrap text-white")}>{comment.body}</p>
+              ) : null}
+              {comment.screenshotUrl ? (
+                <img src={comment.screenshotUrl} alt="Comment screenshot" className={cn("mt-3 max-w-full")} />
+              ) : null}
             </li>
           ))}
         </ul>
@@ -194,6 +208,7 @@ export default function RunComments({ runId, comments, canPostOrLike, isAdmin, c
         <form
           method="POST"
           action={`/api/runs/${runId}/comments`}
+          encType="multipart/form-data"
           className="space-y-3"
           onSubmit={(event) => {
             event.preventDefault();
@@ -214,6 +229,37 @@ export default function RunComments({ runId, comments, canPostOrLike, isAdmin, c
               "w-full rounded-lg border border-white/20 bg-white/10 px-3 py-2 text-sm text-white placeholder-white/40 focus:ring-2 focus:ring-purple-400 focus:outline-none",
             )}
           />
+          <div>
+            <label htmlFor="comment-screenshot" className="mb-1 block text-sm text-blue-100/80">
+              Screenshot <span className="font-normal text-blue-100/40">(optional)</span>
+            </label>
+            <div className="relative">
+              <span className="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-white/40">
+                <ImagePlus className="size-4" />
+              </span>
+              <input
+                id="comment-screenshot"
+                name="screenshot"
+                type="file"
+                accept="image/jpeg,image/png,image/webp,.jpg,.jpeg,.png,.webp"
+                disabled={posting}
+                className={cn(
+                  "w-full rounded-lg border bg-white/10 py-2 pr-3 pl-10 text-sm text-white file:mr-3 file:rounded-md file:border-0 file:bg-white/10 file:px-3 file:py-1 file:text-sm file:text-white focus:ring-2 focus:outline-none",
+                  error === SCREENSHOT_REJECT_MESSAGE
+                    ? "border-red-400/60 focus:ring-red-400"
+                    : "border-white/20 focus:ring-purple-400",
+                )}
+                onChange={() => {
+                  if (error === SCREENSHOT_REJECT_MESSAGE) setError(null);
+                }}
+              />
+            </div>
+            {error === SCREENSHOT_REJECT_MESSAGE ? (
+              <p className="mt-1 text-xs text-red-300">{SCREENSHOT_REJECT_MESSAGE}</p>
+            ) : (
+              <p className="mt-1 text-xs text-blue-100/40">JPEG, PNG, or WebP. Max 5 MB.</p>
+            )}
+          </div>
           <SubmitButton pendingText="Posting..." icon={<MessageSquare className="size-4" />} busy={posting}>
             Post comment
           </SubmitButton>

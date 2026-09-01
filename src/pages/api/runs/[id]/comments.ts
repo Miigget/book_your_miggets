@@ -10,6 +10,14 @@ import { createClient } from "@/lib/supabase";
 import { CommentError, createComment } from "@/lib/services/comments";
 import { isUuid } from "@/lib/services/runs";
 
+function formFile(form: FormData, key: string): File | null {
+  const value = form.get(key);
+  if (value instanceof File && value.size > 0) {
+    return value;
+  }
+  return null;
+}
+
 export const POST: APIRoute = async (context) => {
   const runId = context.params.id ?? "";
 
@@ -34,9 +42,10 @@ export const POST: APIRoute = async (context) => {
 
   const form = await context.request.formData();
   const body = (form.get("body") as string | null) ?? "";
+  const screenshot = formFile(form, "screenshot");
 
   try {
-    const comment = await createComment(supabase, runId, user.id, body);
+    const comment = await createComment(supabase, runId, user.id, body, screenshot);
     if (wantsJson(context.request)) {
       return commentJson({ comment });
     }

@@ -475,6 +475,7 @@ export type Database = {
           created_at: string
           id: string
           run_id: string
+          screenshot_path: string | null
         }
         Insert: {
           author_id: string
@@ -482,6 +483,7 @@ export type Database = {
           created_at?: string
           id?: string
           run_id: string
+          screenshot_path?: string | null
         }
         Update: {
           author_id?: string
@@ -489,6 +491,7 @@ export type Database = {
           created_at?: string
           id?: string
           run_id?: string
+          screenshot_path?: string | null
         }
         Relationships: [
           {
@@ -711,6 +714,10 @@ export type Database = {
       are_friends: { Args: { a: string; b: string }; Returns: boolean }
       auto_join_run: { Args: { p_run_id: string }; Returns: string }
       can_view_run: { Args: { p_run_id: string }; Returns: boolean }
+      comment_screenshot_object_run_id: {
+        Args: { p_name: string }
+        Returns: string
+      }
       create_invite_only_run: {
         Args: {
           p_invitee_ids: string[]
