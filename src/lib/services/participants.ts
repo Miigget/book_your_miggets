@@ -29,6 +29,8 @@ export class ParticipantError extends Error {
   }
 }
 
+export const CLAN_RUN_COMPLETED_FROZEN = "This clan run is completed. The roster cannot change.";
+
 interface ParticipantRow {
   id: string;
   user_id: string;
@@ -165,7 +167,7 @@ async function loadActiveRunForMutation(
 
   const { data, error } = await supabase
     .from("runs")
-    .select("id, join_mode, organizer_id, starts_at, archived_at, extended_until")
+    .select("id, join_mode, organizer_id, starts_at, archived_at, extended_until, completed_at")
     .eq("id", runId)
     .is("archived_at", null)
     .maybeSingle();
@@ -176,6 +178,10 @@ async function loadActiveRunForMutation(
 
   if (!data || !isRunActive(data.starts_at, data.archived_at, data.extended_until)) {
     throw new ParticipantError("Run not found or no longer active");
+  }
+
+  if (data.completed_at) {
+    throw new ParticipantError(CLAN_RUN_COMPLETED_FROZEN);
   }
 
   return { id: data.id, join_mode: data.join_mode, organizer_id: data.organizer_id };

@@ -12,6 +12,7 @@ interface Props {
 const { run, href: hrefProp } = Astro.props;
 const href = hrefProp === undefined ? `/runs/${run.id}` : hrefProp;
 const isArchived = run.lifecyclePhase === "archived";
+const showCompleted = Boolean(run.completedAt) && !isArchived;
 ---
 
 <div
@@ -34,8 +35,9 @@ const isArchived = run.lifecyclePhase === "archived";
         by <NicknameLink userId={run.organizerId} nickname={run.organizerNickname} />
       </p>
     </div>
+    {showCompleted && <span class="shrink-0 text-sm font-medium text-emerald-200">Completed</span>}
     {
-      run.lifecyclePhase === "in_progress" && (
+      run.lifecyclePhase === "in_progress" && !showCompleted && (
         <span class="shrink-0 text-sm font-medium text-amber-200">In progress</span>
       )
     }

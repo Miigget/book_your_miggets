@@ -609,6 +609,7 @@ export type Database = {
       runs: {
         Row: {
           archived_at: string | null
+          completed_at: string | null
           created_at: string
           extended_until: string | null
           id: string
@@ -625,6 +626,7 @@ export type Database = {
         }
         Insert: {
           archived_at?: string | null
+          completed_at?: string | null
           created_at?: string
           extended_until?: string | null
           id?: string
@@ -641,6 +643,7 @@ export type Database = {
         }
         Update: {
           archived_at?: string | null
+          completed_at?: string | null
           created_at?: string
           extended_until?: string | null
           id?: string
@@ -722,6 +725,7 @@ export type Database = {
         Args: { p_name: string }
         Returns: string
       }
+      complete_clan_run: { Args: { p_run_id: string }; Returns: string }
       create_invite_only_run: {
         Args: {
           p_invitee_ids: string[]
@@ -769,6 +773,14 @@ export type Database = {
       is_run_in_active_window: { Args: { p_run_id: string }; Returns: boolean }
       is_run_invitee: { Args: { p_run_id: string }; Returns: boolean }
       is_run_organizer: { Args: { p_run_id: string }; Returns: boolean }
+      is_run_roster_open_row: {
+        Args: {
+          p_archived_at: string
+          p_completed_at: string
+          p_extended_until: string
+        }
+        Returns: boolean
+      }
       is_same_clan: { Args: { a: string; b: string }; Returns: boolean }
       list_player_public_runs: {
         Args: { p_user_id: string }

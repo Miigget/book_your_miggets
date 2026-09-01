@@ -17,6 +17,7 @@ interface Props {
 const { run, showEdit = false } = Astro.props;
 const pendingCount = "pendingCount" in run ? run.pendingCount : null;
 const isArchived = run.lifecyclePhase === "archived";
+const showCompleted = Boolean(run.completedAt) && !isArchived;
 ---
 
 <div
@@ -27,10 +28,15 @@ const isArchived = run.lifecyclePhase === "archived";
       <a href={`/runs/${run.id}`} class="transition-colors hover:text-purple-100 hover:underline">
         {run.displayTitle}
       </a>
-      {run.lifecyclePhase === "in_progress" && <span class="ml-2 text-sm font-medium text-amber-200">In progress</span>}
+      {showCompleted && <span class="ml-2 text-sm font-medium text-emerald-200">Completed</span>}
+      {
+        run.lifecyclePhase === "in_progress" && !showCompleted && (
+          <span class="ml-2 text-sm font-medium text-amber-200">In progress</span>
+        )
+      }
       {isArchived && <span class="ml-2 text-sm font-medium text-blue-100/70">Archived</span>}
       {
-        showEdit && !isArchived && (
+        showEdit && !isArchived && !run.completedAt && (
           <a
             href={`/runs/${run.id}/edit`}
             class="ml-3 text-sm font-medium text-purple-300 transition-colors hover:text-purple-100 hover:underline"

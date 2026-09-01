@@ -39,6 +39,7 @@ interface Props {
   denied: PendingApplicant[];
   commentsMounted: boolean;
   serverError?: string | null;
+  rosterFrozen?: boolean;
 }
 
 export default function RunParticipantActions({
@@ -58,6 +59,7 @@ export default function RunParticipantActions({
   denied: initialDenied,
   commentsMounted,
   serverError,
+  rosterFrozen = false,
 }: Props) {
   const returnPath = `/runs/${runId}`;
   const [nick, setNick] = useState("");
@@ -271,21 +273,27 @@ export default function RunParticipantActions({
           onKick={onKick}
         />
         <ServerError message={error} />
-        <p className="text-sm text-blue-100/60">Sign in to apply to this run.</p>
-        <div className="flex flex-wrap gap-3">
-          <a
-            href={withReturnTo("/auth/signin", returnPath)}
-            className="inline-flex items-center justify-center rounded-lg bg-purple-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-purple-500"
-          >
-            Sign in
-          </a>
-          <a
-            href={withReturnTo("/auth/signup", returnPath)}
-            className="inline-flex items-center justify-center rounded-lg border border-white/20 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-white/10"
-          >
-            Sign up
-          </a>
-        </div>
+        {rosterFrozen ? (
+          <p className="text-sm text-blue-100/60">This clan run is completed. The roster cannot change.</p>
+        ) : (
+          <>
+            <p className="text-sm text-blue-100/60">Sign in to apply to this run.</p>
+            <div className="flex flex-wrap gap-3">
+              <a
+                href={withReturnTo("/auth/signin", returnPath)}
+                className="inline-flex items-center justify-center rounded-lg bg-purple-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-purple-500"
+              >
+                Sign in
+              </a>
+              <a
+                href={withReturnTo("/auth/signup", returnPath)}
+                className="inline-flex items-center justify-center rounded-lg border border-white/20 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-white/10"
+              >
+                Sign up
+              </a>
+            </div>
+          </>
+        )}
       </div>
     );
   }
@@ -298,20 +306,24 @@ export default function RunParticipantActions({
       <RosterList
         confirmed={confirmed}
         organizerId={organizerId}
-        isOrganizer={isOrganizer}
+        isOrganizer={isOrganizer && !rosterFrozen}
         runId={runId}
         busy={busy}
         onKick={onKick}
       />
       <ServerError message={error} />
 
-      {isBanned && ownStatus === null && (
+      {rosterFrozen && (
+        <p className="text-sm text-blue-100/60">This clan run is completed. The roster cannot change.</p>
+      )}
+
+      {!rosterFrozen && isBanned && ownStatus === null && (
         <p className="rounded-xl border border-red-400/30 bg-red-500/10 px-4 py-3 text-sm text-red-100">
           Your account is banned — you cannot join runs.
         </p>
       )}
 
-      {!isBanned && autoJoinFull && ownStatus === null && (
+      {!rosterFrozen && !isBanned && autoJoinFull && ownStatus === null && (
         <div className="space-y-2">
           <Button type="button" disabled className="w-full rounded-lg bg-white/10 px-4 py-2 font-medium text-white/60">
             <UserPlus className="size-4" />
@@ -321,7 +333,7 @@ export default function RunParticipantActions({
         </div>
       )}
 
-      {!isBanned && !autoJoinFull && !nickname && ownStatus === null && isVerified && (
+      {!rosterFrozen && !isBanned && !autoJoinFull && !nickname && ownStatus === null && isVerified && (
         <div className="rounded-xl border border-amber-400/30 bg-amber-500/10 px-4 py-3">
           <p className="text-sm text-amber-100/90">
             Request a nickname on your{" "}
@@ -333,7 +345,7 @@ export default function RunParticipantActions({
         </div>
       )}
 
-      {!isBanned && !autoJoinFull && !nickname && ownStatus === null && !isVerified && (
+      {!rosterFrozen && !isBanned && !autoJoinFull && !nickname && ownStatus === null && !isVerified && (
         <form
           method="POST"
           action="/api/profile/nickname"
@@ -364,7 +376,7 @@ export default function RunParticipantActions({
         </form>
       )}
 
-      {!isBanned && !autoJoinFull && nickname && ownStatus === null && (
+      {!rosterFrozen && !isBanned && !autoJoinFull && nickname && ownStatus === null && (
         <form
           method="POST"
           action={`/api/runs/${runId}/apply`}
@@ -383,7 +395,7 @@ export default function RunParticipantActions({
         </form>
       )}
 
-      {ownStatus === "pending" && (
+      {!rosterFrozen && ownStatus === "pending" && (
         <div className="space-y-3">
           <p className="text-sm text-blue-100/80">
             Status: <span className="text-amber-200">Pending approval</span>
@@ -407,7 +419,7 @@ export default function RunParticipantActions({
         </div>
       )}
 
-      {ownStatus === "denied" && (
+      {!rosterFrozen && ownStatus === "denied" && (
         <p className="text-sm text-blue-100/80">
           Status: <span className="text-red-300">Denied</span>
           <span className="mt-1 block text-blue-100/50">
@@ -416,7 +428,7 @@ export default function RunParticipantActions({
         </p>
       )}
 
-      {ownStatus === "confirmed" && (
+      {!rosterFrozen && ownStatus === "confirmed" && (
         <div className="space-y-3">
           {!isOrganizer && (
             <p className="text-sm text-blue-100/80">
@@ -438,11 +450,11 @@ export default function RunParticipantActions({
         </div>
       )}
 
-      {isOrganizer && ownStatus === null && joinMode === "approval_required" && nickname && (
+      {!rosterFrozen && isOrganizer && ownStatus === null && joinMode === "approval_required" && nickname && (
         <p className="text-sm text-blue-100/50">You left the team. You can apply like any other member.</p>
       )}
 
-      {isOrganizer && (
+      {!rosterFrozen && isOrganizer && (
         <div className="space-y-3 border-t border-white/10 pt-5">
           <h3 className="text-sm font-semibold tracking-wide text-white/80 uppercase">Pending applications</h3>
           {pending.length === 0 ? (
@@ -507,7 +519,7 @@ export default function RunParticipantActions({
         </div>
       )}
 
-      {isOrganizer && (
+      {!rosterFrozen && isOrganizer && (
         <div className="space-y-3 border-t border-white/10 pt-5">
           <h3 className="text-sm font-semibold tracking-wide text-white/80 uppercase">Denied applications</h3>
           {denied.length === 0 ? (
