@@ -557,6 +557,39 @@ export type Database = {
           },
         ]
       }
+      run_maps: {
+        Row: {
+          map_id: string
+          position: number
+          run_id: string
+        }
+        Insert: {
+          map_id: string
+          position: number
+          run_id: string
+        }
+        Update: {
+          map_id?: string
+          position?: number
+          run_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "run_maps_map_id_fkey"
+            columns: ["map_id"]
+            isOneToOne: false
+            referencedRelation: "maps"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "run_maps_run_id_fkey"
+            columns: ["run_id"]
+            isOneToOne: false
+            referencedRelation: "runs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       run_participants: {
         Row: {
           created_at: string
@@ -739,6 +772,7 @@ export type Database = {
           p_join_mode: Database["public"]["Enums"]["join_mode"]
           p_map_category: string
           p_map_id: string
+          p_map_ids?: string[]
           p_max_participants: number
           p_min_points: number
           p_starts_at: string
@@ -816,6 +850,7 @@ export type Database = {
           visibility: Database["public"]["Enums"]["run_visibility"]
         }[]
       }
+      run_is_public: { Args: { p_run_id: string }; Returns: boolean }
       set_run_visibility_and_invites: {
         Args: {
           p_auto_join_min?: number
@@ -823,6 +858,7 @@ export type Database = {
           p_join_mode?: Database["public"]["Enums"]["join_mode"]
           p_map_category: string
           p_map_id: string
+          p_map_ids?: string[]
           p_max_participants: number
           p_min_points: number
           p_run_id: string

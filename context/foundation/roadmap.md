@@ -3,7 +3,7 @@ project: "Book Your Miggets"
 version: 3
 status: draft
 created: 2026-08-27
-updated: 2026-09-01
+updated: 2026-09-04
 prd_version: 2
 main_goal: quality
 top_blocker: none
@@ -42,7 +42,7 @@ Both tracks must work; shipping only clans or only the run-loop extras is not do
 | S-24 | manual-archive-and-extend | archive via button or extend ≤ 6h; 1-hour auto-archive gone; max 5 active runs | shipped active list + 1-hour window | FR-002, FR-003, FR-004, FR-008, FR-024, US-01 | done |
 | S-25 | run-create-limits | set capacity default/max 64; cannot schedule in the past or > 1 year ahead | shipped run create/edit | FR-006, FR-007, US-01 | done |
 | S-26 | team-size-scope | set min auto-join / max approval bands under Advanced settings | shipped approval + auto-join | FR-005, FR-025, FR-026, US-01 | done |
-| S-27 | multi-map-runs | attach multiple maps to one run for a single session | shipped run create + category-only | FR-009, US-01 | ready |
+| S-27 | multi-map-runs | attach multiple maps to one run for a single session | shipped run create + category-only | FR-009, US-01 | in-progress |
 | S-28 | map-poll | create a map poll; confirmed participants vote; closing locks the winning map | shipped confirmed roster + map catalog | FR-010, US-01 | ready |
 | S-29 | transfer-run-ownership | (owner) pass ownership to a confirmed participant | shipped confirmed roster | FR-011, US-01 | ready |
 | S-30 | owner-delete-run | (owner) delete their run | shipped admin delete | FR-012, US-01 | ready |
@@ -210,7 +210,7 @@ Shipped product (previous roadmap, all `done`): F-01 + S-01…S-17 — create/li
 - **Blockers:** —
 - **Unknowns:** —
 - **Risk:** keep this independent of S-28 (PRD: poll and multi-map are separate tools). Category-only runs still need a coherent card when some maps are unset.
-- **Status:** ready
+- **Status:** in-progress
 
 ### S-28: Map poll
 
