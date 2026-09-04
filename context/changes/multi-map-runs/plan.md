@@ -337,33 +337,33 @@ Catalog is ~1k maps and already loaded for MapPicker (`listMapsForPicker`). Junc
 
 #### Automated
 
-- [x] 1.1 Migration applies on local Supabase (`npx supabase db reset` or equivalent migrate-up)
-- [x] 1.2 SQL check: every `runs.map_id is not null` row has exactly one `run_maps` row at `position = 1` with that `map_id`
-- [x] 1.3 `npm run db:types` succeeds; `create_invite_only_run` / `set_run_visibility_and_invites` args include `p_map_ids`
-- [x] 1.4 `GRANT EXECUTE` exists on the new invite signatures (old signatures are gone)
-- [x] 1.7 SQL check (F2): after backfill, calling the setter with `p_map_ids` omitted/NULL leaves those rows; calling with `'{}'` deletes them; calling with a non-empty array replaces
+- [x] 1.1 Migration applies on local Supabase (`npx supabase db reset` or equivalent migrate-up) — fcfa49c
+- [x] 1.2 SQL check: every `runs.map_id is not null` row has exactly one `run_maps` row at `position = 1` with that `map_id` — fcfa49c
+- [x] 1.3 `npm run db:types` succeeds; `create_invite_only_run` / `set_run_visibility_and_invites` args include `p_map_ids` — fcfa49c
+- [x] 1.4 `GRANT EXECUTE` exists on the new invite signatures (old signatures are gone) — fcfa49c
+- [x] 1.7 SQL check (F2): after backfill, calling the setter with `p_map_ids` omitted/NULL leaves those rows; calling with `'{}'` deletes them; calling with a non-empty array replaces — fcfa49c
 
 #### Manual
 
-- [x] 1.5 As postgres/SQL: inserting a 9th position or a duplicate `map_id` on one run fails the named constraint/exception
-- [x] 1.6 Anon `SELECT` on `run_maps` for a public run id returns rows; the same select for a friends-only run id returns no rows when the role cannot see that run
-- [x] 1.8 Anon `SELECT` on `run_maps` for an **archived public** run id returns rows (F1). The same select for a restricted (friends/invite/clan) run — active or archived — returns no rows. Guest GET `/runs/{id}` of that archived public run still 404s (do not widen `can_view_run`)
+- [x] 1.5 As postgres/SQL: inserting a 9th position or a duplicate `map_id` on one run fails the named constraint/exception — fcfa49c
+- [x] 1.6 Anon `SELECT` on `run_maps` for a public run id returns rows; the same select for a friends-only run id returns no rows when the role cannot see that run — fcfa49c
+- [x] 1.8 Anon `SELECT` on `run_maps` for an **archived public** run id returns rows (F1). The same select for a restricted (friends/invite/clan) run — active or archived — returns no rows. Guest GET `/runs/{id}` of that archived public run still 404s (do not widen `can_view_run`) — fcfa49c
 
 ### Phase 2: Normalize, create/edit writes, loaders, filter
 
 #### Automated
 
-- [ ] 2.1 `npm run lint`
-- [ ] 2.2 `npm run build`
-- [ ] 2.3 `src/lib/run-maps.ts` exports `RUN_MAPS_MAX === 8` and the display kinds `maps` / `category` / `none`
+- [x] 2.1 `npm run lint`
+- [x] 2.2 `npm run build`
+- [x] 2.3 `src/lib/run-maps.ts` exports `RUN_MAPS_MAX === 8` and the display kinds `maps` / `category` / `none`
 
 #### Manual
 
-- [ ] 2.4 Direct SQL + service path (or create API with curl/FormData): three valid map UUIDs persist as positions 1..3 and `runs.map_id` = first; `map_category` is null
-- [ ] 2.5 Empty `map_ids` + category `Hard` persists `map_id` null, `map_category` Hard, zero `run_maps`
-- [ ] 2.6 Nine ids or a duplicate after normalize is a domain `?error=` (not a PostgREST dump)
-- [ ] 2.7 `listActiveRuns` with `?map=` matching the second map’s name includes the run
-- [ ] 2.8 Public/friends/clan create via `POST /api/runs` (the inline insert in `src/pages/api/runs/index.ts`, not a `createRun` helper that does not exist) writes `run_maps` in the same request; invite-only create persists the list only through `p_map_ids` (no follow-up PostgREST `run_maps` insert)
+- [x] 2.4 Direct SQL + service path (or create API with curl/FormData): three valid map UUIDs persist as positions 1..3 and `runs.map_id` = first; `map_category` is null
+- [x] 2.5 Empty `map_ids` + category `Hard` persists `map_id` null, `map_category` Hard, zero `run_maps`
+- [x] 2.6 Nine ids or a duplicate after normalize is a domain `?error=` (not a PostgREST dump)
+- [x] 2.7 `listActiveRuns` with `?map=` matching the second map’s name includes the run
+- [x] 2.8 Public/friends/clan create via `POST /api/runs` (the inline insert in `src/pages/api/runs/index.ts`, not a `createRun` helper that does not exist) writes `run_maps` in the same request; invite-only create persists the list only through `p_map_ids` (no follow-up PostgREST `run_maps` insert)
 
 ### Phase 3: MapPicker, cards, detail, edit seed, AGENTS.md
 

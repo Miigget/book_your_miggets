@@ -1,5 +1,5 @@
 import type { APIRoute } from "astro";
-import { createClient } from "@/lib/supabase";
+import { parseMapIdsFromForm } from "@/lib/run-maps";
 import { ClanError, userOwnsClan } from "@/lib/services/clans";
 import { ProfileError, getOwnProfile } from "@/lib/services/profile";
 import {
@@ -13,6 +13,7 @@ import {
   setRunVisibilityAndInvites,
   updateRun,
 } from "@/lib/services/runs";
+import { createClient } from "@/lib/supabase";
 
 function formString(form: FormData, key: string, fallback = ""): string {
   return ((form.get(key) as string | null) ?? fallback).trim();
@@ -27,7 +28,7 @@ export const POST: APIRoute = async (context) => {
 
   const form = await context.request.formData();
   const titleRaw = formString(form, "title");
-  const mapIdRaw = formString(form, "map_id");
+  const mapIdsRaw = parseMapIdsFromForm(form);
   const mapCategoryRaw = formString(form, "map_category");
   const startsAtRaw = formString(form, "starts_at");
   const maxParticipantsRaw = formString(form, "max_participants");
@@ -90,7 +91,7 @@ export const POST: APIRoute = async (context) => {
 
   const input = {
     title: titleRaw,
-    mapId: mapIdRaw,
+    mapIds: mapIdsRaw,
     mapCategory: mapCategoryRaw,
     startsAt: startsAtRaw,
     maxParticipants: maxParticipantsRaw,

@@ -1,5 +1,4 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
-import { isMapCategory } from "@/lib/map-categories";
 import { getRunLifecyclePhase, isRunActive, type ActiveRunLifecyclePhase } from "@/lib/run-lifecycle";
 import {
   AUTO_JOIN_MIN_RANGE_MESSAGE,
@@ -11,6 +10,7 @@ import {
   STARTS_AT_ONE_YEAR_MESSAGE,
 } from "@/lib/run-limits";
 import { utcDayRange, type RunListFilters } from "@/lib/run-list-filters";
+import { RUN_MAPS_CAP_MESSAGE, RunMapsError, normalizeRunMapsAndCategory } from "@/lib/run-maps";
 import { countConfirmedParticipants, getOwnParticipation } from "@/lib/services/participants";
 import type { Database, Enums, Tables } from "@/types/database";
 
@@ -38,6 +38,7 @@ export interface RunListItem {
   visibility: Enums<"run_visibility">;
   displayTitle: string;
   map: RunMap | null;
+  maps: RunMap[];
   mapCategory: string | null;
   organizerId: string;
   organizerNickname: string | null;
@@ -77,7 +78,7 @@ const RUN_SELECT = `
   created_at,
   organizer_id,
   map_category,
-  map:maps (
+  map:maps!runs_map_id_fkey (
     id,
     name,
     difficulty,
@@ -87,8 +88,36 @@ const RUN_SELECT = `
     creator,
     released_on
   ),
+  run_maps (
+    position,
+    map:maps!run_maps_map_id_fkey (
+      id,
+      name,
+      difficulty,
+      stars,
+      points,
+      length,
+      creator,
+      released_on
+    )
+  ),
   organizer:public_profiles!runs_organizer_id_fkey (
     nickname
+  )
+` as const;
+
+const RUN_MAP_EMBED_SELECT = `
+  run_id,
+  position,
+  map:maps (
+    id,
+    name,
+    difficulty,
+    stars,
+    points,
+    length,
+    creator,
+    released_on
   )
 ` as const;
 
@@ -109,6 +138,9 @@ interface RunRow {
   organizer_id: string;
   map_category: string | null;
   map: RunMap | null;
+  run_maps?: { position: number; map: RunMap | RunMap[] | null }[] | null;
+  /** Batch-attached for `list_player_public_runs` rows that have no embed. */
+  maps?: RunMap[];
   organizer: { nickname: string | null } | null;
 }
 
@@ -163,8 +195,28 @@ export function formatVisibility(visibility: Enums<"run_visibility">): string {
   }
 }
 
+function coerceRunMap(value: RunMap | RunMap[] | null | undefined): RunMap | null {
+  if (!value) return null;
+  if (Array.isArray(value)) return value[0] ?? null;
+  return value;
+}
+
+function mapsFromRow(row: RunRow): RunMap[] {
+  const fromEmbed = (row.run_maps ?? [])
+    .slice()
+    .sort((a, b) => a.position - b.position)
+    .map((entry) => coerceRunMap(entry.map))
+    .filter((map): map is RunMap => map != null);
+
+  if (fromEmbed.length > 0) return fromEmbed;
+  if (row.maps && row.maps.length > 0) return row.maps;
+  if (row.map) return [row.map];
+  return [];
+}
+
 function runFieldsFromRow(row: RunRow, confirmedCount: number) {
-  const map = row.map;
+  const maps = mapsFromRow(row);
+  const map = row.map ?? (maps.length > 0 ? maps[0] : null);
   const organizerNickname = row.organizer?.nickname ?? null;
 
   return {
@@ -181,6 +233,7 @@ function runFieldsFromRow(row: RunRow, confirmedCount: number) {
     visibility: row.visibility,
     createdAt: row.created_at,
     map,
+    maps,
     mapCategory: row.map_category,
     organizerId: row.organizer_id,
     organizerNickname,
@@ -209,10 +262,16 @@ function mapArchivedRunRow(row: RunRow, confirmedCount = 0, now = Date.now()): A
 
 function matchesMapOrOrganizer(row: RunRow, query: string): boolean {
   const needle = query.toLowerCase();
-  const mapName = row.map?.name.toLowerCase() ?? "";
+  const attachedNames = mapsFromRow(row).map((map) => map.name.toLowerCase());
+  const singularName = row.map?.name.toLowerCase() ?? "";
   const nickname = row.organizer?.nickname?.toLowerCase() ?? "";
   const category = row.map_category?.toLowerCase() ?? "";
-  return mapName.includes(needle) || nickname.includes(needle) || category.includes(needle);
+  return (
+    attachedNames.some((name) => name.includes(needle)) ||
+    singularName.includes(needle) ||
+    nickname.includes(needle) ||
+    category.includes(needle)
+  );
 }
 
 /** Keep `.in("run_id", …)` URLs short; paginate so PostgREST max-rows cannot under-count. */
@@ -275,6 +334,40 @@ async function confirmedCountsForRuns(supabase: AppSupabaseClient, runIds: strin
 
 async function pendingCountsForRuns(supabase: AppSupabaseClient, runIds: string[]): Promise<Map<string, number>> {
   return participantCountsForRuns(supabase, runIds, "pending");
+}
+
+/**
+ * F1: guests can SELECT archived public `run_maps`. Chunked like participant counts.
+ * Rows that already have a `run_maps` embed are skipped.
+ */
+async function attachRunMapsFromJunction(supabase: AppSupabaseClient, rows: RunRow[]): Promise<void> {
+  const need = rows.filter((row) => !(row.run_maps && row.run_maps.length > 0) && !(row.maps && row.maps.length > 0));
+  if (need.length === 0) return;
+
+  const byRun = new Map<string, { position: number; map: RunMap }[]>();
+  const ids = need.map((row) => row.id);
+
+  for (let i = 0; i < ids.length; i += PARTICIPANT_COUNT_ID_CHUNK) {
+    const chunk = ids.slice(i, i + PARTICIPANT_COUNT_ID_CHUNK);
+    const { data, error } = await supabase.from("run_maps").select(RUN_MAP_EMBED_SELECT).in("run_id", chunk);
+
+    if (error) {
+      throw new Error(`Failed to list run maps: ${error.message}`);
+    }
+
+    for (const entry of data) {
+      const map = coerceRunMap(entry.map);
+      if (!map) continue;
+      const list = byRun.get(entry.run_id) ?? [];
+      list.push({ position: entry.position, map });
+      byRun.set(entry.run_id, list);
+    }
+  }
+
+  for (const row of need) {
+    const list = byRun.get(row.id) ?? [];
+    row.maps = list.sort((a, b) => a.position - b.position).map((entry) => entry.map);
+  }
 }
 
 export interface ListActiveRunsOptions {
@@ -538,6 +631,7 @@ function runRowFromPublicRpc(row: PlayerPublicRunRpcRow): { row: RunRow; confirm
       organizer_id: row.organizer_id,
       map_category: row.map_category,
       map,
+      maps: [],
       organizer: { nickname: row.organizer_nickname },
     },
     confirmedCount: row.confirmed_count,
@@ -603,6 +697,7 @@ export async function listPlayerProfileRuns(
   }
 
   const rows = [...byId.values()];
+  await attachRunMapsFromJunction(supabase, rows);
   const missingCountIds = rows.filter((row) => !confirmedById.has(row.id)).map((row) => row.id);
   const extraCounts = await confirmedCountsForRuns(supabase, missingCountIds);
   for (const [id, count] of extraCounts) {
@@ -868,31 +963,9 @@ export function normalizeOptionalRunTitle(raw: string): string | null {
   return title;
 }
 
-export function normalizeRunMapAndCategory(
-  mapIdRaw: string,
-  categoryRaw: string,
-): { mapId: string | null; mapCategory: string | null } {
-  const mapId = mapIdRaw.trim().length > 0 ? mapIdRaw.trim() : null;
-  const category = categoryRaw.trim().length > 0 ? categoryRaw.trim() : null;
-
-  if (mapId !== null) {
-    return { mapId, mapCategory: null };
-  }
-
-  if (category === null) {
-    return { mapId: null, mapCategory: null };
-  }
-
-  if (!isMapCategory(category)) {
-    throw new RunError("Category is invalid");
-  }
-
-  return { mapId: null, mapCategory: category };
-}
-
 export interface UpdateRunInput {
   title: string;
-  mapId: string;
+  mapIds: string[];
   mapCategory: string;
   startsAt: string;
   maxParticipants: string;
@@ -904,6 +977,7 @@ export interface UpdateRunInput {
 
 interface PreparedRunPatch {
   title: string | null;
+  mapIds: string[];
   mapId: string | null;
   mapCategory: string | null;
   startsAtIso: string;
@@ -963,7 +1037,77 @@ export function mapRunWriteError(error: PostgrestErrorBlob): RunError | null {
   if (blob.includes("run_not_found")) {
     return new RunError("Run not found or no longer active");
   }
+  if (blob.includes("run_maps_cap") || blob.includes("run_maps_position_chk")) {
+    return new RunError(RUN_MAPS_CAP_MESSAGE);
+  }
+  if (
+    blob.includes("run_maps_map_id_fkey") ||
+    blob.includes("run_maps_pkey") ||
+    blob.includes("run_maps_run_id_position_key")
+  ) {
+    return new RunError("Map is invalid");
+  }
   return null;
+}
+
+export async function assertCatalogMapIds(
+  supabase: AppSupabaseClient,
+  mapIds: string[],
+  lookupFailedMessage: string,
+): Promise<void> {
+  if (mapIds.length === 0) return;
+
+  for (const id of mapIds) {
+    if (!isUuid(id)) {
+      throw new RunError("Invalid map selection");
+    }
+  }
+
+  const { data, error } = await supabase.from("maps").select("id").in("id", mapIds);
+  if (error) {
+    console.error("map lookup failed", error);
+    throw new RunError(lookupFailedMessage);
+  }
+
+  const found = new Set(data.map((row) => row.id));
+  if (mapIds.some((id) => !found.has(id))) {
+    throw new RunError("Selected map was not found");
+  }
+}
+
+/**
+ * Replace-all junction write. Called from `updateRun` and from the public/friends/clan
+ * create insert in `src/pages/api/runs/index.ts`. Invite-only must not call this.
+ */
+export async function replaceRunMaps(
+  supabase: AppSupabaseClient,
+  runId: string,
+  mapIds: string[],
+  fallbackMessage: string,
+): Promise<void> {
+  const { error: deleteError } = await supabase.from("run_maps").delete().eq("run_id", runId);
+  if (deleteError) {
+    console.error("replaceRunMaps delete failed", deleteError);
+    const mapped = mapRunWriteError(deleteError);
+    if (mapped) throw mapped;
+    throw new RunError(fallbackMessage);
+  }
+
+  if (mapIds.length === 0) return;
+
+  const { error: insertError } = await supabase.from("run_maps").insert(
+    mapIds.map((mapId, index) => ({
+      run_id: runId,
+      map_id: mapId,
+      position: index + 1,
+    })),
+  );
+  if (insertError) {
+    console.error("replaceRunMaps insert failed", insertError);
+    const mapped = mapRunWriteError(insertError);
+    if (mapped) throw mapped;
+    throw new RunError(fallbackMessage);
+  }
 }
 
 async function loadCurrentFriendIdSet(
@@ -1035,21 +1179,16 @@ async function prepareOwnedActiveRunPatch(
   }
 
   const title = normalizeOptionalRunTitle(input.title);
-  const { mapId, mapCategory } = normalizeRunMapAndCategory(input.mapId, input.mapCategory);
-
-  if (mapId !== null) {
-    if (!isUuid(mapId)) {
-      throw new RunError("Invalid map selection");
-    }
-    const { data: mapRow, error: mapError } = await supabase.from("maps").select("id").eq("id", mapId).maybeSingle();
-    if (mapError) {
-      console.error("updateRun map lookup failed", mapError);
-      throw new RunError("Could not save this run");
-    }
-    if (!mapRow) {
-      throw new RunError("Selected map was not found");
-    }
+  let mapIds: string[];
+  let mapId: string | null;
+  let mapCategory: string | null;
+  try {
+    ({ mapIds, mapId, mapCategory } = normalizeRunMapsAndCategory(input.mapIds, input.mapCategory));
+  } catch (err) {
+    if (err instanceof RunMapsError) throw new RunError(err.message);
+    throw err;
   }
+  await assertCatalogMapIds(supabase, mapIds, "Could not save this run");
 
   const startsAtRaw = input.startsAt.trim();
   if (!startsAtRaw) {
@@ -1126,6 +1265,7 @@ async function prepareOwnedActiveRunPatch(
 
   return {
     title,
+    mapIds,
     mapId,
     mapCategory,
     startsAtIso: startsAt.toISOString(),
@@ -1142,6 +1282,7 @@ export interface CreateInviteOnlyRunInput {
   title: string | null;
   mapId: string | null;
   mapCategory: string | null;
+  mapIds: string[];
   startsAtIso: string;
   maxParticipants: number;
   minPoints: number;
@@ -1168,6 +1309,7 @@ export async function createInviteOnlyRun(
     p_title: input.title,
     p_map_id: input.mapId,
     p_map_category: input.mapCategory,
+    p_map_ids: input.mapIds,
     p_starts_at: input.startsAtIso,
     p_max_participants: input.maxParticipants,
     p_min_points: input.minPoints,
@@ -1387,6 +1529,8 @@ export async function updateRun(
   if (!updated) {
     throw new RunError("Run not found or no longer active");
   }
+
+  await replaceRunMaps(supabase, runId, prepared.mapIds, "Could not save this run");
 }
 
 /**
@@ -1423,6 +1567,7 @@ export async function setRunVisibilityAndInvites(
     p_title: prepared.title,
     p_map_id: prepared.mapId,
     p_map_category: prepared.mapCategory,
+    p_map_ids: prepared.mapIds,
     p_starts_at: prepared.startsAtIso,
     p_max_participants: prepared.maxParticipants,
     p_min_points: prepared.minPoints,
