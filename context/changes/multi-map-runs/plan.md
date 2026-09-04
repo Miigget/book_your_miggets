@@ -369,16 +369,16 @@ Catalog is ~1k maps and already loaded for MapPicker (`listMapsForPicker`). Junc
 
 #### Automated
 
-- [x] 3.1 `npm run lint`
-- [x] 3.2 `npm run build`
-- [x] 3.3 `AGENTS.md` states the invariants above
+- [x] 3.1 `npm run lint` — 530b14f
+- [x] 3.2 `npm run build` — 530b14f
+- [x] 3.3 `AGENTS.md` states the invariants above — 530b14f
 
 #### Manual
 
-- [x] 3.4 Create public run with three maps: `/runs` card shows three `name · difficulty · pts` lines/items; detail lists all three compactly; untitled title uses map 1
-- [x] 3.5 Add maps 4–8 on edit; card shows three + “+5 more”; ninth click/submit is rejected with the cap message
-- [x] 3.6 Category-only create (no maps, Hard): card and detail show Category Hard; no blank Map row; title is `{nick} run` if untitled
-- [x] 3.7 Clear all maps on edit and leave a category: `run_maps` empty, `map_id` null, category stored; card switches to Category
-- [x] 3.8 Invite-only create with two maps: invitee sees both on the card/detail; guest 404s the run and cannot read `run_maps`
-- [x] 3.9 Player public Incoming/Recent for a public multi-map run shows the set (or first three +N), including **archived public** Recent for guests (F1). Guest still 404s archived `/runs/{id}`
+- [x] 3.4 Create public run with three maps: `/runs` card shows three `name · difficulty · pts` lines/items; detail lists all three compactly; untitled title uses map 1 — 530b14f
+- [x] 3.5 Add maps 4–8 on edit; card shows three + “+5 more”; ninth click/submit is rejected with the cap message — 530b14f
+- [x] 3.6 Category-only create (no maps, Hard): card and detail show Category Hard; no blank Map row; title is `{nick} run` if untitled — 530b14f
+- [x] 3.7 Clear all maps on edit and leave a category: `run_maps` empty, `map_id` null, category stored; card switches to Category — 530b14f
+- [x] 3.8 Invite-only create with two maps: invitee sees both on the card/detail; guest 404s the run and cannot read `run_maps` — 530b14f
+- [x] 3.9 Player public Incoming/Recent for a public multi-map run shows the set (or first three +N), including **archived public** Recent for guests (F1). Guest still 404s archived `/runs/{id}` — 530b14f
 - [ ] 3.10 Completed clan run with maps: Verify still appears when `map_id` is set; Complete does not change `clans.points`

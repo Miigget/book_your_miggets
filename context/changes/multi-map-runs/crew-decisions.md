@@ -3,7 +3,7 @@ change_id: multi-map-runs
 mode: YOLO
 started: 2026-09-04
 updated: 2026-09-04
-status: in-progress
+status: complete
 ---
 
 # Crew decisions — multi-map-runs
@@ -31,7 +31,9 @@ Mode: **YOLO**. Crew Lead answered specialist questions; the human was asked onl
 | 2026-09-04 | 10x-impl-review p1 | APPROVED; fold `is_not_banned()` into Phase 2 |
 | 2026-09-04 | 10x-implement p2 | writes/loaders/filter + is_not_banned migration; commit `f16c9e2` |
 | 2026-09-04 | 10x-impl-review p2 | APPROVED (0 findings) |
-| 2026-09-04 | 10x-implement p3 | MapPicker/cards/detail/AGENTS.md; ritual commit pending SHA write-back |
+| 2026-09-04 | 10x-implement p3 | MapPicker/cards/AGENTS.md; commit `530b14f`; 3.10 YOLO-skipped |
+| 2026-09-04 | 10x-impl-review p3 | APPROVED (0 findings) |
+| 2026-09-04 | 10x-impl-review | full-plan APPROVED (0 findings); status impl_reviewed |
 
 ## Decisions the Crew Lead made (no human)
 
@@ -39,6 +41,7 @@ Mode: **YOLO**. Crew Lead answered specialist questions; the human was asked onl
 - **plan-q2** — How should multiple maps be stored? Chose **A: junction `run_maps` (run_id, map_id, position)**. Why: FK + uniqueness + ordered positions match `run_participants`/`run_invites`; JSON array loses catalog integrity.
 - **plan-q3** — Fate of `runs.map_id` / `map_category`? Chose **A: keep both; sync `map_id` to first attached map (null if empty); category remains category-only fallback**. Why: S-28 lock field and existing verify/`list_player_public_runs` stay intact this slice; category-only cards keep working.
 - **plan-q4** — Change clan verified-finish points this slice? Chose **A: no — still award `maps.points` for `runs.map_id` only**. Why: S-27 outcome is attach + show; DEFINER rewrite is a later change; first-map sync avoids `no_map` on new clan runs.
+- **archive-3.10** — Archive with Progress 3.10 still open? Chose **yes (YOLO auto-archive)**. Why: only a manual clan-fixture row remains; Verify/Complete code is unchanged vs main; full impl-review APPROVED.
 - **review-F1** — Guest Recent cannot read archived public `run_maps`. Chose **A: SELECT = parent visible OR DEFINER `run_is_public` (public incl. archived)**. Why: batch-attach without DROP still works; do not widen `can_view_run` or archived `/runs/{id}`; catalog names on a public archived id are acceptable.
 - **review-F2** — Phase 1 setter `p_map_ids default '{}'` would wipe junction on current 12-arg edits. Chose **A: setter default NULL = skip write; `'{}'` or a list replaces; create may default `'{}'`**. Why: same NULL-vs-empty lesson as S-26 on this function; Phase 2 always passes the array.
 
@@ -58,6 +61,8 @@ Mode: **YOLO**. Crew Lead answered specialist questions; the human was asked onl
 - **impl-p1-F1** — `run_maps` INSERT/DELETE omit `is_not_banned()`. Chose **fold into Phase 2 follow-up migration**. Why: APPROVED with LOW warning; sibling child-table writes include the helper; Phase 2 is the first app writer.
 - PostgREST: after adding `run_maps`, parent embed `map:maps` needed `!runs_map_id_fkey` (two-path). Implementer adapted; Crew accepts.
 - YOLO: ritual Phase 2 commit allowed.
+- YOLO: ritual Phase 3 and leftover-docs commits allowed.
+- YOLO: ritual archive commit allowed.
 
 ## Decisions escalated to the human
 
