@@ -1,0 +1,39 @@
+---
+import { summarizeRunMaps, type RunMapsSummaryMap } from "@/lib/run-maps";
+import { cn } from "@/lib/utils";
+
+interface Props {
+  maps: RunMapsSummaryMap[];
+  fallbackMap: RunMapsSummaryMap | null;
+  mapCategory: string | null;
+  class?: string;
+}
+
+const { maps, fallbackMap, mapCategory, class: className } = Astro.props;
+const summary = summarizeRunMaps(maps, fallbackMap, mapCategory);
+const mapsLabel = summary.kind === "maps" && summary.visible.length + summary.extra === 1 ? "Map:" : "Maps:";
+---
+
+{
+  summary.kind === "maps" ? (
+    <div class:list={[cn(className)]}>
+      <p>{mapsLabel}</p>
+      <ul class="mt-0.5 space-y-0.5">
+        {summary.visible.map((map) => (
+          <li class="text-blue-100/90">
+            {map.name}
+            <span class="text-blue-100/50">
+              {" "}
+              · {map.difficulty} · {map.points} pts
+            </span>
+          </li>
+        ))}
+      </ul>
+      {summary.extra > 0 && <p class="text-blue-100/50">+{summary.extra} more</p>}
+    </div>
+  ) : summary.kind === "category" ? (
+    <div class:list={[cn(className)]}>
+      Category: <span class="text-blue-100/90">{summary.category}</span>
+    </div>
+  ) : null
+}

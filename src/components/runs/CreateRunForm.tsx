@@ -19,6 +19,7 @@ import {
   STARTS_AT_FUTURE_MESSAGE,
   STARTS_AT_ONE_YEAR_MESSAGE,
 } from "@/lib/run-limits";
+import { normalizeRunMapsAndCategory, RunMapsError } from "@/lib/run-maps";
 import { cn } from "@/lib/utils";
 import { INVITE_LIST_EMPTY_MESSAGE, RUN_TITLE_MAX_LENGTH, type MapPickerItem } from "@/lib/services/runs";
 
@@ -36,7 +37,7 @@ export interface CreateRunFormFriend {
 export interface CreateRunFormEditValues {
   runId: string;
   title: string;
-  mapId: string;
+  mapIds: string[];
   mapCategory: string;
   startsAt: string;
   maxParticipants: number;
@@ -88,7 +89,7 @@ export default function CreateRunForm({
   const showClanOnlyOption = ownsClan || edit?.visibility === "clan_only";
   const [nickname, setNickname] = useState("");
   const [title, setTitle] = useState(edit?.title ?? "");
-  const [mapId, setMapId] = useState(edit?.mapId ?? "");
+  const [mapIds, setMapIds] = useState<string[]>(() => edit?.mapIds ?? []);
   const [startsAtLocal, setStartsAtLocal] = useState(() =>
     edit ? startsAtToLocalDatetime(edit.startsAt) : defaultLocalStartsAt(),
   );
@@ -104,6 +105,7 @@ export default function CreateRunForm({
   const [errors, setErrors] = useState<{
     nickname?: string;
     title?: string;
+    maps?: string;
     starts_at?: string;
     max_participants?: string;
     min_points?: string;
@@ -137,6 +139,12 @@ export default function CreateRunForm({
 
     if (title.trim().length > RUN_TITLE_MAX_LENGTH) {
       next.title = `Title must be ${RUN_TITLE_MAX_LENGTH} characters or fewer`;
+    }
+
+    try {
+      normalizeRunMapsAndCategory(mapIds, "");
+    } catch (err) {
+      next.maps = err instanceof RunMapsError ? err.message : "Map is invalid";
     }
 
     if (!startsAtLocal) {
@@ -259,7 +267,16 @@ export default function CreateRunForm({
         icon={<Tag className="size-4" />}
       />
 
-      <MapPicker maps={maps} selectedId={mapId} initialDifficulty={edit?.mapCategory ?? ""} onSelect={setMapId} />
+      <MapPicker
+        maps={maps}
+        selectedIds={mapIds}
+        initialDifficulty={edit?.mapCategory ?? ""}
+        error={errors.maps}
+        onChange={(ids) => {
+          setMapIds(ids);
+          if (errors.maps) setErrors((prev) => ({ ...prev, maps: undefined }));
+        }}
+      />
 
       <div>
         <label htmlFor="starts_at_local" className="mb-1 block text-sm text-blue-100/80">

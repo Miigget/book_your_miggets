@@ -24,6 +24,14 @@ Mode: **YOLO**. Crew Lead answered specialist questions; the human was asked onl
 | 2026-09-04 | gh-change-sync | `--event plan_reviewed` → #91 Backlog |
 | 2026-09-04 | 10x-plan | refine in place: F1–F3 folded into phases; status planned |
 | 2026-09-04 | 10x-plan-review | second pass SOUND (0C/0W); LOW one-liners applied |
+| 2026-09-04 | gh-change-sync | `--event plan_reviewed` → #91 Backlog |
+| 2026-09-04 | git | branch `feature/multi-map-runs` from main |
+| 2026-09-04 | 10x-implement p1 | schema/RLS/RPCs; commit `fcfa49c`; status implementing |
+| 2026-09-04 | gh-change-sync | `--event implementing` → #91 In progress |
+| 2026-09-04 | 10x-impl-review p1 | APPROVED; fold `is_not_banned()` into Phase 2 |
+| 2026-09-04 | 10x-implement p2 | writes/loaders/filter + is_not_banned migration; commit `f16c9e2` |
+| 2026-09-04 | 10x-impl-review p2 | APPROVED (0 findings) |
+| 2026-09-04 | 10x-implement p3 | MapPicker/cards/detail/AGENTS.md; ritual commit pending SHA write-back |
 
 ## Decisions the Crew Lead made (no human)
 
@@ -44,9 +52,12 @@ Mode: **YOLO**. Crew Lead answered specialist questions; the human was asked onl
 - **plan-q8** — Untitled title fallback? Chose **A: keep today’s helper (first/synced map name; category-only stays “{nick} run”)**. Why: first-map sync stays honest; joining names overflows; changing S-14 titles is out of outcome.
 
 ### Obvious
-- Intent seeded from roadmap S-27 outcome + FR-009 + keep independent of S-28.
+- YOLO: ritual Phase 1 commit allowed (`COMMIT_OK`). Chose **yes**. Why: user chose YOLO for the full loop; never push / never amend.
 - Next stage after `status: new` → `/10x-plan`.
 - **review-F3** — Public create is inline `runs.insert()` in the API, not `runs.ts`. Chose **A: name that insert (or a helper it calls) as the replace-all `run_maps` site**. Why: LOW-impact one-line plan fix; invite stays RPC-only.
+- **impl-p1-F1** — `run_maps` INSERT/DELETE omit `is_not_banned()`. Chose **fold into Phase 2 follow-up migration**. Why: APPROVED with LOW warning; sibling child-table writes include the helper; Phase 2 is the first app writer.
+- PostgREST: after adding `run_maps`, parent embed `map:maps` needed `!runs_map_id_fkey` (two-path). Implementer adapted; Crew accepts.
+- YOLO: ritual Phase 2 commit allowed.
 
 ## Decisions escalated to the human
 
@@ -54,7 +65,10 @@ Mode: **YOLO**. Crew Lead answered specialist questions; the human was asked onl
 
 ## Human-action gates
 
-- none yet
+- Phase 1.8 guest HTML GET `/runs/{id}` 404: implementer verified via REST + `can_view_run` false, not a live Astro GET. Residual: page mapping unproven in browser.
+- Phase 2.4–2.8: SQL/curl against local Astro, not human UI. Residual: live form still posted `map_id` until Phase 3 MapPicker.
+- Phase 3.4–3.9: verified via local Astro HTML + authenticated FormData (not a human click-through). Residual: MapPicker ninth *click* not driven in a browser; ninth *submit* returned the cap `?error=`.
+- Phase 3.10: skipped (YOLO residual). No completed `clan_only` fixture in local DB; `showVerifyFinish` still `run.map != null`; Complete path untouched.
 
 ## Stop / escape hatches
 
@@ -62,4 +76,4 @@ Mode: **YOLO**. Crew Lead answered specialist questions; the human was asked onl
 
 ## GitHub
 
-- change-sync: #91 events new, planned, plan_reviewed → Backlog (link-roadmap S-27)
+- change-sync: #91 events new, planned, plan_reviewed, implementing → In progress (link-roadmap S-27)

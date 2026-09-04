@@ -353,32 +353,32 @@ Catalog is ~1k maps and already loaded for MapPicker (`listMapsForPicker`). Junc
 
 #### Automated
 
-- [x] 2.1 `npm run lint`
-- [x] 2.2 `npm run build`
-- [x] 2.3 `src/lib/run-maps.ts` exports `RUN_MAPS_MAX === 8` and the display kinds `maps` / `category` / `none`
+- [x] 2.1 `npm run lint` — f16c9e2
+- [x] 2.2 `npm run build` — f16c9e2
+- [x] 2.3 `src/lib/run-maps.ts` exports `RUN_MAPS_MAX === 8` and the display kinds `maps` / `category` / `none` — f16c9e2
 
 #### Manual
 
-- [x] 2.4 Direct SQL + service path (or create API with curl/FormData): three valid map UUIDs persist as positions 1..3 and `runs.map_id` = first; `map_category` is null
-- [x] 2.5 Empty `map_ids` + category `Hard` persists `map_id` null, `map_category` Hard, zero `run_maps`
-- [x] 2.6 Nine ids or a duplicate after normalize is a domain `?error=` (not a PostgREST dump)
-- [x] 2.7 `listActiveRuns` with `?map=` matching the second map’s name includes the run
-- [x] 2.8 Public/friends/clan create via `POST /api/runs` (the inline insert in `src/pages/api/runs/index.ts`, not a `createRun` helper that does not exist) writes `run_maps` in the same request; invite-only create persists the list only through `p_map_ids` (no follow-up PostgREST `run_maps` insert)
+- [x] 2.4 Direct SQL + service path (or create API with curl/FormData): three valid map UUIDs persist as positions 1..3 and `runs.map_id` = first; `map_category` is null — f16c9e2
+- [x] 2.5 Empty `map_ids` + category `Hard` persists `map_id` null, `map_category` Hard, zero `run_maps` — f16c9e2
+- [x] 2.6 Nine ids or a duplicate after normalize is a domain `?error=` (not a PostgREST dump) — f16c9e2
+- [x] 2.7 `listActiveRuns` with `?map=` matching the second map’s name includes the run — f16c9e2
+- [x] 2.8 Public/friends/clan create via `POST /api/runs` (the inline insert in `src/pages/api/runs/index.ts`, not a `createRun` helper that does not exist) writes `run_maps` in the same request; invite-only create persists the list only through `p_map_ids` (no follow-up PostgREST `run_maps` insert) — f16c9e2
 
 ### Phase 3: MapPicker, cards, detail, edit seed, AGENTS.md
 
 #### Automated
 
-- [ ] 3.1 `npm run lint`
-- [ ] 3.2 `npm run build`
-- [ ] 3.3 `AGENTS.md` states the invariants above
+- [x] 3.1 `npm run lint`
+- [x] 3.2 `npm run build`
+- [x] 3.3 `AGENTS.md` states the invariants above
 
 #### Manual
 
-- [ ] 3.4 Create public run with three maps: `/runs` card shows three `name · difficulty · pts` lines/items; detail lists all three compactly; untitled title uses map 1
-- [ ] 3.5 Add maps 4–8 on edit; card shows three + “+5 more”; ninth click/submit is rejected with the cap message
-- [ ] 3.6 Category-only create (no maps, Hard): card and detail show Category Hard; no blank Map row; title is `{nick} run` if untitled
-- [ ] 3.7 Clear all maps on edit and leave a category: `run_maps` empty, `map_id` null, category stored; card switches to Category
-- [ ] 3.8 Invite-only create with two maps: invitee sees both on the card/detail; guest 404s the run and cannot read `run_maps`
-- [ ] 3.9 Player public Incoming/Recent for a public multi-map run shows the set (or first three +N), including **archived public** Recent for guests (F1). Guest still 404s archived `/runs/{id}`
+- [x] 3.4 Create public run with three maps: `/runs` card shows three `name · difficulty · pts` lines/items; detail lists all three compactly; untitled title uses map 1
+- [x] 3.5 Add maps 4–8 on edit; card shows three + “+5 more”; ninth click/submit is rejected with the cap message
+- [x] 3.6 Category-only create (no maps, Hard): card and detail show Category Hard; no blank Map row; title is `{nick} run` if untitled
+- [x] 3.7 Clear all maps on edit and leave a category: `run_maps` empty, `map_id` null, category stored; card switches to Category
+- [x] 3.8 Invite-only create with two maps: invitee sees both on the card/detail; guest 404s the run and cannot read `run_maps`
+- [x] 3.9 Player public Incoming/Recent for a public multi-map run shows the set (or first three +N), including **archived public** Recent for guests (F1). Guest still 404s archived `/runs/{id}`
 - [ ] 3.10 Completed clan run with maps: Verify still appears when `map_id` is set; Complete does not change `clans.points`

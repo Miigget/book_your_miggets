@@ -134,7 +134,7 @@ const backHref = run ? `/runs/${run.id}` : "/runs";
                 edit={{
                   runId: run.id,
                   title: run.title ?? "",
-                  mapId: run.map?.id ?? "",
+                  mapIds: run.maps.map((map) => map.id),
                   mapCategory: run.mapCategory ?? "",
                   startsAt: run.startsAt,
                   maxParticipants: run.maxParticipants,

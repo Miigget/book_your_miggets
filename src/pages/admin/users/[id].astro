@@ -3,6 +3,7 @@ import Layout from "@/layouts/Layout.astro";
 import Banner from "@/components/Banner.astro";
 import NicknameLink from "@/components/NicknameLink.astro";
 import PageChrome from "@/components/PageChrome.astro";
+import RunMapsSummary from "@/components/runs/RunMapsSummary.astro";
 import { formatStart } from "@/lib/format-date";
 import { createClient } from "@/lib/supabase";
 import { getProfileForAdmin, type AdminPlayerProfile } from "@/lib/services/admin";
@@ -328,23 +329,7 @@ const pageTitle = profile ? `${displayNickname} — Admin — Book Your Miggets`
                           <dt class="inline">Join: </dt>
                           <dd class="inline text-blue-100/90">{formatJoinMode(run.joinMode)}</dd>
                         </div>
-                        {run.map ? (
-                          <div>
-                            <dt class="inline">Map: </dt>
-                            <dd class="inline text-blue-100/90">
-                              {run.map.name}
-                              <span class="text-blue-100/50">
-                                {" "}
-                                · {run.map.difficulty} · {run.map.points} pts
-                              </span>
-                            </dd>
-                          </div>
-                        ) : run.mapCategory ? (
-                          <div>
-                            <dt class="inline">Category: </dt>
-                            <dd class="inline text-blue-100/90">{run.mapCategory}</dd>
-                          </div>
-                        ) : null}
+                        <RunMapsSummary maps={run.maps} fallbackMap={run.map} mapCategory={run.mapCategory} />
                         <div>
                           <dt class="inline">Organizer: </dt>
                           <dd class="inline text-blue-100/90">
