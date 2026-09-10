@@ -1,5 +1,6 @@
 ---
 import NicknameLink from "@/components/NicknameLink.astro";
+import RunMapsSummary from "@/components/runs/RunMapsSummary.astro";
 import { formatStart } from "@/lib/format-date";
 import { formatJoinMode, type ArchivedRunListItem, type RunListItem } from "@/lib/services/runs";
 
@@ -53,24 +54,7 @@ const showCompleted = Boolean(run.completedAt) && !isArchived;
     <div>
       Join: <span class="text-blue-100/90">{formatJoinMode(run.joinMode)}</span>
     </div>
-    {
-      run.map ? (
-        <div class="col-span-2">
-          Map:{" "}
-          <span class="text-blue-100/90">
-            {run.map.name}
-            <span class="text-blue-100/50">
-              {" "}
-              · {run.map.difficulty} · {run.map.points} pts
-            </span>
-          </span>
-        </div>
-      ) : run.mapCategory ? (
-        <div class="col-span-2">
-          Category: <span class="text-blue-100/90">{run.mapCategory}</span>
-        </div>
-      ) : null
-    }
+    <RunMapsSummary maps={run.maps} fallbackMap={run.map} mapCategory={run.mapCategory} class="col-span-2" />
   </div>
   <time class="mt-auto border-t border-white/10 pt-3 text-xs text-blue-100/60" datetime={run.startsAt}>
     {formatStart(run.startsAt, Astro.locals.timeZone)}

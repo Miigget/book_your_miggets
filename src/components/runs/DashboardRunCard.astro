@@ -1,5 +1,6 @@
 ---
 import NicknameLink from "@/components/NicknameLink.astro";
+import RunMapsSummary from "@/components/runs/RunMapsSummary.astro";
 import { formatStart } from "@/lib/format-date";
 import {
   formatJoinMode,
@@ -80,25 +81,7 @@ const showCompleted = Boolean(run.completedAt) && !isArchived;
           </div>
         )
     }
-    {
-      run.map ? (
-        <div>
-          <dt class="inline">Map: </dt>
-          <dd class="inline text-blue-100/90">
-            {run.map.name}
-            <span class="text-blue-100/50">
-              {" "}
-              · {run.map.difficulty} · {run.map.points} pts
-            </span>
-          </dd>
-        </div>
-      ) : run.mapCategory ? (
-        <div>
-          <dt class="inline">Category: </dt>
-          <dd class="inline text-blue-100/90">{run.mapCategory}</dd>
-        </div>
-      ) : null
-    }
+    <RunMapsSummary maps={run.maps} fallbackMap={run.map} mapCategory={run.mapCategory} />
     <div>
       <dt class="inline">Organizer:</dt>
       <dd class="inline text-blue-100/90">

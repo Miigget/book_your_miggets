@@ -10,22 +10,23 @@ import {
   STARTS_AT_FUTURE_MESSAGE,
   STARTS_AT_ONE_YEAR_MESSAGE,
 } from "@/lib/run-limits";
+import { parseMapIdsFromForm, RunMapsError, normalizeRunMapsAndCategory } from "@/lib/run-maps";
 import { ClanError, userOwnsClan } from "@/lib/services/clans";
 import { ProfileError, getOwnProfile, setOwnNickname } from "@/lib/services/profile";
 import {
   ACTIVE_RUN_CAP_MESSAGE,
   CLAN_ONLY_OWNER_REQUIRED,
+  assertCatalogMapIds,
   countAudienceActiveRunsForOrganizer,
   createInviteOnlyRun,
   ensureOwnProfile,
   INVITE_LIST_EMPTY_MESSAGE,
   isJoinMode,
-  isUuid,
   isVisibility,
   mapRunWriteError,
   normalizeOptionalRunTitle,
-  normalizeRunMapAndCategory,
   parseInviteeIds,
+  replaceRunMaps,
   RESTRICTED_VISIBILITY_UNVERIFIED,
   RunError,
 } from "@/lib/services/runs";
@@ -38,7 +39,7 @@ function formString(form: FormData, key: string, fallback = ""): string {
 export const POST: APIRoute = async (context) => {
   const form = await context.request.formData();
   const titleRaw = formString(form, "title");
-  const mapIdRaw = formString(form, "map_id");
+  const mapIdsRaw = parseMapIdsFromForm(form);
   const mapCategoryRaw = formString(form, "map_category");
   const startsAtRaw = formString(form, "starts_at");
   const maxParticipantsRaw = formString(form, "max_participants");
@@ -145,29 +146,17 @@ export const POST: APIRoute = async (context) => {
     }
     throw err;
   }
+  let mapIds: string[];
   let mapId: string | null;
   let mapCategory: string | null;
   try {
-    ({ mapId, mapCategory } = normalizeRunMapAndCategory(mapIdRaw, mapCategoryRaw));
+    ({ mapIds, mapId, mapCategory } = normalizeRunMapsAndCategory(mapIdsRaw, mapCategoryRaw));
+    await assertCatalogMapIds(supabase, mapIds, "Could not create this run");
   } catch (err) {
-    if (err instanceof RunError) {
+    if (err instanceof RunError || err instanceof RunMapsError) {
       return fail(err.message);
     }
     throw err;
-  }
-
-  if (mapId !== null) {
-    if (!isUuid(mapId)) {
-      return fail("Invalid map selection");
-    }
-    const { data: mapRow, error: mapError } = await supabase.from("maps").select("id").eq("id", mapId).maybeSingle();
-    if (mapError) {
-      console.error("create run map lookup failed", mapError);
-      return fail("Could not create this run");
-    }
-    if (!mapRow) {
-      return fail("Selected map was not found");
-    }
   }
 
   if (!startsAtRaw) {
@@ -215,6 +204,7 @@ export const POST: APIRoute = async (context) => {
         title,
         mapId,
         mapCategory,
+        mapIds,
         startsAtIso: startsAt.toISOString(),
         maxParticipants,
         minPoints,
@@ -256,6 +246,16 @@ export const POST: APIRoute = async (context) => {
     if (mapped) {
       return fail(mapped.message);
     }
+    return fail("Could not create this run");
+  }
+
+  try {
+    await replaceRunMaps(supabase, run.id, mapIds, "Could not create this run");
+  } catch (err) {
+    if (err instanceof RunError) {
+      return fail(err.message);
+    }
+    console.error("create run maps replace failed", err);
     return fail("Could not create this run");
   }
 
