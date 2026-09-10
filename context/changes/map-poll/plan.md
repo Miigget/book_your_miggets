@@ -310,9 +310,9 @@ New tables only; no backfill. Existing runs have no poll (`UNIQUE run_id` empty)
 
 #### Automated
 
-- [x] 1.1 Migration applies on local Supabase (`npx supabase migration up` or `npx supabase db reset`)
-- [x] 1.2 `npm run db:types` completes without error
-- [x] 1.3 `npm run lint` passes
+- [x] 1.1 Migration applies on local Supabase (`npx supabase migration up` or `npx supabase db reset`) — 43b38ae
+- [x] 1.2 `npm run db:types` completes without error — 43b38ae
+- [x] 1.3 `npm run lint` passes — 43b38ae
 
 #### Manual
 
@@ -329,8 +329,8 @@ New tables only; no backfill. Existing runs have no poll (`UNIQUE run_id` empty)
 
 #### Automated
 
-- [ ] 2.1 `npm run lint` passes
-- [ ] 2.2 `npx astro sync` and `npm run build` pass
+- [x] 2.1 `npm run lint` passes
+- [x] 2.2 `npx astro sync` and `npm run build` pass
 
 #### Manual
 

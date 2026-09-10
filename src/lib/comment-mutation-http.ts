@@ -25,6 +25,13 @@ export function commentFail(context: APIContext, runId: string, message: string)
   return context.redirect(`/runs/${runId}?commentError=${encodeURIComponent(message)}`);
 }
 
+export function pollFail(context: APIContext, runId: string, message: string): Response {
+  if (wantsJson(context.request)) {
+    return commentJson({ error: message }, 400);
+  }
+  return context.redirect(`/runs/${runId}?pollError=${encodeURIComponent(message)}`);
+}
+
 export function commentUnauthorized(context: APIContext, runId: string): Response {
   const signIn = `/auth/signin?returnTo=${encodeURIComponent(`/runs/${runId}`)}`;
   if (wantsJson(context.request)) {

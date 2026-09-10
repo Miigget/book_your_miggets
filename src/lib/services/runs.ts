@@ -1047,6 +1047,9 @@ export function mapRunWriteError(error: PostgrestErrorBlob): RunError | null {
   ) {
     return new RunError("Map is invalid");
   }
+  if (blob.includes("map_id_locked")) {
+    return new RunError("The poll winner is locked");
+  }
   return null;
 }
 
@@ -1160,16 +1163,24 @@ async function prepareOwnedActiveRunPatch(
     throw new RunError("Visibility is invalid");
   }
 
-  const { data: existing, error: loadError } = await supabase
-    .from("runs")
-    .select("id, max_participants, auto_join_min, starts_at, archived_at, extended_until, completed_at")
-    .eq("id", runId)
-    .eq("organizer_id", userId)
-    .is("archived_at", null)
-    .maybeSingle();
+  const [{ data: existing, error: loadError }, { data: closedPoll, error: closedPollError }] = await Promise.all([
+    supabase
+      .from("runs")
+      .select(
+        "id, max_participants, auto_join_min, starts_at, archived_at, extended_until, completed_at, map_id, map_category",
+      )
+      .eq("id", runId)
+      .eq("organizer_id", userId)
+      .is("archived_at", null)
+      .maybeSingle(),
+    supabase.from("run_map_polls").select("id").eq("run_id", runId).not("closed_at", "is", null).maybeSingle(),
+  ]);
 
   if (loadError) {
     throw new Error(`Failed to load run: ${loadError.message}`);
+  }
+  if (closedPollError) {
+    throw new Error(`Failed to load map poll: ${closedPollError.message}`);
   }
   if (!existing || !isRunActive(existing.starts_at, existing.archived_at, existing.extended_until)) {
     throw new RunError("Run not found or no longer active");
@@ -1189,6 +1200,11 @@ async function prepareOwnedActiveRunPatch(
     throw err;
   }
   await assertCatalogMapIds(supabase, mapIds, "Could not save this run");
+
+  if (closedPoll) {
+    mapId = existing.map_id;
+    mapCategory = existing.map_category;
+  }
 
   const startsAtRaw = input.startsAt.trim();
   if (!startsAtRaw) {
