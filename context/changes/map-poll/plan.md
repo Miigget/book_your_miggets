@@ -329,8 +329,8 @@ New tables only; no backfill. Existing runs have no poll (`UNIQUE run_id` empty)
 
 #### Automated
 
-- [x] 2.1 `npm run lint` passes
-- [x] 2.2 `npx astro sync` and `npm run build` pass
+- [x] 2.1 `npm run lint` passes — 353c5d3
+- [x] 2.2 `npx astro sync` and `npm run build` pass — 353c5d3
 
 #### Manual
 
@@ -346,8 +346,8 @@ New tables only; no backfill. Existing runs have no poll (`UNIQUE run_id` empty)
 
 #### Automated
 
-- [ ] 3.1 `npm run lint` passes
-- [ ] 3.2 `npx astro sync` and `npm run build` pass
+- [x] 3.1 `npm run lint` passes
+- [x] 3.2 `npx astro sync` and `npm run build` pass
 
 #### Manual
 
