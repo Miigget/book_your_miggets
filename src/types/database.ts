@@ -557,6 +557,124 @@ export type Database = {
           },
         ]
       }
+      run_map_poll_options: {
+        Row: {
+          map_id: string
+          poll_id: string
+          position: number
+        }
+        Insert: {
+          map_id: string
+          poll_id: string
+          position: number
+        }
+        Update: {
+          map_id?: string
+          poll_id?: string
+          position?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "run_map_poll_options_map_id_fkey"
+            columns: ["map_id"]
+            isOneToOne: false
+            referencedRelation: "maps"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "run_map_poll_options_poll_id_fkey"
+            columns: ["poll_id"]
+            isOneToOne: false
+            referencedRelation: "run_map_polls"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      run_map_poll_votes: {
+        Row: {
+          created_at: string
+          map_id: string
+          poll_id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          map_id: string
+          poll_id: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          map_id?: string
+          poll_id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "run_map_poll_votes_option_fkey"
+            columns: ["poll_id", "map_id"]
+            isOneToOne: false
+            referencedRelation: "run_map_poll_options"
+            referencedColumns: ["poll_id", "map_id"]
+          },
+          {
+            foreignKeyName: "run_map_poll_votes_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "run_map_poll_votes_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "public_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      run_map_polls: {
+        Row: {
+          closed_at: string | null
+          created_at: string
+          id: string
+          run_id: string
+          winner_map_id: string | null
+        }
+        Insert: {
+          closed_at?: string | null
+          created_at?: string
+          id?: string
+          run_id: string
+          winner_map_id?: string | null
+        }
+        Update: {
+          closed_at?: string | null
+          created_at?: string
+          id?: string
+          run_id?: string
+          winner_map_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "run_map_polls_run_id_fkey"
+            columns: ["run_id"]
+            isOneToOne: true
+            referencedRelation: "runs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "run_map_polls_winner_map_id_fkey"
+            columns: ["winner_map_id"]
+            isOneToOne: false
+            referencedRelation: "maps"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       run_maps: {
         Row: {
           map_id: string
@@ -760,6 +878,7 @@ export type Database = {
       are_friends: { Args: { a: string; b: string }; Returns: boolean }
       auto_join_run: { Args: { p_run_id: string }; Returns: string }
       can_view_run: { Args: { p_run_id: string }; Returns: boolean }
+      close_map_poll: { Args: { p_run_id: string }; Returns: string }
       comment_screenshot_object_run_id: {
         Args: { p_name: string }
         Returns: string
@@ -778,6 +897,10 @@ export type Database = {
           p_starts_at: string
           p_title: string
         }
+        Returns: string
+      }
+      create_map_poll: {
+        Args: { p_map_ids: string[]; p_run_id: string }
         Returns: string
       }
       ensure_own_profile: {
@@ -870,6 +993,10 @@ export type Database = {
         Returns: undefined
       }
       verify_clan_run_finish: { Args: { p_run_id: string }; Returns: string }
+      vote_map_poll: {
+        Args: { p_map_id: string; p_run_id: string }
+        Returns: string
+      }
     }
     Enums: {
       clan_invite_status: "pending" | "declined"
