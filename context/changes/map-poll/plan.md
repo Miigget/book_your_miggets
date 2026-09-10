@@ -346,8 +346,8 @@ New tables only; no backfill. Existing runs have no poll (`UNIQUE run_id` empty)
 
 #### Automated
 
-- [x] 3.1 `npm run lint` passes
-- [x] 3.2 `npx astro sync` and `npm run build` pass
+- [x] 3.1 `npm run lint` passes — 669151c
+- [x] 3.2 `npx astro sync` and `npm run build` pass — 669151c
 
 #### Manual
 

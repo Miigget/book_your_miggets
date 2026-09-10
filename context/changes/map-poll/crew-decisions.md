@@ -3,7 +3,7 @@ change_id: map-poll
 mode: YOLO
 started: 2026-09-10
 updated: 2026-09-10
-status: in-progress
+status: complete
 ---
 
 # Crew decisions — map-poll
@@ -18,6 +18,14 @@ Mode: **YOLO**. Crew Lead answered specialist questions; the human was asked onl
 | 2026-09-10 | 10x-research | wrote research.md; next = plan |
 | 2026-09-10 | 10x-plan | plan.md + plan-brief.md; status planned |
 | 2026-09-10 | 10x-plan-review | SOUND; F1–F3 LOW one-liners applied to plan |
+| 2026-09-10 | 10x-implement p1 | schema/RPCs/freeze; commit 43b38ae |
+| 2026-09-10 | 10x-impl-review p1 | APPROVED (0 findings) |
+| 2026-09-10 | 10x-implement p2 | APIs + edit omit; commit 353c5d3 |
+| 2026-09-10 | 10x-impl-review p2 | APPROVED (0 findings) |
+| 2026-09-10 | 10x-implement p3 | island + Locked map + AGENTS.md; commit 669151c |
+| 2026-09-10 | 10x-impl-review p3 | APPROVED (0 findings) |
+| 2026-09-10 | 10x-impl-review | full-plan APPROVED; status impl_reviewed |
+| 2026-09-10 | 10x-archive | pending this invocation |
 
 ## Decisions the Crew Lead made (no human)
 
@@ -26,6 +34,8 @@ Mode: **YOLO**. Crew Lead answered specialist questions; the human was asked onl
 - **reopen** — One poll forever vs reopen after close? Chose **A: one poll per run, no reopen**. Why: FR-010 is singular; `UNIQUE(run_id)` stays simple; locked `map_id` cannot unfreeze into verify-finish desync.
 - **create-window** — When may organizer create the poll? Chose **A: while roster-open (after start OK; complete and archive no)**. Why: copy `is_run_roster_open_row` like edit/`run_maps`; in-progress teams can still pick a map; close of an already-open poll can still happen after Complete.
 - **zero-vote** — Close with no votes? Chose **A: refuse close (`no_votes`), poll stays open, `map_id` unchanged**. Why: FR-010 is a voted winner, not an organizer default; UNIQUE one-poll-per-run would otherwise trap a dead poll if we stamped close without a lock.
+- **phase-end commits** — Ritual commits after each implement phase? Chose **COMMIT_OK**. Why: user chose YOLO for the full loop.
+- **archive despite unchecked manuals** — Archive while Progress still has open human-action rows? Chose **auto-archive**. Why: YOLO rule: only manual Progress rows remain; log residual risk and continue.
 
 ### Non-obvious
 - **research-vs-plan** — After `/10x-new`, hire research or skip to plan? Chose **hire `/10x-research`**. Why: S-28 is a new poll/vote/close model on shipped `runs.map_id`, `run_maps`, comment ACL, and organizer RPCs; AGENTS.md already constrains S-28 not to replace `run_maps`. That is a clear codebase-map need, not the YOLO “unclear → skip” case.
@@ -45,7 +55,9 @@ Mode: **YOLO**. Crew Lead answered specialist questions; the human was asked onl
 
 ## Human-action gates
 
-- none yet
+- Phase 1 manual SQL 1.4–1.11: skipped (YOLO residual risk)
+- Phase 2 API confirmation 2.3–2.9: skipped (YOLO residual risk)
+- Phase 3 UI click-through 3.3–3.8: skipped (YOLO residual risk)
 
 ## Stop / escape hatches
 
@@ -53,4 +65,4 @@ Mode: **YOLO**. Crew Lead answered specialist questions; the human was asked onl
 
 ## GitHub
 
-- change-sync: #92 events new, planned
+- change-sync: #92 events new, planned, plan_reviewed, implementing, implemented (In review)
