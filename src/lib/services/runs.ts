@@ -1390,6 +1390,41 @@ export async function archiveRun(supabase: AppSupabaseClient, runId: string): Pr
   }
 }
 
+export async function deleteRunAsOrganizer(supabase: AppSupabaseClient, runId: string, userId: string): Promise<void> {
+  const { data: run, error: loadError } = await supabase
+    .from("runs")
+    .select("organizer_id, starts_at, archived_at, extended_until")
+    .eq("id", runId)
+    .maybeSingle();
+
+  if (loadError) {
+    console.error("deleteRunAsOrganizer load failed", loadError);
+    throw new RunError("Could not delete this run");
+  }
+
+  if (!run) {
+    throw new RunError("Run not found or no longer active");
+  }
+  if (run.organizer_id !== userId) {
+    throw new RunError("Run not found or no longer active");
+  }
+
+  if (!isRunActive(run.starts_at, run.archived_at, run.extended_until)) {
+    throw new RunError("This run is already archived.");
+  }
+
+  const { data, error } = await supabase.from("runs").delete().eq("id", runId).select("id");
+
+  if (error) {
+    console.error("deleteRunAsOrganizer failed", error);
+    throw new RunError("Could not delete this run");
+  }
+
+  if (data.length === 0) {
+    throw new RunError("Could not delete this run");
+  }
+}
+
 export async function completeClanRun(supabase: AppSupabaseClient, runId: string): Promise<void> {
   const { data: outcome, error } = await supabase.rpc("complete_clan_run", { p_run_id: runId });
 

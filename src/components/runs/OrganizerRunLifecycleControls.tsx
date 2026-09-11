@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Archive, CheckCircle2, Clock } from "lucide-react";
+import { Archive, CheckCircle2, Clock, Trash2 } from "lucide-react";
 import { ServerError } from "@/components/auth/ServerError";
 import { Button } from "@/components/ui/button";
 import { fetchFormJson } from "@/lib/fetch-form-json";
@@ -71,6 +71,13 @@ export default function OrganizerRunLifecycleControls({
     await postLifecycle(e.currentTarget, "Could not archive this run");
   }
 
+  async function onDelete(e: React.SubmitEvent<HTMLFormElement>) {
+    e.preventDefault();
+    const ok = window.confirm("Delete this run permanently? Confirmed participants will be removed.");
+    if (!ok) return;
+    await postLifecycle(e.currentTarget, "Could not delete this run");
+  }
+
   async function onExtend(e: React.SubmitEvent<HTMLFormElement>, hours: number) {
     e.preventDefault();
     const label = hours === 1 ? "1 hour" : `${hours} hours`;
@@ -109,6 +116,19 @@ export default function OrganizerRunLifecycleControls({
           <Button type="submit" variant="outline" size="sm" className={cn("rounded-lg")} disabled={busy}>
             <Archive className="size-4" />
             Archive
+          </Button>
+        </form>
+        <form
+          method="POST"
+          action={`/api/runs/${runId}/delete`}
+          onSubmit={(event) => {
+            event.preventDefault();
+            void onDelete(event);
+          }}
+        >
+          <Button type="submit" variant="destructive" size="sm" className={cn("rounded-lg")} disabled={busy}>
+            <Trash2 className="size-4" />
+            Delete run
           </Button>
         </form>
         {canExtend
