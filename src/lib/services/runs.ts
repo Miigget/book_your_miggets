@@ -898,6 +898,9 @@ export const INVITE_LIST_EMPTY_MESSAGE = "Invite-only runs need at least one inv
 
 export const ACTIVE_RUN_CAP_MESSAGE = "You already have 5 active runs. Archive one to create another.";
 
+export const TRANSFER_TARGET_ACTIVE_RUN_CAP_MESSAGE =
+  "That player already has 5 active runs. They must archive one before they can take this run.";
+
 export function parseInviteeIds(form: FormData): string[] {
   const ids = form
     .getAll("invitee_ids")
@@ -1387,6 +1390,86 @@ export async function archiveRun(supabase: AppSupabaseClient, runId: string): Pr
     default:
       console.error("archive_run returned unexpected outcome", outcome);
       throw new RunError("Could not archive this run");
+  }
+}
+
+export async function deleteRunAsOrganizer(supabase: AppSupabaseClient, runId: string, userId: string): Promise<void> {
+  const { data: run, error: loadError } = await supabase
+    .from("runs")
+    .select("organizer_id, starts_at, archived_at, extended_until")
+    .eq("id", runId)
+    .maybeSingle();
+
+  if (loadError) {
+    console.error("deleteRunAsOrganizer load failed", loadError);
+    throw new RunError("Could not delete this run");
+  }
+
+  if (!run) {
+    throw new RunError("Run not found or no longer active");
+  }
+  if (run.organizer_id !== userId) {
+    throw new RunError("Run not found or no longer active");
+  }
+
+  if (!isRunActive(run.starts_at, run.archived_at, run.extended_until)) {
+    throw new RunError("This run is already archived.");
+  }
+
+  const { data, error } = await supabase.from("runs").delete().eq("id", runId).select("id");
+
+  if (error) {
+    console.error("deleteRunAsOrganizer failed", error);
+    throw new RunError("Could not delete this run");
+  }
+
+  if (data.length === 0) {
+    throw new RunError("Could not delete this run");
+  }
+}
+
+export async function transferRunOwnership(
+  supabase: AppSupabaseClient,
+  runId: string,
+  newOrganizerId: string,
+): Promise<void> {
+  if (!isUuid(runId) || !isUuid(newOrganizerId)) {
+    throw new RunError("Pick a confirmed participant on this run.");
+  }
+
+  const { data: outcome, error } = await supabase.rpc("transfer_run_ownership", {
+    p_run_id: runId,
+    p_new_organizer_id: newOrganizerId,
+  });
+
+  if (error) {
+    console.error("transfer_run_ownership failed", error);
+    throw new RunError("Could not transfer this run");
+  }
+
+  switch (outcome) {
+    case "transferred":
+      return;
+    case "not_found":
+    case "not_authenticated":
+      throw new RunError("Run not found or no longer active");
+    case "banned":
+      throw new RunError(BANNED_RUN_MUTATION_MESSAGE);
+    case "not_active":
+      throw new RunError("This run is already archived.");
+    case "clan_only":
+      throw new RunError("Clan-only runs cannot change owner.");
+    case "not_confirmed":
+      throw new RunError("Pick a confirmed participant on this run.");
+    case "target_banned":
+      throw new RunError("That player cannot take this run.");
+    case "not_verified":
+      throw new RunError("That player must be verified to organize a restricted run.");
+    case "active_run_cap":
+      throw new RunError(TRANSFER_TARGET_ACTIVE_RUN_CAP_MESSAGE);
+    default:
+      console.error("transfer_run_ownership returned unexpected outcome", outcome);
+      throw new RunError("Could not transfer this run");
   }
 }
 

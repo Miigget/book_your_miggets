@@ -3,7 +3,7 @@ project: "Book Your Miggets"
 version: 3
 status: draft
 created: 2026-08-27
-updated: 2026-09-04
+updated: 2026-09-11
 prd_version: 2
 main_goal: quality
 top_blocker: none
@@ -43,9 +43,9 @@ Both tracks must work; shipping only clans or only the run-loop extras is not do
 | S-25 | run-create-limits | set capacity default/max 64; cannot schedule in the past or > 1 year ahead | shipped run create/edit | FR-006, FR-007, US-01 | done |
 | S-26 | team-size-scope | set min auto-join / max approval bands under Advanced settings | shipped approval + auto-join | FR-005, FR-025, FR-026, US-01 | done |
 | S-27 | multi-map-runs | attach multiple maps to one run for a single session | shipped run create + category-only | FR-009, US-01 | done |
-| S-28 | map-poll | create a map poll; confirmed participants vote; closing locks the winning map | shipped confirmed roster + map catalog | FR-010, US-01 | ready |
-| S-29 | transfer-run-ownership | (owner) pass ownership to a confirmed participant | shipped confirmed roster | FR-011, US-01 | ready |
-| S-30 | owner-delete-run | (owner) delete their run | shipped admin delete | FR-012, US-01 | ready |
+| S-28 | map-poll | create a map poll; confirmed participants vote; closing locks the winning map | shipped confirmed roster + map catalog | FR-010, US-01 | done |
+| S-29 | transfer-run-ownership | (owner) pass ownership to a confirmed participant | shipped confirmed roster | FR-011, US-01 | done |
+| S-30 | owner-delete-run | (owner) delete their run | shipped admin delete | FR-012, US-01 | done |
 | S-31 | changelog-page | open `/changelog` from a footer Changelog link and read release notes | — | FR-013, US-01 | ready |
 
 ## Streams
@@ -223,7 +223,7 @@ Shipped product (previous roadmap, all `done`): F-01 + S-01…S-17 — create/li
 - **Unknowns:**
   - If a run also has a multi-map list, does closing the poll replace that list or only lock the single `map` field? — Owner: user. Block: no. Candidate default: poll writes the locked map field; the multi-map list is unchanged.
 - **Risk:** votes must stay confirmed-participants-only (same bar as comments). Closing the poll is organizer-only so a random roster vote cannot rewrite the card mid-session without that close action.
-- **Status:** ready
+- **Status:** done
 
 ### S-29: Pass run ownership
 
@@ -235,7 +235,7 @@ Shipped product (previous roadmap, all `done`): F-01 + S-01…S-17 — create/li
 - **Blockers:** —
 - **Unknowns:** —
 - **Risk:** the new owner inherits archive/edit/delete; transferring to a pending applicant would bypass the roster rule — confirmed-only is the gate.
-- **Status:** ready
+- **Status:** done
 
 ### S-30: Owner deletes a run
 
@@ -247,7 +247,7 @@ Shipped product (previous roadmap, all `done`): F-01 + S-01…S-17 — create/li
 - **Blockers:** —
 - **Unknowns:** —
 - **Risk:** owner delete is not archive (S-24); deleting must not strand participant archive history already shipped. Prefer the same hard-delete path admin uses, now also allowed for the owner.
-- **Status:** ready
+- **Status:** done
 
 ### S-31: Changelog page
 
@@ -332,3 +332,6 @@ Previous full roadmap archived 2026-08-27 → `context/foundation/archive/2026-0
 - **S-25: organizer can set capacity (default 64, maximum 64) and cannot schedule a run in the past or more than 1 year ahead.** — Archived 2026-09-01 → `context/archive/2026-09-01-run-create-limits/`. Lesson: —.
 - **S-26: organizer can set a team-size scope under Advanced settings so a minimum number of players auto-join and remaining slots up to max require approval; the default create control stays approval vs auto-join. Apply/approve and auto-join otherwise keep working.** — Archived 2026-09-01 → `context/archive/2026-09-01-team-size-scope/`. Lesson: —.
 - **S-27: organizer can attach multiple maps to one run for a single session; the active list and detail show that set.** — Archived 2026-09-04 → `context/archive/2026-09-04-multi-map-runs/`. Lesson: —.
+- **S-28: organizer can create a map poll whose options are specific maps; confirmed participants vote; when the organizer closes the poll, the winning map becomes the run’s map.** — Archived 2026-09-10 → `context/archive/2026-09-10-map-poll/`. Lesson: —.
+- **S-30: run owner can delete the run (admin delete already exists).** — Archived 2026-09-11 → `context/archive/2026-09-11-owner-delete-run/`. Lesson: —.
+- **S-29: run owner can pass ownership to a confirmed participant.** — Archived 2026-09-11 → `context/archive/2026-09-11-transfer-run-ownership/`. Lesson: —.

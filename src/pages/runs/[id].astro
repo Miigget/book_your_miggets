@@ -150,6 +150,12 @@ const showComplete =
   !isCompleted &&
   ownsClan &&
   !isArchived;
+const transferCandidates =
+  run != null && run.visibility !== "clan_only"
+    ? confirmed
+        .filter((participant) => participant.userId !== run.organizerId)
+        .map((participant) => ({ userId: participant.userId, nickname: participant.nickname }))
+    : [];
 const confirmedCount = confirmed.length;
 const archivedBackHref = archivedSource === "admin" ? "/admin" : "/dashboard?tab=past";
 const archivedBackLabel = archivedSource === "admin" ? "← Admin" : "← Dashboard";
@@ -236,6 +242,8 @@ const showPoll = canReadComments && (poll != null || canCreatePoll);
                     timeZone={Astro.locals.timeZone}
                     showComplete={showComplete}
                     completedAt={run.completedAt}
+                    visibility={run.visibility}
+                    transferCandidates={transferCandidates}
                   />
                 </div>
               )}
