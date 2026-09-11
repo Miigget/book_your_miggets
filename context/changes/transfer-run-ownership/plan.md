@@ -171,9 +171,9 @@ Additive RPC only. Rollback = drop `transfer_run_ownership` and revert the app f
 
 #### Automated
 
-- [x] 1.1 Linting passes: `npm run lint`
-- [x] 1.2 Production build passes: `npm run build`
-- [x] 1.3 Migration applies: impersonated organizer transfers an audience-active public run to a confirmed other player (`organizer_id` updates; participant rows unchanged); pending target / self / clan_only / archived own run / non-owner / target at 5 actives all fail closed; authenticated `UPDATE runs SET organizer_id = …` still fails (GRANT); Complete freeze still blocks roster/edit, not this RPC
+- [x] 1.1 Linting passes: `npm run lint` — 5474f3f
+- [x] 1.2 Production build passes: `npm run build` — 5474f3f
+- [x] 1.3 Migration applies: impersonated organizer transfers an audience-active public run to a confirmed other player (`organizer_id` updates; participant rows unchanged); pending target / self / clan_only / archived own run / non-owner / target at 5 actives all fail closed; authenticated `UPDATE runs SET organizer_id = …` still fails (GRANT); Complete freeze still blocks roster/edit, not this RPC — 5474f3f
 
 #### Manual
 
