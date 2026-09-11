@@ -187,10 +187,10 @@ No schema, no backfill. Notes already on GitHub from prior `/gh-release` tags ap
 
 #### Automated
 
-- [x] 1.1 `src/pages/changelog.astro` and `src/lib/services/releases.ts` exist
-- [x] 1.2 `src/middleware.ts` `PROTECTED_ROUTES` still does not include `/changelog`
-- [x] 1.3 `npm run lint` passes
-- [x] 1.4 `npm run build` passes
+- [x] 1.1 `src/pages/changelog.astro` and `src/lib/services/releases.ts` exist — c9e7e60
+- [x] 1.2 `src/middleware.ts` `PROTECTED_ROUTES` still does not include `/changelog` — c9e7e60
+- [x] 1.3 `npm run lint` passes — c9e7e60
+- [x] 1.4 `npm run build` passes — c9e7e60
 
 #### Manual
 
@@ -203,10 +203,10 @@ No schema, no backfill. Notes already on GitHub from prior `/gh-release` tags ap
 
 #### Automated
 
-- [ ] 2.1 Footer markup includes `href="/changelog"` with visible text Changelog
-- [ ] 2.2 `AGENTS.md` states `/changelog` must stay public / not be prefix-protected
-- [ ] 2.3 `npm run lint` passes
-- [ ] 2.4 `npm run build` passes
+- [x] 2.1 Footer markup includes `href="/changelog"` with visible text Changelog
+- [x] 2.2 `AGENTS.md` states `/changelog` must stay public / not be prefix-protected
+- [x] 2.3 `npm run lint` passes
+- [x] 2.4 `npm run build` passes
 
 #### Manual
 
