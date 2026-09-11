@@ -49,6 +49,7 @@ export interface CreateRunFormEditValues {
   confirmedCount: number;
   joinModeLocked: boolean;
   extendedUntil: string | null;
+  lockedMap?: { name: string; difficulty: string; points: number } | null;
 }
 
 interface Props {
@@ -266,6 +267,22 @@ export default function CreateRunForm({
         maxLength={RUN_TITLE_MAX_LENGTH}
         icon={<Tag className="size-4" />}
       />
+
+      {edit?.lockedMap ? (
+        <div className="space-y-1">
+          <p className="text-sm text-blue-100/80">Locked map</p>
+          <p className="text-sm text-white">
+            {edit.lockedMap.name}
+            <span className="text-blue-100/50">
+              {" "}
+              · {edit.lockedMap.difficulty} · {edit.lockedMap.points} pts
+            </span>
+          </p>
+          <p className="text-xs text-blue-100/40">
+            The poll winner cannot be changed. Session maps below can still be edited.
+          </p>
+        </div>
+      ) : null}
 
       <MapPicker
         maps={maps}

@@ -1,3 +1,5 @@
+import type { RunMapPoll } from "@/lib/services/polls";
+
 export interface FormJsonMeta {
   error?: string;
   signIn?: string;
@@ -6,6 +8,7 @@ export interface FormJsonMeta {
   status?: "pending" | "confirmed" | "denied";
   participantId?: string;
   nickname?: string;
+  poll?: RunMapPoll;
   comment?: {
     id: string;
     runId: string;

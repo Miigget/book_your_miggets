@@ -7,6 +7,7 @@ import AdminRunControls from "@/components/runs/AdminRunControls";
 import OrganizerRunLifecycleControls from "@/components/runs/OrganizerRunLifecycleControls";
 import RunComments from "@/components/runs/RunComments";
 import RunParticipantActions from "@/components/runs/RunParticipantActions";
+import RunPoll from "@/components/runs/RunPoll";
 import { formatStart } from "@/lib/format-date";
 import type { ActiveRunLifecyclePhase } from "@/lib/run-lifecycle";
 import { createClient } from "@/lib/supabase";
@@ -21,6 +22,7 @@ import {
   type OwnParticipation,
   type PendingParticipant,
 } from "@/lib/services/participants";
+import { getRunMapPoll, type RunMapPoll } from "@/lib/services/polls";
 import { getOwnProfile } from "@/lib/services/profile";
 import {
   formatJoinMode,
@@ -29,7 +31,9 @@ import {
   getArchivedRunForAdmin,
   getArchivedRunForOrganizer,
   getArchivedRunForParticipant,
+  listMapsForPicker,
   type ArchivedRunDetail,
+  type MapPickerItem,
   type RunDetail,
 } from "@/lib/services/runs";
 
@@ -37,8 +41,10 @@ const { id } = Astro.params;
 const supabase = createClient(Astro.request.headers, Astro.cookies);
 const { user } = Astro.locals;
 const isAdmin = Astro.locals.profile?.role === "admin";
+const isBanned = Boolean(Astro.locals.profile?.isBanned);
 const serverError = Astro.url.searchParams.get("error");
 const commentError = Astro.url.searchParams.get("commentError");
+const pollError = Astro.url.searchParams.get("pollError");
 
 let run: RunDetail | ArchivedRunDetail | null = null;
 let pageError: "missing" | "config" | "load" | null = null;
@@ -52,6 +58,8 @@ let isVerified = false;
 let comments: RunComment[] = [];
 let canReadComments = false;
 let ownsClan = false;
+let poll: RunMapPoll | null = null;
+let pollMaps: MapPickerItem[] = [];
 
 if (!id) {
   pageError = "missing";
@@ -101,6 +109,16 @@ if (!id) {
         own?.status === "confirmed" || archivedSource === "participant" || user?.id === run.organizerId || isAdmin;
       if (canReadComments) {
         comments = await listCommentsForRun(supabase, run.id, user?.id ?? null);
+        poll = await getRunMapPoll(supabase, run.id, user?.id ?? null);
+      }
+      const organizerMayCreate =
+        Boolean(user?.id && user.id === run.organizerId) &&
+        !isBanned &&
+        run.lifecyclePhase !== "archived" &&
+        run.completedAt == null &&
+        poll == null;
+      if (organizerMayCreate) {
+        pollMaps = await listMapsForPicker(supabase);
       }
     }
   } catch {
@@ -116,7 +134,6 @@ if (pageError === "missing") {
 
 const pageTitle = run ? `${run.displayTitle} — Book Your Miggets` : "Run — Book Your Miggets";
 const isArchived = run?.lifecyclePhase === "archived";
-const isBanned = Boolean(Astro.locals.profile?.isBanned);
 const canPostOrLike = own?.status === "confirmed" && !isArchived && !isBanned;
 const isOrganizer = Boolean(user?.id && user.id === run?.organizerId);
 const isCompleted = Boolean(run?.completedAt);
@@ -138,7 +155,13 @@ const archivedBackHref = archivedSource === "admin" ? "/admin" : "/dashboard?tab
 const archivedBackLabel = archivedSource === "admin" ? "← Admin" : "← Dashboard";
 const organizerLifecyclePhase: ActiveRunLifecyclePhase =
   run && run.lifecyclePhase !== "archived" ? run.lifecyclePhase : "upcoming";
-const detailMaps = run ? (run.maps.length > 0 ? run.maps : run.map ? [run.map] : []) : [];
+const closedPoll = poll?.closed === true;
+const detailMaps = run ? (closedPoll ? run.maps : run.maps.length > 0 ? run.maps : run.map ? [run.map] : []) : [];
+const lockedMap = closedPoll && run?.map ? run.map : null;
+const canCreatePoll = isOrganizer && !isBanned && !isCompleted && !isArchived && poll == null;
+const canClosePoll = isOrganizer && !isBanned && poll != null && !poll.closed && !isArchived && !isVerifiedFinish;
+const canVote = own?.status === "confirmed" && !isArchived && !isBanned;
+const showPoll = canReadComments && (poll != null || canCreatePoll);
 ---
 
 <Layout title={pageTitle}>
@@ -256,6 +279,18 @@ const detailMaps = run ? (run.maps.length > 0 ? run.maps : run.map ? [run.map] :
                   <dt class="text-blue-100/50">Visibility</dt>
                   <dd class="mt-0.5 text-white">{formatVisibility(run.visibility)}</dd>
                 </div>
+                {lockedMap ? (
+                  <div>
+                    <dt class="text-blue-100/50">Locked map</dt>
+                    <dd class="mt-0.5 text-white">
+                      {lockedMap.name}
+                      <span class="text-blue-100/50">
+                        {" "}
+                        · {lockedMap.difficulty} · {lockedMap.points} pts
+                      </span>
+                    </dd>
+                  </div>
+                ) : null}
                 {detailMaps.length === 0 && run.mapCategory ? (
                   <div>
                     <dt class="text-blue-100/50">Category</dt>
@@ -283,6 +318,22 @@ const detailMaps = run ? (run.maps.length > 0 ? run.maps : run.map ? [run.map] :
                 </ul>
               </section>
             ) : null}
+
+            {showPoll && (
+              <section class="mb-8 rounded-xl border border-white/10 bg-white/5 px-5 py-5 backdrop-blur-xl">
+                <h2 class="mb-4 text-sm font-semibold tracking-wide text-white/80 uppercase">Map poll</h2>
+                <RunPoll
+                  client:load
+                  runId={run.id}
+                  poll={poll}
+                  maps={pollMaps}
+                  canCreate={canCreatePoll}
+                  canClose={canClosePoll}
+                  canVote={canVote}
+                  pollError={pollError}
+                />
+              </section>
+            )}
 
             <section class="mb-8 rounded-xl border border-white/10 bg-white/5 px-5 py-5 backdrop-blur-xl">
               {isArchived ? (

@@ -14,9 +14,25 @@ interface MapPickerProps {
   onChange: (ids: string[]) => void;
   error?: string;
   initialDifficulty?: string;
+  maxSelected?: number;
+  includeCategoryField?: boolean;
+  capMessage?: string;
+  label?: string;
+  emptyHint?: string;
 }
 
-export function MapPicker({ maps, selectedIds, onChange, error, initialDifficulty = "" }: MapPickerProps) {
+export function MapPicker({
+  maps,
+  selectedIds,
+  onChange,
+  error,
+  initialDifficulty = "",
+  maxSelected = RUN_MAPS_MAX,
+  includeCategoryField = true,
+  capMessage = RUN_MAPS_CAP_MESSAGE,
+  label = "Maps (optional)",
+  emptyHint = "No maps selected — the difficulty filter below is the run category if you pick one.",
+}: MapPickerProps) {
   const [query, setQuery] = useState("");
   const [difficulty, setDifficulty] = useState(() =>
     (MAP_CATEGORIES as readonly string[]).includes(initialDifficulty) ? initialDifficulty : "",
@@ -25,7 +41,7 @@ export function MapPicker({ maps, selectedIds, onChange, error, initialDifficult
 
   const mapsById = useMemo(() => new Map(maps.map((m) => [m.id, m])), [maps]);
   const selected = selectedIds.map((id) => mapsById.get(id)).filter((m): m is MapPickerItem => m != null);
-  const atCap = selectedIds.length >= RUN_MAPS_MAX;
+  const atCap = selectedIds.length >= maxSelected;
   const displayError = error ?? capError;
 
   const filtered = useMemo(() => {
@@ -41,8 +57,8 @@ export function MapPicker({ maps, selectedIds, onChange, error, initialDifficult
 
   function append(id: string) {
     if (selectedIds.includes(id)) return;
-    if (selectedIds.length >= RUN_MAPS_MAX) {
-      setCapError(RUN_MAPS_CAP_MESSAGE);
+    if (selectedIds.length >= maxSelected) {
+      setCapError(capMessage);
       return;
     }
     setCapError(undefined);
@@ -63,7 +79,7 @@ export function MapPicker({ maps, selectedIds, onChange, error, initialDifficult
     <div className="space-y-3">
       <div className="flex items-center justify-between gap-2">
         <label htmlFor="map-search" className="text-sm text-blue-100/80">
-          Maps (optional)
+          {label}
         </label>
         {selectedIds.length > 0 && (
           <button
@@ -110,19 +126,19 @@ export function MapPicker({ maps, selectedIds, onChange, error, initialDifficult
           ))}
         </ol>
       ) : (
-        <p className="text-xs text-blue-100/50">
-          No maps selected — the difficulty filter below is the run category if you pick one.
-        </p>
+        <p className="text-xs text-blue-100/50">{emptyHint}</p>
       )}
 
       {selectedIds.map((id) => (
         <input key={id} type="hidden" name="map_ids" value={id} />
       ))}
-      <input type="hidden" name="map_category" value={selectedIds.length === 0 ? difficulty : ""} />
+      {includeCategoryField ? (
+        <input type="hidden" name="map_category" value={selectedIds.length === 0 ? difficulty : ""} />
+      ) : null}
 
       <p className="text-xs text-blue-100/40">
-        Up to {RUN_MAPS_MAX} maps. Add order is the list order.
-        {selectedIds.length > 0 ? ` ${selectedIds.length}/${RUN_MAPS_MAX} selected.` : ""}
+        Up to {maxSelected} maps. Add order is the list order.
+        {selectedIds.length > 0 ? ` ${selectedIds.length}/${maxSelected} selected.` : ""}
       </p>
 
       <div className="grid grid-cols-1 gap-2 sm:grid-cols-[1fr_auto]">
@@ -160,7 +176,9 @@ export function MapPicker({ maps, selectedIds, onChange, error, initialDifficult
         </select>
       </div>
       <p className="text-xs text-blue-100/40">
-        Filters the map list. Optional — with no maps, this is stored as the run category.
+        {includeCategoryField
+          ? "Filters the map list. Optional — with no maps, this is stored as the run category."
+          : "Filters the map list."}
       </p>
 
       <ul
