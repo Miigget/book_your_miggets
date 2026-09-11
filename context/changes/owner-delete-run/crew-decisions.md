@@ -3,7 +3,7 @@ change_id: owner-delete-run
 mode: YOLO
 started: 2026-09-11
 updated: 2026-09-11
-status: in-progress
+status: complete
 ---
 
 # Crew decisions — owner-delete-run
@@ -19,6 +19,9 @@ Human override this run: skip plan-review and per-phase impl-review to save toke
 | 2026-09-11T09:35 | 10x-new | created change.md |
 | 2026-09-11T09:40 | 10x-plan | DECISION_REQUEST round-1; Crew Lead answered q-when=B, q-ui=A, q-redirect=A |
 | 2026-09-11T09:45 | 10x-plan | plan.md + plan-brief.md; skipped plan-review (human token-save override) |
+| 2026-09-11T09:55 | 10x-implement p1 | code + commit cc2a768 / stamp f9559bc; manuals 1.4–1.9 skipped YOLO |
+| 2026-09-11T10:05 | 10x-impl-review | APPROVED 0 findings; status impl_reviewed |
+| 2026-09-11T10:10 | 10x-archive | YOLO archive despite manuals 1.4–1.9; COMMIT_OK docs + chore |
 
 ## Decisions the Crew Lead made (no human)
 
@@ -30,6 +33,8 @@ Human override this run: skip plan-review and per-phase impl-review to save toke
 - **q-ui** — Where does the owner Delete control live? Chose **A (run detail organizer chrome only)**. Why: same surface as Archive/Complete and admin delete; no Dashboard card mutation in this LOW slice.
 - **q-redirect** — After success, where to land? Chose **A (`/runs?notice=Run deleted`)**. Why: reuse existing Banner; no Dashboard notice work.
 - **skip-plan-review** — Human asked to skip review steps except a final impl-review. Chose **skip plan-review → implement**. Why: LOW one-phase slice; token budget.
+- **commit-p1** — Phase-end ritual commit. Chose **COMMIT_OK**. Why: YOLO auto-commits phase-end; no push.
+- **archive-with-manuals** — Archive despite Progress 1.4–1.9 unchecked. Chose **archive**. Why: YOLO auto-archive when only manual Progress rows remain.
 
 ### Obvious
 - Title/notes from S-30 roadmap intent.
@@ -41,7 +46,7 @@ Human override this run: skip plan-review and per-phase impl-review to save toke
 
 ## Human-action gates
 
-- none yet
+- Phase 1 manuals 1.4–1.9: skipped (YOLO residual risk) — organizer Delete click-through, completed-run delete, archived no-control, non-owner POST, admin Delete still works, Recent links after delete.
 
 ## Stop / escape hatches
 
@@ -49,4 +54,4 @@ Human override this run: skip plan-review and per-phase impl-review to save toke
 
 ## GitHub
 
-- change-sync: #94 events new, planned (link-roadmap S-30)
+- change-sync: #94 events new, planned, implementing, implemented (link-roadmap S-30)
