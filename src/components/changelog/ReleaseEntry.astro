@@ -1,0 +1,49 @@
+---
+import { formatStart } from "@/lib/format-date";
+import type { ChangelogRelease } from "@/lib/services/releases";
+
+interface Props {
+  release: ChangelogRelease;
+}
+
+const { release } = Astro.props;
+const publishedAt = release.publishedAt;
+const publishedDate = publishedAt ? new Date(publishedAt) : null;
+const hasPublishedAt = publishedDate !== null && !Number.isNaN(publishedDate.getTime());
+
+const subsections = [
+  { title: "New", items: release.sections.new },
+  { title: "Improved", items: release.sections.improved },
+  { title: "Fixed", items: release.sections.fixed },
+].filter((section) => section.items.length > 0);
+---
+
+<article class="rounded-xl border border-white/10 bg-white/5 px-5 py-5 backdrop-blur-xl">
+  <header class="mb-4 flex min-w-0 flex-col gap-1 sm:flex-row sm:items-baseline sm:justify-between">
+    <h2 class="min-w-0 text-lg font-semibold break-all text-white">{release.title}</h2>
+    {
+      hasPublishedAt && publishedAt && (
+        <time class="shrink-0 text-sm text-blue-100/70" datetime={publishedAt}>
+          {formatStart(publishedAt, Astro.locals.timeZone)}
+        </time>
+      )
+    }
+  </header>
+  {
+    subsections.map((section) => (
+      <section class="mt-4">
+        <h3 class="text-sm font-semibold tracking-wide text-white/80 uppercase">{section.title}</h3>
+        <ul class="mt-2 list-disc space-y-1 pl-5 text-sm text-blue-100/90">
+          {section.items.map((item) => (
+            <li>{item}</li>
+          ))}
+        </ul>
+      </section>
+    ))
+  }
+  {
+    release.fallbackText ? (
+      <p class="mt-4 text-sm whitespace-pre-wrap text-blue-100/90">{release.fallbackText}</p>
+    ) : null
+  }
+</article>
