@@ -1,7 +1,7 @@
 ---
 change_id: transfer-run-ownership
 title: Owner can transfer run ownership
-status: implementing
+status: impl_reviewed
 created: 2026-09-11
 updated: 2026-09-11
 archived_at: null
