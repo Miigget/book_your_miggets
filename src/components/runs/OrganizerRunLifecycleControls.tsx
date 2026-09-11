@@ -1,13 +1,19 @@
 import React, { useState } from "react";
-import { Archive, CheckCircle2, Clock, Trash2 } from "lucide-react";
+import { Archive, ArrowRightLeft, CheckCircle2, Clock, Trash2 } from "lucide-react";
 import { ServerError } from "@/components/auth/ServerError";
 import { Button } from "@/components/ui/button";
 import { fetchFormJson } from "@/lib/fetch-form-json";
 import { formatStart } from "@/lib/format-date";
 import type { ActiveRunLifecyclePhase } from "@/lib/run-lifecycle";
 import { cn } from "@/lib/utils";
+import type { Enums } from "@/types/database";
 
 const EXTEND_HOURS = [1, 2, 3, 6] as const;
+
+export interface TransferCandidate {
+  userId: string;
+  nickname: string | null;
+}
 
 interface Props {
   runId: string;
@@ -16,6 +22,8 @@ interface Props {
   timeZone?: string;
   showComplete?: boolean;
   completedAt?: string | null;
+  visibility?: Enums<"run_visibility">;
+  transferCandidates?: TransferCandidate[];
 }
 
 export default function OrganizerRunLifecycleControls({
@@ -25,12 +33,15 @@ export default function OrganizerRunLifecycleControls({
   timeZone,
   showComplete = false,
   completedAt = null,
+  visibility = "public",
+  transferCandidates = [],
 }: Props) {
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
 
   const canExtend = lifecyclePhase === "in_progress" && extendedUntil == null && completedAt == null;
   const scheduledLeave = extendedUntil != null;
+  const showTransfer = visibility !== "clan_only" && transferCandidates.length > 0;
 
   async function postLifecycle(form: HTMLFormElement, fallback: string): Promise<void> {
     setBusy(true);
@@ -76,6 +87,13 @@ export default function OrganizerRunLifecycleControls({
     const ok = window.confirm("Delete this run permanently? Confirmed participants will be removed.");
     if (!ok) return;
     await postLifecycle(e.currentTarget, "Could not delete this run");
+  }
+
+  async function onTransfer(e: React.SubmitEvent<HTMLFormElement>) {
+    e.preventDefault();
+    const ok = window.confirm("You will lose organizer tools on this run. Transfer ownership?");
+    if (!ok) return;
+    await postLifecycle(e.currentTarget, "Could not transfer this run");
   }
 
   async function onExtend(e: React.SubmitEvent<HTMLFormElement>, hours: number) {
@@ -131,6 +149,41 @@ export default function OrganizerRunLifecycleControls({
             Delete run
           </Button>
         </form>
+        {showTransfer ? (
+          <form
+            method="POST"
+            action={`/api/runs/${runId}/transfer`}
+            className={cn("flex flex-wrap items-center gap-2")}
+            onSubmit={(event) => {
+              event.preventDefault();
+              void onTransfer(event);
+            }}
+          >
+            <select
+              id="new_organizer_id"
+              name="new_organizer_id"
+              required
+              disabled={busy}
+              aria-label="New organizer"
+              className={cn(
+                "h-8 rounded-lg border border-white/20 bg-white/10 px-2 text-sm text-white focus:ring-2 focus:ring-purple-400 focus:outline-none",
+              )}
+            >
+              <option value="" className="bg-slate-900">
+                Choose a player…
+              </option>
+              {transferCandidates.map((candidate) => (
+                <option key={candidate.userId} value={candidate.userId} className="bg-slate-900">
+                  {candidate.nickname ?? "Unknown player"}
+                </option>
+              ))}
+            </select>
+            <Button type="submit" variant="outline" size="sm" className={cn("rounded-lg")} disabled={busy}>
+              <ArrowRightLeft className="size-4" />
+              Transfer
+            </Button>
+          </form>
+        ) : null}
         {canExtend
           ? EXTEND_HOURS.map((hours) => (
               <form

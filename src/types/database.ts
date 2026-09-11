@@ -992,6 +992,10 @@ export type Database = {
         }
         Returns: undefined
       }
+      transfer_run_ownership: {
+        Args: { p_new_organizer_id: string; p_run_id: string }
+        Returns: string
+      }
       verify_clan_run_finish: { Args: { p_run_id: string }; Returns: string }
       vote_map_poll: {
         Args: { p_map_id: string; p_run_id: string }
