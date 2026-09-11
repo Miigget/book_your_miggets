@@ -1,7 +1,7 @@
 ---
 change_id: changelog-page
 title: Guests can read release notes at /changelog
-status: implementing
+status: impl_reviewed
 created: 2026-09-11
 updated: 2026-09-11
 archived_at: null

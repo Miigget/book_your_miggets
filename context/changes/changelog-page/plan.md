@@ -203,10 +203,10 @@ No schema, no backfill. Notes already on GitHub from prior `/gh-release` tags ap
 
 #### Automated
 
-- [x] 2.1 Footer markup includes `href="/changelog"` with visible text Changelog
-- [x] 2.2 `AGENTS.md` states `/changelog` must stay public / not be prefix-protected
-- [x] 2.3 `npm run lint` passes
-- [x] 2.4 `npm run build` passes
+- [x] 2.1 Footer markup includes `href="/changelog"` with visible text Changelog — 0f6d6a8
+- [x] 2.2 `AGENTS.md` states `/changelog` must stay public / not be prefix-protected — 0f6d6a8
+- [x] 2.3 `npm run lint` passes — 0f6d6a8
+- [x] 2.4 `npm run build` passes — 0f6d6a8
 
 #### Manual
 
