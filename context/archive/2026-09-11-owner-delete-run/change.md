@@ -1,10 +1,10 @@
 ---
 change_id: owner-delete-run
 title: Owner can delete their run
-status: impl_reviewed
+status: archived
 created: 2026-09-11
 updated: 2026-09-11
-archived_at: null
+archived_at: 2026-09-11T08:02:07Z
 ---
 
 ## Notes
