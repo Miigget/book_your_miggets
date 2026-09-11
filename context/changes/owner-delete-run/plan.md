@@ -158,9 +158,9 @@ Additive policy only. Rollback = drop `runs_delete_organizer` and revert the app
 
 #### Automated
 
-- [x] 1.1 Linting passes: `npm run lint`
-- [x] 1.2 Production build passes: `npm run build`
-- [x] 1.3 Migration applies: impersonated organizer deletes an audience-active own run (participants cascade); organizer DELETE of archived own run affects 0 rows; member DELETE of another’s run affects 0 rows; admin DELETE of archived run still succeeds
+- [x] 1.1 Linting passes: `npm run lint` — cc2a768
+- [x] 1.2 Production build passes: `npm run build` — cc2a768
+- [x] 1.3 Migration applies: impersonated organizer deletes an audience-active own run (participants cascade); organizer DELETE of archived own run affects 0 rows; member DELETE of another’s run affects 0 rows; admin DELETE of archived run still succeeds — cc2a768
 
 #### Manual
 
