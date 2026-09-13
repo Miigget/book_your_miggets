@@ -6,10 +6,13 @@ interface Props {
   verified: boolean;
   incoming: ClanInviteInboxRow[];
   outgoing: ClanInviteInboxRow[];
+  redirectTo?: string;
 }
 
-const { verified, incoming, outgoing } = Astro.props;
-const empty = incoming.length === 0 && outgoing.length === 0;
+const { verified, incoming, outgoing, redirectTo = "/profile" } = Astro.props;
+const showIncoming = verified && incoming.length > 0;
+const showOutgoing = verified && outgoing.length > 0;
+const showHeadings = showIncoming && showOutgoing;
 
 const buttonClass =
   "rounded-lg border border-white/20 px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-white/10";
@@ -17,21 +20,15 @@ const declineClass =
   "rounded-lg border border-red-400/40 px-3 py-1.5 text-xs font-medium text-red-200 transition-colors hover:bg-red-500/20";
 ---
 
-<section class="mt-8 rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur-xl">
-  <h2 class="mb-4 text-lg font-semibold text-white">Clan invites</h2>
+{
+  (showIncoming || showOutgoing) && (
+    <section class="rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur-xl">
+      <h2 class="mb-4 text-lg font-semibold text-white">Clan invites</h2>
 
-  {
-    !verified ? (
-      <p class="text-sm text-blue-100/70">Clan invites require friends with the clan owner.</p>
-    ) : empty ? (
-      <p class="text-sm text-blue-100/70">No pending clan invites.</p>
-    ) : (
       <div class="space-y-6">
-        <div>
-          <h3 class="mb-3 text-sm font-medium text-blue-100/80">Incoming</h3>
-          {incoming.length === 0 ? (
-            <p class="text-sm text-blue-100/50">None</p>
-          ) : (
+        {showIncoming && (
+          <div>
+            {showHeadings && <h3 class="mb-3 text-sm font-medium text-blue-100/80">Incoming</h3>}
             <ul class="space-y-3">
               {incoming.map((row) => (
                 <li class="flex flex-wrap items-center justify-between gap-3 border-b border-white/10 pb-3 last:border-b-0 last:pb-0">
@@ -49,14 +46,14 @@ const declineClass =
                   <div class="flex flex-wrap gap-2">
                     <form method="POST" action="/api/clans/invites/accept">
                       <input type="hidden" name="invite_id" value={row.id} />
-                      <input type="hidden" name="redirect" value="/profile" />
+                      <input type="hidden" name="redirect" value={redirectTo} />
                       <button type="submit" class:list={[buttonClass]}>
                         Accept
                       </button>
                     </form>
                     <form method="POST" action="/api/clans/invites/decline">
                       <input type="hidden" name="invite_id" value={row.id} />
-                      <input type="hidden" name="redirect" value="/profile" />
+                      <input type="hidden" name="redirect" value={redirectTo} />
                       <button type="submit" class:list={[declineClass]}>
                         Decline
                       </button>
@@ -65,14 +62,12 @@ const declineClass =
                 </li>
               ))}
             </ul>
-          )}
-        </div>
+          </div>
+        )}
 
-        <div>
-          <h3 class="mb-3 text-sm font-medium text-blue-100/80">Outgoing</h3>
-          {outgoing.length === 0 ? (
-            <p class="text-sm text-blue-100/50">None</p>
-          ) : (
+        {showOutgoing && (
+          <div>
+            {showHeadings && <h3 class="mb-3 text-sm font-medium text-blue-100/80">Outgoing</h3>}
             <ul class="space-y-3">
               {outgoing.map((row) => (
                 <li class="flex flex-wrap items-center justify-between gap-3 border-b border-white/10 pb-3 last:border-b-0 last:pb-0">
@@ -89,7 +84,7 @@ const declineClass =
                   </div>
                   <form method="POST" action="/api/clans/invites/cancel">
                     <input type="hidden" name="invite_id" value={row.id} />
-                    <input type="hidden" name="redirect" value="/profile" />
+                    <input type="hidden" name="redirect" value={redirectTo} />
                     <button type="submit" class:list={[buttonClass]}>
                       Cancel
                     </button>
@@ -97,9 +92,9 @@ const declineClass =
                 </li>
               ))}
             </ul>
-          )}
-        </div>
+          </div>
+        )}
       </div>
-    )
-  }
-</section>
+    </section>
+  )
+}

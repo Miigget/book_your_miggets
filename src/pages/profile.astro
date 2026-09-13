@@ -5,10 +5,12 @@ import PageChrome from "@/components/PageChrome.astro";
 import ClanInvitesInbox from "@/components/profile/ClanInvitesInbox.astro";
 import FriendsInbox from "@/components/profile/FriendsInbox.astro";
 import OwnProfileForm from "@/components/profile/OwnProfileForm";
+import RunInvitesInbox from "@/components/profile/RunInvitesInbox.astro";
 import { playerProfileHref } from "@/lib/profile-href";
 import { createClient } from "@/lib/supabase";
 import { listIncomingClanInvites, listOutgoingClanInvites, type ClanInviteInboxRow } from "@/lib/services/clans";
 import { listIncomingPending, listOutgoingPending, type FriendInboxRow } from "@/lib/services/friends";
+import { listIncomingRunInvites, type RunInboxRow } from "@/lib/services/inbox";
 import { getOwnProfile, getPendingNicknameRequest } from "@/lib/services/profile";
 import { ensureOwnProfile } from "@/lib/services/runs";
 
@@ -26,6 +28,7 @@ let incoming: FriendInboxRow[] = [];
 let outgoing: FriendInboxRow[] = [];
 let incomingClanInvites: ClanInviteInboxRow[] = [];
 let outgoingClanInvites: ClanInviteInboxRow[] = [];
+let incomingRunInvites: RunInboxRow[] = [];
 let loadError: string | null = null;
 
 if (!supabase) {
@@ -45,16 +48,18 @@ if (!supabase) {
     kogPointsVerified = own.kogPointsVerified;
     pendingRequestedNickname = pending?.requestedNickname ?? null;
     if (own.isVerified) {
-      const [incomingRows, outgoingRows, incomingClanRows, outgoingClanRows] = await Promise.all([
+      const [incomingRows, outgoingRows, incomingClanRows, outgoingClanRows, incomingRunRows] = await Promise.all([
         listIncomingPending(supabase, user.id),
         listOutgoingPending(supabase, user.id),
         listIncomingClanInvites(supabase, user.id),
         listOutgoingClanInvites(supabase, user.id),
+        listIncomingRunInvites(supabase, user.id),
       ]);
       incoming = incomingRows;
       outgoing = outgoingRows;
       incomingClanInvites = incomingClanRows;
       outgoingClanInvites = outgoingClanRows;
+      incomingRunInvites = incomingRunRows;
     }
   } catch (err) {
     console.error("own profile page load failed", err);
@@ -63,6 +68,12 @@ if (!supabase) {
 }
 
 const sessionEmail = user?.email ?? "";
+const showInbox =
+  incoming.length > 0 ||
+  outgoing.length > 0 ||
+  incomingClanInvites.length > 0 ||
+  outgoingClanInvites.length > 0 ||
+  incomingRunInvites.length > 0;
 ---
 
 <Layout title="Profile — Book Your Miggets">
@@ -107,13 +118,18 @@ const sessionEmail = user?.email ?? "";
               pendingRequestedNickname={pendingRequestedNickname}
             />
           </div>
-          <FriendsInbox
-            verified={isVerified}
-            incoming={incoming}
-            outgoing={outgoing}
-            publicProfileHref={user ? playerProfileHref(user.id) : null}
-          />
-          <ClanInvitesInbox verified={isVerified} incoming={incomingClanInvites} outgoing={outgoingClanInvites} />
+          {showInbox && (
+            <div id="inbox" class="mt-8 scroll-mt-4 space-y-8">
+              <FriendsInbox
+                verified={isVerified}
+                incoming={incoming}
+                outgoing={outgoing}
+                publicProfileHref={user ? playerProfileHref(user.id) : null}
+              />
+              <ClanInvitesInbox verified={isVerified} incoming={incomingClanInvites} outgoing={outgoingClanInvites} />
+              <RunInvitesInbox incoming={incomingRunInvites} />
+            </div>
+          )}
         </>
       )
     }

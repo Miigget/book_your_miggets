@@ -1,14 +1,29 @@
 ---
 import Layout from "@/layouts/Layout.astro";
+import Banner from "@/components/Banner.astro";
 import PageChrome from "@/components/PageChrome.astro";
 import NicknameLink from "@/components/NicknameLink.astro";
 import PlayerLabelChip from "@/components/PlayerLabelChip.astro";
+import ClanInvitesInbox from "@/components/profile/ClanInvitesInbox.astro";
 import FriendActions from "@/components/profile/FriendActions";
+import FriendsInbox from "@/components/profile/FriendsInbox.astro";
 import PlayerProfileRunSections from "@/components/profile/PlayerProfileRunSections.astro";
+import RunInvitesInbox from "@/components/profile/RunInvitesInbox.astro";
 import { createClient } from "@/lib/supabase";
 import { getOwnProfile, getPublicProfile, type PublicProfile } from "@/lib/services/profile";
-import { getRelationship, listPublicFriends, type FriendRelationship, type PublicFriend } from "@/lib/services/friends";
+import {
+  getRelationship,
+  listIncomingPending,
+  listOutgoingPending,
+  listPublicFriends,
+  type FriendInboxRow,
+  type FriendRelationship,
+  type PublicFriend,
+} from "@/lib/services/friends";
+import { listIncomingClanInvites, listOutgoingClanInvites, type ClanInviteInboxRow } from "@/lib/services/clans";
+import { listIncomingRunInvites, type RunInboxRow } from "@/lib/services/inbox";
 import { listAssignedLabels, type PlayerLabel } from "@/lib/services/player-labels";
+import { playerProfileHref } from "@/lib/profile-href";
 import {
   listConfirmedRunIdsForViewer,
   listPlayerProfileRuns,
@@ -31,6 +46,12 @@ let incomingRuns: RunListItem[] = [];
 let recentRuns: ArchivedRunListItem[] = [];
 let runsError: string | null = null;
 let viewerConfirmedRunIds = new Set<string>();
+let incomingFriendRequests: FriendInboxRow[] = [];
+let outgoingFriendRequests: FriendInboxRow[] = [];
+let incomingClanInvites: ClanInviteInboxRow[] = [];
+let outgoingClanInvites: ClanInviteInboxRow[] = [];
+let incomingRunInvites: RunInboxRow[] = [];
+let inboxError: string | null = null;
 
 if (!id) {
   pageError = "missing";
@@ -94,6 +115,28 @@ if (profile && supabase) {
       console.error("friend relationship load failed on public player page", err);
     }
   }
+
+  if (user?.id === profile.id) {
+    try {
+      if (profile.isVerified) {
+        const [incomingRows, outgoingRows, incomingClanRows, outgoingClanRows, incomingRunRows] = await Promise.all([
+          listIncomingPending(supabase, user.id),
+          listOutgoingPending(supabase, user.id),
+          listIncomingClanInvites(supabase, user.id),
+          listOutgoingClanInvites(supabase, user.id),
+          listIncomingRunInvites(supabase, user.id),
+        ]);
+        incomingFriendRequests = incomingRows;
+        outgoingFriendRequests = outgoingRows;
+        incomingClanInvites = incomingClanRows;
+        outgoingClanInvites = outgoingClanRows;
+        incomingRunInvites = incomingRunRows;
+      }
+    } catch (err) {
+      console.error("owner inbox load failed on public player page", err);
+      inboxError = "Could not load invitations";
+    }
+  }
 }
 
 if (pageError === "missing") {
@@ -107,6 +150,17 @@ const pageTitle = profile ? `${displayNickname} — Book Your Miggets` : "Player
 const isOwnProfile = Boolean(user?.id && user.id === profile?.id);
 const kogPointsLabel = profile && profile.kogPoints !== null ? String(profile.kogPoints) : "—";
 const viewerIsAdmin = Astro.locals.profile?.role === "admin";
+const notice = isOwnProfile ? Astro.url.searchParams.get("notice") : null;
+const serverError = isOwnProfile ? Astro.url.searchParams.get("error") : null;
+const ownerInboxHref = profile ? playerProfileHref(profile.id) : "/profile";
+const showOwnerInbox =
+  isOwnProfile &&
+  (Boolean(inboxError) ||
+    incomingFriendRequests.length > 0 ||
+    outgoingFriendRequests.length > 0 ||
+    incomingClanInvites.length > 0 ||
+    outgoingClanInvites.length > 0 ||
+    incomingRunInvites.length > 0);
 ---
 
 <Layout title={pageTitle}>
@@ -133,6 +187,16 @@ const viewerIsAdmin = Astro.locals.profile?.role === "admin";
       ) : (
         profile && (
           <>
+            {notice && (
+              <div class="mb-6 overflow-hidden rounded-lg">
+                <Banner variant="info">{notice}</Banner>
+              </div>
+            )}
+            {serverError && (
+              <div class="mb-6 overflow-hidden rounded-lg">
+                <Banner variant="error">{serverError}</Banner>
+              </div>
+            )}
             <header class="mb-8">
               <h1 class="bg-gradient-to-r from-blue-200 to-purple-200 bg-clip-text text-3xl font-bold text-transparent sm:text-4xl">
                 {displayNickname}
@@ -210,6 +274,33 @@ const viewerIsAdmin = Astro.locals.profile?.role === "admin";
                 </ul>
               )}
             </section>
+
+            {showOwnerInbox && (
+              <div id="inbox" class="mb-8 scroll-mt-4 space-y-8">
+                {inboxError ? (
+                  <p class="rounded-lg border border-red-400/30 bg-red-500/10 px-4 py-3 text-sm text-red-100">
+                    {inboxError}
+                  </p>
+                ) : (
+                  <>
+                    <FriendsInbox
+                      verified={profile.isVerified}
+                      incoming={incomingFriendRequests}
+                      outgoing={outgoingFriendRequests}
+                      publicProfileHref={null}
+                      redirectTo={ownerInboxHref}
+                    />
+                    <ClanInvitesInbox
+                      verified={profile.isVerified}
+                      incoming={incomingClanInvites}
+                      outgoing={outgoingClanInvites}
+                      redirectTo={ownerInboxHref}
+                    />
+                    <RunInvitesInbox incoming={incomingRunInvites} />
+                  </>
+                )}
+              </div>
+            )}
 
             <PlayerProfileRunSections
               incoming={incomingRuns}
