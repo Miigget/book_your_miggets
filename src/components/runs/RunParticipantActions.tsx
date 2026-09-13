@@ -457,88 +457,21 @@ export default function RunParticipantActions({
         <p className="text-sm text-blue-100/50">You left the team. You can apply like any other member.</p>
       )}
 
-      {!rosterFrozen && isOrganizer && (
+      {!rosterFrozen && isOrganizer && pending.length > 0 && (
         <div className="space-y-3 border-t border-white/10 pt-5">
           <h3 className="text-sm font-semibold tracking-wide text-white/80 uppercase">Pending applications</h3>
-          {pending.length === 0 ? (
-            <p className="text-sm text-blue-100/50">No pending applications.</p>
-          ) : (
-            <ul className="space-y-3">
-              {pending.map((applicant) => (
-                <li
-                  key={applicant.id}
-                  className={cn(
-                    "flex flex-col gap-2 rounded-lg border border-white/10 bg-white/5 px-3 py-3 sm:flex-row sm:items-center sm:justify-between",
-                  )}
-                >
-                  <span className="text-sm text-white">
-                    <NicknameLink userId={applicant.userId} nickname={applicant.nickname} />
-                  </span>
-                  <div className="flex gap-2">
-                    <form
-                      method="POST"
-                      action={`/api/runs/${runId}/participants/${applicant.id}/decide`}
-                      onSubmit={(event) => {
-                        event.preventDefault();
-                        void onDecide(event, applicant, "confirmed");
-                      }}
-                    >
-                      <input type="hidden" name="status" value="confirmed" />
-                      <Button
-                        type="submit"
-                        size="sm"
-                        disabled={busy === `decide:${applicant.id}`}
-                        className="rounded-lg bg-emerald-600 text-white hover:bg-emerald-500"
-                      >
-                        <Check className="size-4" />
-                        Accept
-                      </Button>
-                    </form>
-                    <form
-                      method="POST"
-                      action={`/api/runs/${runId}/participants/${applicant.id}/decide`}
-                      onSubmit={(event) => {
-                        event.preventDefault();
-                        void onDecide(event, applicant, "denied");
-                      }}
-                    >
-                      <input type="hidden" name="status" value="denied" />
-                      <Button
-                        type="submit"
-                        size="sm"
-                        variant="outline"
-                        disabled={busy === `decide:${applicant.id}`}
-                        className="rounded-lg border-white/20 bg-transparent text-white hover:bg-white/10"
-                      >
-                        <X className="size-4" />
-                        Deny
-                      </Button>
-                    </form>
-                  </div>
-                </li>
-              ))}
-            </ul>
-          )}
-        </div>
-      )}
-
-      {!rosterFrozen && isOrganizer && (
-        <div className="space-y-3 border-t border-white/10 pt-5">
-          <h3 className="text-sm font-semibold tracking-wide text-white/80 uppercase">Denied applications</h3>
-          {denied.length === 0 ? (
-            <p className="text-sm text-blue-100/50">No denied applications.</p>
-          ) : (
-            <ul className="space-y-3">
-              {denied.map((applicant) => (
-                <li
-                  key={applicant.id}
-                  className={cn(
-                    "flex flex-col gap-2 rounded-lg border border-white/10 bg-white/5 px-3 py-3 sm:flex-row sm:items-center sm:justify-between",
-                  )}
-                >
-                  <span className="text-sm text-white">
-                    <NicknameLink userId={applicant.userId} nickname={applicant.nickname} />
-                  </span>
+          <ul className="space-y-3">
+            {pending.map((applicant) => (
+              <li
+                key={applicant.id}
+                className={cn(
+                  "flex flex-col gap-2 rounded-lg border border-white/10 bg-white/5 px-3 py-3 sm:flex-row sm:items-center sm:justify-between",
+                )}
+              >
+                <span className="text-sm text-white">
+                  <NicknameLink userId={applicant.userId} nickname={applicant.nickname} />
+                </span>
+                <div className="flex gap-2">
                   <form
                     method="POST"
                     action={`/api/runs/${runId}/participants/${applicant.id}/decide`}
@@ -558,10 +491,69 @@ export default function RunParticipantActions({
                       Accept
                     </Button>
                   </form>
-                </li>
-              ))}
-            </ul>
-          )}
+                  <form
+                    method="POST"
+                    action={`/api/runs/${runId}/participants/${applicant.id}/decide`}
+                    onSubmit={(event) => {
+                      event.preventDefault();
+                      void onDecide(event, applicant, "denied");
+                    }}
+                  >
+                    <input type="hidden" name="status" value="denied" />
+                    <Button
+                      type="submit"
+                      size="sm"
+                      variant="outline"
+                      disabled={busy === `decide:${applicant.id}`}
+                      className="rounded-lg border-white/20 bg-transparent text-white hover:bg-white/10"
+                    >
+                      <X className="size-4" />
+                      Deny
+                    </Button>
+                  </form>
+                </div>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+
+      {!rosterFrozen && isOrganizer && denied.length > 0 && (
+        <div className="space-y-3 border-t border-white/10 pt-5">
+          <h3 className="text-sm font-semibold tracking-wide text-white/80 uppercase">Denied applications</h3>
+          <ul className="space-y-3">
+            {denied.map((applicant) => (
+              <li
+                key={applicant.id}
+                className={cn(
+                  "flex flex-col gap-2 rounded-lg border border-white/10 bg-white/5 px-3 py-3 sm:flex-row sm:items-center sm:justify-between",
+                )}
+              >
+                <span className="text-sm text-white">
+                  <NicknameLink userId={applicant.userId} nickname={applicant.nickname} />
+                </span>
+                <form
+                  method="POST"
+                  action={`/api/runs/${runId}/participants/${applicant.id}/decide`}
+                  onSubmit={(event) => {
+                    event.preventDefault();
+                    void onDecide(event, applicant, "confirmed");
+                  }}
+                >
+                  <input type="hidden" name="status" value="confirmed" />
+                  <Button
+                    type="submit"
+                    size="sm"
+                    disabled={busy === `decide:${applicant.id}`}
+                    className="rounded-lg bg-emerald-600 text-white hover:bg-emerald-500"
+                  >
+                    <Check className="size-4" />
+                    Accept
+                  </Button>
+                </form>
+              </li>
+            ))}
+          </ul>
         </div>
       )}
     </div>

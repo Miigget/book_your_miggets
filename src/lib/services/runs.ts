@@ -164,9 +164,8 @@ export function resolveRunTitle({
   const nick = nickname?.trim();
   const map = mapName?.trim();
 
-  if (map && nick) return `${map} run by ${nick}`;
-  if (nick) return `${nick} run`;
   if (map) return `${map} run`;
+  if (nick) return `${nick} run`;
   return "Untitled run";
 }
 

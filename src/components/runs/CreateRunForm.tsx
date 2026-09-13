@@ -4,6 +4,7 @@ import { FormField } from "@/components/auth/FormField";
 import { ServerError } from "@/components/auth/ServerError";
 import { SubmitButton } from "@/components/auth/SubmitButton";
 import { MapPicker } from "@/components/runs/MapPicker";
+import { NativeSelect } from "@/components/ui/native-select";
 import { formatLocalDatetimeValue, parseLocalDatetime } from "@/lib/format-date";
 import { isRunActive } from "@/lib/run-lifecycle";
 import {
@@ -100,7 +101,10 @@ export default function CreateRunForm({
   const [minPoints, setMinPoints] = useState(edit ? String(edit.minPoints) : "0");
   const [joinMode, setJoinMode] = useState<CreateRunFormJoinMode>(edit?.joinMode ?? "approval_required");
   const [autoJoinMin, setAutoJoinMin] = useState(edit?.autoJoinMin != null ? String(edit.autoJoinMin) : "");
-  const [advancedOpen, setAdvancedOpen] = useState(edit?.autoJoinMin != null);
+  const [advancedOpen, setAdvancedOpen] = useState(
+    edit?.autoJoinMin != null ||
+      (edit != null && (edit.maxParticipants !== DEFAULT_RUN_CAPACITY || edit.minPoints !== 0)),
+  );
   const [visibility, setVisibility] = useState<CreateRunFormVisibility>(edit?.visibility ?? "public");
   const [selectedInviteeIds, setSelectedInviteeIds] = useState<Set<string>>(() => new Set(edit?.inviteeIds ?? []));
   const [errors, setErrors] = useState<{
@@ -196,6 +200,9 @@ export default function CreateRunForm({
     }
 
     setErrors(next);
+    if (next.max_participants || next.min_points || next.auto_join_min) {
+      setAdvancedOpen(true);
+    }
     return Object.keys(next).length === 0;
   }
 
@@ -321,42 +328,11 @@ export default function CreateRunForm({
         {errors.starts_at && <p className="mt-1 text-xs text-red-300">{errors.starts_at}</p>}
       </div>
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-        <FormField
-          id="max_participants"
-          label="Capacity"
-          type="number"
-          value={maxParticipants}
-          onChange={(v) => {
-            setMaxParticipants(v);
-            if (errors.max_participants) setErrors((prev) => ({ ...prev, max_participants: undefined }));
-          }}
-          placeholder={String(DEFAULT_RUN_CAPACITY)}
-          error={errors.max_participants}
-          hint={<p className="mt-1 text-xs text-blue-100/40">1–{MAX_RUN_CAPACITY}</p>}
-          icon={<Users className="size-4" />}
-        />
-        <FormField
-          id="min_points"
-          label="Min points"
-          type="number"
-          value={minPoints}
-          onChange={(v) => {
-            setMinPoints(v);
-            if (errors.min_points) setErrors((prev) => ({ ...prev, min_points: undefined }));
-          }}
-          placeholder="0"
-          error={errors.min_points}
-          icon={<Hash className="size-4" />}
-          hint={<p className="mt-1 text-xs text-blue-100/40">Organizer-set — not prefilled from the map.</p>}
-        />
-      </div>
-
       <div>
         <label htmlFor="join_mode" className="mb-1 block text-sm text-blue-100/80">
           Join mode
         </label>
-        <select
+        <NativeSelect
           id="join_mode"
           name={edit?.joinModeLocked ? undefined : "join_mode"}
           value={joinMode}
@@ -372,7 +348,7 @@ export default function CreateRunForm({
           <option value="auto_join" className="bg-slate-900">
             Auto join
           </option>
-        </select>
+        </NativeSelect>
         {edit?.joinModeLocked && (
           <p className="mt-1 text-xs text-blue-100/50">
             Join mode and team-size cannot be changed after someone has applied.
@@ -381,46 +357,97 @@ export default function CreateRunForm({
       </div>
 
       <details
-        className="rounded-xl border border-white/10 bg-white/5 px-4 py-3"
+        className="group rounded-xl border border-white/10 bg-white/5 px-4 py-3"
         open={advancedOpen}
         onToggle={(event) => {
           setAdvancedOpen(event.currentTarget.open);
         }}
       >
-        <summary className="cursor-pointer text-sm font-medium text-white">Advanced settings</summary>
-        <div className="mt-4">
-          <label htmlFor="auto_join_min" className="mb-1 block text-sm text-blue-100/80">
-            Auto-join first
-          </label>
-          <div className="relative">
-            <Users className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-white/40" />
-            <input
-              id="auto_join_min"
-              name={edit?.joinModeLocked ? undefined : "auto_join_min"}
+        <summary className="flex w-full cursor-pointer list-none appearance-none items-center justify-between gap-2 text-sm font-medium text-white [&::-webkit-details-marker]:hidden [&::marker]:hidden">
+          Advanced settings
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            className="size-4 shrink-0 transition-transform group-open:rotate-180"
+            aria-hidden="true"
+          >
+            <path d="m6 9 6 6 6-6" />
+          </svg>
+        </summary>
+        <div className="mt-4 space-y-4">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <FormField
+              id="max_participants"
+              label="Capacity"
               type="number"
-              min={1}
-              step={1}
-              value={autoJoinMin}
-              disabled={Boolean(edit?.joinModeLocked)}
-              onChange={(e) => {
-                setAutoJoinMin(e.target.value);
-                if (errors.auto_join_min) setErrors((prev) => ({ ...prev, auto_join_min: undefined }));
+              value={maxParticipants}
+              onChange={(v) => {
+                setMaxParticipants(v);
+                if (errors.max_participants) setErrors((prev) => ({ ...prev, max_participants: undefined }));
               }}
-              placeholder="Optional"
-              className={cn(
-                "w-full rounded-lg border bg-white/10 py-2 pr-3 pl-10 text-white transition-colors focus:ring-2 focus:outline-none",
-                errors.auto_join_min ? "border-red-400/60 focus:ring-red-400" : "border-white/20 focus:ring-purple-400",
-                edit?.joinModeLocked && "cursor-not-allowed opacity-60",
-              )}
+              placeholder={String(DEFAULT_RUN_CAPACITY)}
+              error={errors.max_participants}
+              hint={<p className="mt-1 text-xs text-blue-100/40">1–{MAX_RUN_CAPACITY}</p>}
+              icon={<Users className="size-4" />}
+            />
+            <FormField
+              id="min_points"
+              label="Min points"
+              type="number"
+              value={minPoints}
+              onChange={(v) => {
+                setMinPoints(v);
+                if (errors.min_points) setErrors((prev) => ({ ...prev, min_points: undefined }));
+              }}
+              placeholder="0"
+              error={errors.min_points}
+              icon={<Hash className="size-4" />}
+              hint={<p className="mt-1 text-xs text-blue-100/40">Organizer-set — not prefilled from the map.</p>}
             />
           </div>
-          {errors.auto_join_min ? (
-            <p className="mt-1 text-xs text-red-300">{errors.auto_join_min}</p>
-          ) : (
-            <p className="mt-1 text-xs text-blue-100/40">
-              Leave empty to use join mode only. The organizer counts toward this number.
-            </p>
-          )}
+          <div>
+            <label htmlFor="auto_join_min" className="mb-1 block text-sm text-blue-100/80">
+              Auto-join first
+            </label>
+            <div className="relative">
+              <Users className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-white/40" />
+              <input
+                id="auto_join_min"
+                name={edit?.joinModeLocked ? undefined : "auto_join_min"}
+                type="number"
+                min={1}
+                step={1}
+                value={autoJoinMin}
+                disabled={Boolean(edit?.joinModeLocked)}
+                onChange={(e) => {
+                  setAutoJoinMin(e.target.value);
+                  if (errors.auto_join_min) setErrors((prev) => ({ ...prev, auto_join_min: undefined }));
+                }}
+                placeholder="Optional"
+                className={cn(
+                  "w-full rounded-lg border bg-white/10 py-2 pr-3 pl-10 text-white transition-colors focus:ring-2 focus:outline-none",
+                  errors.auto_join_min
+                    ? "border-red-400/60 focus:ring-red-400"
+                    : "border-white/20 focus:ring-purple-400",
+                  edit?.joinModeLocked && "cursor-not-allowed opacity-60",
+                )}
+              />
+            </div>
+            {errors.auto_join_min ? (
+              <p className="mt-1 text-xs text-red-300">{errors.auto_join_min}</p>
+            ) : (
+              <p className="mt-1 text-xs text-blue-100/40">
+                Leave empty to use join mode only. The organizer counts toward this number.
+              </p>
+            )}
+          </div>
         </div>
       </details>
 
@@ -429,7 +456,7 @@ export default function CreateRunForm({
           <label htmlFor="visibility" className="mb-1 block text-sm text-blue-100/80">
             Visibility
           </label>
-          <select
+          <NativeSelect
             id="visibility"
             name="visibility"
             value={visibility}
@@ -453,7 +480,7 @@ export default function CreateRunForm({
                 Clan only
               </option>
             )}
-          </select>
+          </NativeSelect>
           <p className="mt-1 text-xs text-blue-100/50">
             {visibility === "clan_only"
               ? "Only current members of your clan can find this run."

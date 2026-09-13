@@ -64,6 +64,7 @@ export interface RunMapsSummaryMap {
   name: string;
   difficulty: string | null;
   points: number | null;
+  stars?: string | null;
 }
 
 export type RunMapsSummary =

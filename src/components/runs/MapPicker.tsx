@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
 import { Map as MapIcon, Search, X } from "lucide-react";
+import { NativeSelect } from "@/components/ui/native-select";
 import { MAP_CATEGORIES } from "@/lib/map-categories";
 import { RUN_MAPS_CAP_MESSAGE, RUN_MAPS_MAX } from "@/lib/run-maps";
 import { cn } from "@/lib/utils";
@@ -156,13 +157,14 @@ export function MapPicker({
             autoComplete="off"
           />
         </div>
-        <select
+        <NativeSelect
           id="map-difficulty"
           value={difficulty}
           onChange={(e) => {
             setDifficulty(e.target.value);
           }}
           className={cn(fieldClass, "sm:min-w-40")}
+          wrapperClassName="sm:w-auto"
           aria-label="Difficulty"
         >
           <option value="" className="bg-slate-900">
@@ -173,7 +175,7 @@ export function MapPicker({
               {d}
             </option>
           ))}
-        </select>
+        </NativeSelect>
       </div>
       <p className="text-xs text-blue-100/40">
         {includeCategoryField

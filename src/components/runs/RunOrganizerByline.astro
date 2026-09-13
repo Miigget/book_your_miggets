@@ -1,0 +1,16 @@
+---
+import NicknameLink from "@/components/NicknameLink.astro";
+import { cn } from "@/lib/utils";
+
+interface Props {
+  userId: string;
+  nickname: string | null;
+  class?: string;
+}
+
+const { userId, nickname, class: className } = Astro.props;
+---
+
+<p class:list={[cn("text-xs text-blue-100/50", className)]}>
+  by <NicknameLink userId={userId} nickname={nickname} />
+</p>

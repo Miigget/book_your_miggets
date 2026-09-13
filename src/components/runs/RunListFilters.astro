@@ -102,16 +102,33 @@ const labelClass = "mb-1 block text-sm text-blue-100/80";
 
           <div>
             <label for="filter-join" class:list={[labelClass]}>Join mode</label>
-            <select id="filter-join" name="join" class:list={[selectClass]}>
-              <option value="" selected={!filters.joinMode} class="bg-slate-900">Any join mode</option>
-              {
-                JOIN_MODES.map((mode) => (
-                  <option value={mode} selected={filters.joinMode === mode} class="bg-slate-900">
-                    {formatJoinMode(mode)}
-                  </option>
-                ))
-              }
-            </select>
+            <div class="relative">
+              <select id="filter-join" name="join" class:list={[cn(selectClass, "peer appearance-none pr-9")]}>
+                <option value="" selected={!filters.joinMode} class="bg-slate-900">Any join mode</option>
+                {
+                  JOIN_MODES.map((mode) => (
+                    <option value={mode} selected={filters.joinMode === mode} class="bg-slate-900">
+                      {formatJoinMode(mode)}
+                    </option>
+                  ))
+                }
+              </select>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                class="pointer-events-none absolute top-1/2 right-2.5 size-4 -translate-y-1/2 text-white transition-transform peer-[:open]:rotate-180"
+                aria-hidden="true"
+              >
+                <path d="m6 9 6 6 6-6"></path>
+              </svg>
+            </div>
           </div>
         </div>
 

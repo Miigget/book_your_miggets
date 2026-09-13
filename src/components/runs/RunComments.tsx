@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import { Heart, ImagePlus, MessageSquare, Trash2 } from "lucide-react";
 import { ServerError } from "@/components/auth/ServerError";
 import { SubmitButton } from "@/components/auth/SubmitButton";
@@ -25,6 +25,39 @@ export default function RunComments({ runId, comments, canPostOrLike, isAdmin, c
   const [posting, setPosting] = useState(false);
   const [likingId, setLikingId] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [screenshotName, setScreenshotName] = useState<string | null>(null);
+  const screenshotInputRef = useRef<HTMLInputElement>(null);
+
+  function attachScreenshot(file: File) {
+    const input = screenshotInputRef.current;
+    if (!input) return;
+    if (file.size > COMMENT_SCREENSHOT_MAX_BYTES || !PUBLIC_IMAGE_MIME_TYPES.has(file.type)) {
+      setError(SCREENSHOT_REJECT_MESSAGE);
+      input.value = "";
+      setScreenshotName(null);
+      return;
+    }
+    const transfer = new DataTransfer();
+    transfer.items.add(file);
+    input.files = transfer.files;
+    setScreenshotName(file.name.trim() || "screenshot");
+    if (error === SCREENSHOT_REJECT_MESSAGE) setError(null);
+  }
+
+  function onPaste(event: React.ClipboardEvent<HTMLFormElement>) {
+    const data = event.clipboardData;
+    const fromFiles = Array.from(data.files).find((file) => PUBLIC_IMAGE_MIME_TYPES.has(file.type));
+    const fromItems = Array.from(data.items)
+      .filter((item) => item.kind === "file" && PUBLIC_IMAGE_MIME_TYPES.has(item.type))
+      .map((item) => item.getAsFile())
+      .find((file): file is File => file != null);
+    const image = fromFiles ?? fromItems;
+    if (!image) return;
+    if (!data.getData("text/plain")) {
+      event.preventDefault();
+    }
+    attachScreenshot(image);
+  }
 
   async function onPost(e: React.SubmitEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -52,6 +85,7 @@ export default function RunComments({ runId, comments, canPostOrLike, isAdmin, c
       }
       setItems((prev) => [...prev, comment]);
       form.reset();
+      setScreenshotName(null);
     } catch {
       setError("Could not post comment");
     } finally {
@@ -210,6 +244,7 @@ export default function RunComments({ runId, comments, canPostOrLike, isAdmin, c
           action={`/api/runs/${runId}/comments`}
           encType="multipart/form-data"
           className="space-y-3"
+          onPaste={onPaste}
           onSubmit={(event) => {
             event.preventDefault();
             void onPost(event);
@@ -218,48 +253,69 @@ export default function RunComments({ runId, comments, canPostOrLike, isAdmin, c
           <label htmlFor="comment-body" className="mb-1 block text-sm text-blue-100/80">
             Add a comment
           </label>
-          <textarea
-            id="comment-body"
-            name="body"
-            rows={3}
-            maxLength={1000}
-            placeholder="Share a note with the team"
-            disabled={posting}
+          <div
             className={cn(
-              "w-full rounded-lg border border-white/20 bg-white/10 px-3 py-2 text-sm text-white placeholder-white/40 focus:ring-2 focus:ring-purple-400 focus:outline-none",
+              "rounded-lg border bg-white/10 focus-within:ring-2",
+              error === SCREENSHOT_REJECT_MESSAGE
+                ? "border-red-400/60 focus-within:ring-red-400"
+                : "border-white/20 focus-within:ring-purple-400",
             )}
-          />
-          <div>
-            <label htmlFor="comment-screenshot" className="mb-1 block text-sm text-blue-100/80">
-              Screenshot <span className="font-normal text-blue-100/40">(optional)</span>
-            </label>
+          >
             <div className="relative">
-              <span className="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-white/40">
-                <ImagePlus className="size-4" />
-              </span>
+              <textarea
+                id="comment-body"
+                name="body"
+                rows={3}
+                maxLength={1000}
+                placeholder="Share a note with the team"
+                disabled={posting}
+                className="w-full resize-y rounded-lg border-0 bg-transparent py-2 pr-11 pl-3 text-sm text-white placeholder-white/40 focus:ring-0 focus:outline-none"
+              />
               <input
+                ref={screenshotInputRef}
                 id="comment-screenshot"
                 name="screenshot"
                 type="file"
                 accept="image/jpeg,image/png,image/webp,.jpg,.jpeg,.png,.webp"
                 disabled={posting}
-                className={cn(
-                  "w-full rounded-lg border bg-white/10 py-2 pr-3 pl-10 text-sm text-white file:mr-3 file:rounded-md file:border-0 file:bg-white/10 file:px-3 file:py-1 file:text-sm file:text-white focus:ring-2 focus:outline-none",
-                  error === SCREENSHOT_REJECT_MESSAGE
-                    ? "border-red-400/60 focus:ring-red-400"
-                    : "border-white/20 focus:ring-purple-400",
-                )}
-                onChange={() => {
+                className="sr-only"
+                onChange={(event) => {
+                  const file = event.currentTarget.files?.[0];
+                  if (!file) {
+                    setScreenshotName(null);
+                    return;
+                  }
+                  if (file.size > COMMENT_SCREENSHOT_MAX_BYTES || !PUBLIC_IMAGE_MIME_TYPES.has(file.type)) {
+                    setError(SCREENSHOT_REJECT_MESSAGE);
+                    event.currentTarget.value = "";
+                    setScreenshotName(null);
+                    return;
+                  }
+                  setScreenshotName(file.name.trim() || "screenshot");
                   if (error === SCREENSHOT_REJECT_MESSAGE) setError(null);
                 }}
               />
+              <button
+                type="button"
+                disabled={posting}
+                className="absolute right-2 bottom-2 rounded-md p-1.5 text-white/50 transition-colors hover:bg-white/10 hover:text-white"
+                aria-label="Attach screenshot"
+                onClick={() => {
+                  screenshotInputRef.current?.click();
+                }}
+              >
+                <ImagePlus className="size-4" />
+              </button>
             </div>
-            {error === SCREENSHOT_REJECT_MESSAGE ? (
-              <p className="mt-1 text-xs text-red-300">{SCREENSHOT_REJECT_MESSAGE}</p>
-            ) : (
-              <p className="mt-1 text-xs text-blue-100/40">JPEG, PNG, or WebP. Max 5 MB.</p>
-            )}
+            {screenshotName ? (
+              <div className="border-t border-white/10 px-3 py-1.5">
+                <p className="truncate text-xs text-blue-100/50">{screenshotName}</p>
+              </div>
+            ) : null}
           </div>
+          {error === SCREENSHOT_REJECT_MESSAGE ? (
+            <p className="text-xs text-red-300">{SCREENSHOT_REJECT_MESSAGE}</p>
+          ) : null}
           <SubmitButton pendingText="Posting..." icon={<MessageSquare className="size-4" />} busy={posting}>
             Post comment
           </SubmitButton>

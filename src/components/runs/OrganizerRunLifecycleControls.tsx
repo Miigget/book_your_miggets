@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Archive, ArrowRightLeft, CheckCircle2, Clock, Trash2 } from "lucide-react";
 import { ServerError } from "@/components/auth/ServerError";
 import { Button } from "@/components/ui/button";
+import { NativeSelect } from "@/components/ui/native-select";
 import { fetchFormJson } from "@/lib/fetch-form-json";
 import { formatStart } from "@/lib/format-date";
 import type { ActiveRunLifecyclePhase } from "@/lib/run-lifecycle";
@@ -159,7 +160,7 @@ export default function OrganizerRunLifecycleControls({
               void onTransfer(event);
             }}
           >
-            <select
+            <NativeSelect
               id="new_organizer_id"
               name="new_organizer_id"
               required
@@ -168,6 +169,7 @@ export default function OrganizerRunLifecycleControls({
               className={cn(
                 "h-8 rounded-lg border border-white/20 bg-white/10 px-2 text-sm text-white focus:ring-2 focus:ring-purple-400 focus:outline-none",
               )}
+              wrapperClassName="w-auto shrink-0"
             >
               <option value="" className="bg-slate-900">
                 Choose a player…
@@ -177,7 +179,7 @@ export default function OrganizerRunLifecycleControls({
                   {candidate.nickname ?? "Unknown player"}
                 </option>
               ))}
-            </select>
+            </NativeSelect>
             <Button type="submit" variant="outline" size="sm" className={cn("rounded-lg")} disabled={busy}>
               <ArrowRightLeft className="size-4" />
               Transfer
