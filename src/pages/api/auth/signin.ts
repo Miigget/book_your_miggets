@@ -1,6 +1,7 @@
 import type { APIRoute } from "astro";
-import { createClient } from "@/lib/supabase";
 import { authErrorRedirect, safeAuthReturnTo } from "@/lib/safe-return-to";
+import { setInboxToastCookie } from "@/lib/services/inbox";
+import { createClient } from "@/lib/supabase";
 
 export const POST: APIRoute = async (context) => {
   const form = await context.request.formData();
@@ -16,6 +17,13 @@ export const POST: APIRoute = async (context) => {
 
   if (error) {
     return context.redirect(authErrorRedirect("/auth/signin", error.message, returnTo));
+  }
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (user) {
+    await setInboxToastCookie(context.cookies, supabase, user.id, context.url.protocol === "https:");
   }
 
   return context.redirect(returnTo ?? "/");

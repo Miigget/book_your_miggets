@@ -34,13 +34,15 @@ export function safeFriendRedirect(value: string | null | undefined): string | n
   return null;
 }
 
-/** Clan-invite mutation bounce — `/profile` or `/clans/{uuid}` only. Do not allow `/profile` in `safeAuthReturnTo`. */
+/** Clan-invite mutation bounce — `/profile`, `/clans/{uuid}`, or `/players/{uuid}`. Do not allow `/profile` in `safeAuthReturnTo`. */
 export function safeClanInviteRedirect(value: string | null | undefined): string | null {
   if (!value) return null;
   const trimmed = value.trim();
   if (trimmed === "/profile") return "/profile";
   const clan = CLAN_PATH_RE.exec(trimmed);
   if (clan) return `/clans/${clan[1]}`;
+  const player = PLAYER_PATH_RE.exec(trimmed);
+  if (player) return `/players/${player[1]}`;
   return null;
 }
 

@@ -7,6 +7,7 @@ import {
 } from "@/lib/dev-quick-login-server";
 import { authErrorRedirect, safeAuthReturnTo } from "@/lib/safe-return-to";
 import { createClient } from "@/lib/supabase";
+import { setInboxToastCookie } from "@/lib/services/inbox";
 import { ensureOwnProfile } from "@/lib/services/runs";
 
 const FAIL_MESSAGE = "Dev quick login failed";
@@ -95,6 +96,8 @@ export const POST: APIRoute = async (context) => {
   } catch (err) {
     return fail(err);
   }
+
+  await setInboxToastCookie(context.cookies, supabase, user.id, context.url.protocol === "https:");
 
   return context.redirect(returnTo ?? "/runs");
 };

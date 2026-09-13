@@ -1,10 +1,34 @@
 ---
+import InboxToast from "@/components/profile/InboxToast";
 import { playerProfileHref } from "@/lib/profile-href";
+import { INBOX_TOAST_COOKIE, countIncomingInbox, parseInboxToastCount } from "@/lib/services/inbox";
+import { createClient } from "@/lib/supabase";
 
 const { user } = Astro.locals;
 const isAdmin = Astro.locals.profile?.role === "admin";
 const rawNick = Astro.locals.profile?.nickname?.trim();
 const nickname = rawNick !== undefined && rawNick.length > 0 ? rawNick : null;
+const profileInboxHref = user ? `${playerProfileHref(user.id)}#inbox` : null;
+
+let incomingInboxCount = 0;
+if (user) {
+  const supabase = createClient(Astro.request.headers, Astro.cookies);
+  if (supabase) {
+    try {
+      incomingInboxCount = await countIncomingInbox(supabase, user.id);
+    } catch (err) {
+      console.error("inbox count failed", err);
+    }
+  }
+}
+
+const inboxToastCount = parseInboxToastCount(Astro.cookies.get(INBOX_TOAST_COOKIE)?.value);
+if (Astro.cookies.has(INBOX_TOAST_COOKIE)) {
+  Astro.cookies.delete(INBOX_TOAST_COOKIE, { path: "/" });
+}
+
+const inboxBadgeLabel = incomingInboxCount === 1 ? "1 pending invite" : `${incomingInboxCount} pending invites`;
+const inboxBadgeText = incomingInboxCount > 9 ? "9+" : String(incomingInboxCount);
 
 const navLinkClass = "text-purple-300 transition-colors hover:text-purple-100 hover:underline";
 ---
@@ -22,33 +46,47 @@ const navLinkClass = "text-purple-300 transition-colors hover:text-purple-100 ho
     user ? (
       <>
         <nav class="flex flex-wrap items-center justify-center gap-3" aria-label="Primary">
-          <a href="/runs" class={navLinkClass}>
+          <a href="/runs" class:list={navLinkClass}>
             Runs
           </a>
-          <a href="/clans" class={navLinkClass}>
+          <a href="/clans" class:list={navLinkClass}>
             Clans
           </a>
-          <a href="/runs/new" class={navLinkClass}>
+          <a href="/runs/new" class:list={navLinkClass}>
             New run
           </a>
-          <a href="/dashboard" class={navLinkClass}>
+          <a href="/dashboard" class:list={navLinkClass}>
             Dashboard
           </a>
           {isAdmin && (
-            <a href="/admin" class={navLinkClass}>
+            <a href="/admin" class:list={navLinkClass}>
               Admin
             </a>
           )}
         </nav>
         <div class="flex min-w-0 flex-wrap items-center justify-end gap-3 justify-self-end">
-          <a
-            href={playerProfileHref(user.id)}
-            class="max-w-[12rem] truncate text-blue-100/70 transition-colors hover:text-purple-100 hover:underline"
-          >
-            {nickname ?? "Set nickname"}
-          </a>
+          <div class="relative shrink-0">
+            <a
+              href={profileInboxHref}
+              class="inline-flex max-w-[14rem] min-w-0 items-center gap-1.5 text-blue-100/70 transition-colors hover:text-purple-100 hover:underline"
+            >
+              <span class="truncate">{nickname ?? "Set nickname"}</span>
+              {incomingInboxCount > 0 && (
+                <span
+                  class="inline-flex h-5 min-w-5 shrink-0 items-center justify-center rounded-full bg-rose-500 px-1.5 font-mono text-[11px] leading-none font-semibold text-white tabular-nums"
+                  title={inboxBadgeLabel}
+                  aria-label={inboxBadgeLabel}
+                >
+                  {inboxBadgeText}
+                </span>
+              )}
+            </a>
+            {inboxToastCount > 0 && profileInboxHref && (
+              <InboxToast client:load count={inboxToastCount} href={profileInboxHref} />
+            )}
+          </div>
           <form method="POST" action="/api/auth/signout">
-            <button type="submit" class={navLinkClass}>
+            <button type="submit" class:list={navLinkClass}>
               Sign out
             </button>
           </form>
@@ -57,18 +95,18 @@ const navLinkClass = "text-purple-300 transition-colors hover:text-purple-100 ho
     ) : (
       <>
         <nav class="flex flex-wrap items-center justify-center gap-3" aria-label="Primary">
-          <a href="/runs" class={navLinkClass}>
+          <a href="/runs" class:list={navLinkClass}>
             Runs
           </a>
-          <a href="/clans" class={navLinkClass}>
+          <a href="/clans" class:list={navLinkClass}>
             Clans
           </a>
         </nav>
         <div class="flex flex-wrap items-center justify-end gap-3 justify-self-end">
-          <a href="/auth/signin" class={navLinkClass}>
+          <a href="/auth/signin" class:list={navLinkClass}>
             Sign in
           </a>
-          <a href="/auth/signup" class={navLinkClass}>
+          <a href="/auth/signup" class:list={navLinkClass}>
             Sign up
           </a>
         </div>
