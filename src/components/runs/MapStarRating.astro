@@ -4,7 +4,10 @@ interface Props {
 }
 
 const { stars } = Astro.props;
-const marks = [...(stars ?? "")].filter((ch) => ch === "★" || ch === "☆");
+const marks: string[] = [];
+for (const ch of stars ?? "") {
+  if (ch === "★" || ch === "☆") marks.push(ch);
+}
 ---
 
 {
