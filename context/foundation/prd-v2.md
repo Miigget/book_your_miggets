@@ -23,7 +23,7 @@ Roles in the product today: guest (unauthenticated browse), member (registered; 
 
 ## Problem Statement & Motivation
 
-The change is an extension of that shipped system — not a rewrite. Two tracks: (1) significant features on the existing run loop (screenshots in comments, organizer/admin archive button, no fixed auto-archive grace — in-progress ends via archive button or an extension of at most 6 hours, team-size scope under Advanced settings, changelog page, capacity default and max 64, schedule at most 1 year ahead and never in the past, max 5 active runs per organizer, multi-map on one run, map poll, pass ownership to a participant, owner can delete a run); (2) a new clans module (create, invite friends, public clan directory and details, ranking by clan points, clan runs created by owner/officers, manual complete, admin verified-finish via in-game `/teamrank` plus screenshots, points only after verified finish).
+The change is an extension of that shipped system — not a rewrite. Two tracks: (1) significant features on the existing run loop (screenshots in comments, organizer/admin archive button, 1-hour in-progress window then derived archive unless the organizer extends ≤ 6 hours, team-size scope under Advanced settings, changelog page, capacity default and max 64, schedule at most 1 year ahead and never in the past, max 5 active runs per organizer, multi-map on one run, map poll, pass ownership to a participant, owner can delete a run); (2) a new clans module (create, invite friends, public clan directory and details, ranking by clan points, clan runs created by owner/officers, manual complete, admin verified-finish via in-game `/teamrank` plus screenshots, points only after verified finish).
 
 Why now: the core loop is shipped and several of these ideas were parked (clans as v2+, 1-hour grace). There are no community users yet, so the author is adding product ideas before launch rather than waiting on production feedback.
 
@@ -67,20 +67,20 @@ No demotion — everything in both sessions is must-have. The hoped-for outcome 
 
 - Nothing already shipped (F-01, S-01…S-17) may break: create/list/filter, apply/approve, auto-join, comments ACL (confirmed / unseated organizer / admin), friends, friends-only / invite-only visibility, profiles, admin moderation.
 - Clan features must not leak restricted runs. Screenshots must not widen who can post or read comments.
-- The shipped 1-hour auto-archive window is an explicit modification (removed as a fixed grace; in-progress ends via archive button or extend ≤ 6h), not a silent regression of the rest of lifecycle UX (in-progress label, archive history, active list not cluttered forever — organizer/admin must archive, and extend is capped).
+- Unextended runs leave the active list 1 hour after start (derived archive). Organizer/admin can archive earlier via a button; organizer extend ≤ 6h keeps a live session past that hour. The 5-cap still applies.
 
 ## User Stories
 
 ### US-01: Organizer runs a session
 
 - **Given** a registered organizer creating a run, and confirmed players on the roster
-- **When** they set multiple maps or a map poll, optional team-size under Advanced settings, capacity (default 64, max 64), and a start time not in the past and at most 1 year ahead (and they are under the 5 active-run cap); confirmed players vote and the organizer closes the poll so the winning map locks; the run stays in-progress until they or an admin archive via a button, or until an extension of at most 6 hours elapses; confirmed participants attach screenshots in comments; the owner may pass ownership or delete the run
-- **Then** the team can organize and play that session in-app; a fixed 1-hour auto-archive no longer cuts the session short; apply/approve, auto-join (except team-size bands), comment ACL, friends, and restricted-run visibility still work as today
+- **When** they set multiple maps or a map poll, optional team-size under Advanced settings, capacity (default 64, max 64), and a start time not in the past and at most 1 year ahead (and they are under the 5 active-run cap); confirmed players vote and the organizer closes the poll so the winning map locks; the run stays in-progress for 1 hour after start, or until they or an admin archive via a button, or until an extension of at most 6 hours elapses; confirmed participants attach screenshots in comments; the owner may pass ownership or delete the run
+- **Then** the team can organize and play that session in-app; a forgotten run does not stay on the public list forever; apply/approve, auto-join (except team-size bands), comment ACL, friends, and restricted-run visibility still work as today
 - **Before:** one map (or category), 1-hour grace then auto-archive, no poll, no owner delete, no screenshots, no 5-run cap, no 64/year limits
 
 #### Acceptance Criteria
 - Map poll and multi-map remain separate tools; poll votes are confirmed-participants only; closing the poll sets the run map to the winner
-- Organizer/admin archive button ends in-progress; extend is optional and cannot be longer than 6 hours
+- Unextended runs leave the active list 1 hour after start; organizer/admin archive button ends in-progress earlier; extend is optional and cannot be longer than 6 hours
 - Archiving frees an active-run slot; owner delete is allowed (admin delete already existed)
 - Create form: production join mode remains the default control; team-size and other new options live under Advanced settings
 
@@ -108,8 +108,8 @@ No demotion — everything in both sessions is must-have. The hoped-for outcome 
 
 - [new] FR-002: Organizer or admin can archive a run via a button. Priority: must-have.
   > Socrates: No counter-argument; it stands as written.
-- [modified] FR-003: A run does not auto-archive after a fixed grace period (the shipped 1-hour window is removed). In-progress lasts until the organizer or admin archives via a button, or until a timed extension elapses. Was: 1-hour in-progress grace then archive. Now: no fixed auto-archive grace. Priority: must-have.
-  > Socrates: Counter-argument considered: 4h is still too short so extend is the real rule and a 4h default is noise. Resolution: dropped the 4h default; only manual archive and extend define the window.
+- [modified] FR-003: A run auto-archives 1 hour after `starts_at` unless the organizer or admin archives earlier, or the organizer extends (then the run leaves when that deadline elapses). S-24 had dropped the fixed window and left forgotten runs on the public list indefinitely; production restored the 1-hour default. Priority: must-have.
+  > Socrates: Counter-argument considered: a 4h default is still too short so extend is the real rule. Resolution: keep the original 1-hour default as the safety net; extend remains the way to keep a live session.
 - [new] FR-004: Organizer can apply a timed extension to an in-progress run; that extension cannot be longer than 6 hours. Priority: must-have.
   > Socrates: Counter-argument considered: unlimited extend means runs never leave the active list. Resolution: kept organizer extend; an extension cannot be longer than 6 hours.
 
@@ -193,7 +193,7 @@ No demotion — everything in both sessions is must-have. The hoped-for outcome 
 
 The system currently counts a player toward a run’s team when the organizer has accepted their application, or immediately on auto-join if a slot remains.
 
-This change modifies that rule: the same roster decision still applies, plus optional team-size scope (auto-join only fills the min band; remaining slots up to max need approval). A run leaves the active list when archived via button or when a timed extension of at most 6 hours elapses — not after the shipped 1-hour grace. If the organizer closes a map poll, the winning option becomes that run’s map (separate from listing several maps for one session).
+This change modifies that rule: the same roster decision still applies, plus optional team-size scope (auto-join only fills the min band; remaining slots up to max need approval). A run leaves the active list 1 hour after start, or when archived via button, or when a timed extension of at most 6 hours elapses. If the organizer closes a map poll, the winning option becomes that run’s map (separate from listing several maps for one session).
 
 Clan points (from map points) are added only after an admin marks a completed clan run as verified-finish; clans are ranked by those points.
 

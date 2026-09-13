@@ -1,5 +1,10 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
-import { getRunLifecyclePhase, isRunActive, type ActiveRunLifecyclePhase } from "@/lib/run-lifecycle";
+import {
+  audienceActiveOrFilter,
+  getRunLifecyclePhase,
+  isRunActive,
+  type ActiveRunLifecyclePhase,
+} from "@/lib/run-lifecycle";
 import {
   AUTO_JOIN_MIN_RANGE_MESSAGE,
   CAPACITY_INVALID_MESSAGE,
@@ -381,12 +386,7 @@ export async function listActiveRuns(
   options: ListActiveRunsOptions = {},
 ): Promise<RunListItem[]> {
   const now = Date.now();
-  const nowIso = new Date(now).toISOString();
-  let query = supabase
-    .from("runs")
-    .select(RUN_SELECT)
-    .is("archived_at", null)
-    .or(`extended_until.is.null,extended_until.gt."${nowIso}"`);
+  let query = supabase.from("runs").select(RUN_SELECT).is("archived_at", null).or(audienceActiveOrFilter(now));
 
   if (options.publicOnly) {
     query = query.eq("visibility", "public");
@@ -428,13 +428,12 @@ export async function getActiveRunById(supabase: AppSupabaseClient, id: string):
   if (!isUuid(id)) return null;
 
   const now = Date.now();
-  const nowIso = new Date(now).toISOString();
   const { data, error } = await supabase
     .from("runs")
     .select(RUN_SELECT)
     .eq("id", id)
     .is("archived_at", null)
-    .or(`extended_until.is.null,extended_until.gt."${nowIso}"`)
+    .or(audienceActiveOrFilter(now))
     .maybeSingle();
 
   if (error) {

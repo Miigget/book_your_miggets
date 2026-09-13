@@ -1,5 +1,8 @@
 export const MAX_ACTIVE_RUNS_PER_ORGANIZER = 5;
 
+/** Default in-progress window after `starts_at` when the organizer has not extended. */
+export const RUN_GRACE_MS = 3_600_000;
+
 export type RunLifecyclePhase = "upcoming" | "in_progress" | "archived";
 
 export type ActiveRunLifecyclePhase = Exclude<RunLifecyclePhase, "archived">;
@@ -18,8 +21,8 @@ function instantMs(value: string | Date): number {
 }
 
 /**
- * Audience-active ⇔ no stamp and not elapsed extend.
- * `startsAt` is unused for the boolean (kept so call sites stay readable).
+ * Audience-active ⇔ no stamp, and either an unelapsed extend or still inside
+ * the 1-hour window after `starts_at`.
  */
 export function isRunActive(
   startsAt: string | Date,
@@ -27,13 +30,24 @@ export function isRunActive(
   extendedUntil: string | Date | null | undefined,
   now?: Date | number,
 ): boolean {
-  void startsAt;
   if (archivedAt != null) return false;
+  const t = resolveNow(now);
   if (extendedUntil != null) {
     const deadline = instantMs(extendedUntil);
-    if (!Number.isNaN(deadline) && resolveNow(now) >= deadline) return false;
+    if (Number.isNaN(deadline)) return false;
+    return t < deadline;
   }
-  return true;
+  const start = startsAtMs(startsAt);
+  if (Number.isNaN(start)) return false;
+  return t < start + RUN_GRACE_MS;
+}
+
+/** PostgREST `.or(...)` dual-defense for audience-active list/detail queries. */
+export function audienceActiveOrFilter(now?: Date | number): string {
+  const t = resolveNow(now);
+  const nowIso = new Date(t).toISOString();
+  const windowIso = new Date(t - RUN_GRACE_MS).toISOString();
+  return `extended_until.gt."${nowIso}",starts_at.gt."${windowIso}"`;
 }
 
 export function getRunLifecyclePhase(

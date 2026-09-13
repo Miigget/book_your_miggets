@@ -931,7 +931,11 @@ export type Database = {
       is_confirmed_participant: { Args: { p_run_id: string }; Returns: boolean }
       is_not_banned: { Args: never; Returns: boolean }
       is_run_active_row: {
-        Args: { p_archived_at: string; p_extended_until: string }
+        Args: {
+          p_archived_at: string
+          p_extended_until: string
+          p_starts_at: string
+        }
         Returns: boolean
       }
       is_run_in_active_window: { Args: { p_run_id: string }; Returns: boolean }
@@ -942,6 +946,7 @@ export type Database = {
           p_archived_at: string
           p_completed_at: string
           p_extended_until: string
+          p_starts_at: string
         }
         Returns: boolean
       }
