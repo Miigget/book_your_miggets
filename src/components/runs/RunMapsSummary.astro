@@ -1,4 +1,5 @@
 ---
+import MapStarRating from "@/components/runs/MapStarRating.astro";
 import { summarizeRunMaps, type RunMapsSummaryMap } from "@/lib/run-maps";
 import { cn } from "@/lib/utils";
 
@@ -11,29 +12,27 @@ interface Props {
 
 const { maps, fallbackMap, mapCategory, class: className } = Astro.props;
 const summary = summarizeRunMaps(maps, fallbackMap, mapCategory);
-const mapsLabel = summary.kind === "maps" && summary.visible.length + summary.extra === 1 ? "Map:" : "Maps:";
+const mapCount = summary.kind === "maps" ? summary.visible.length + summary.extra : 0;
+const mapsLabel = mapCount === 1 ? "Map:" : "Maps:";
+const singleMap = summary.kind === "maps" && mapCount === 1 ? summary.visible[0] : null;
 ---
 
 {
-  summary.kind === "maps" ? (
-    <div class:list={[cn(className)]}>
-      <p>{mapsLabel}</p>
-      <ul class="mt-0.5 space-y-0.5">
-        {summary.visible.map((map) => (
-          <li class="text-blue-100/90">
-            {map.name}
-            <span class="text-blue-100/50">
-              {" "}
-              · {map.difficulty} · {map.points} pts
-            </span>
-          </li>
-        ))}
-      </ul>
-      {summary.extra > 0 && <p class="text-blue-100/50">+{summary.extra} more</p>}
-    </div>
+  summary.kind === "maps" && mapCount > 1 ? (
+    <p class:list={[cn(className)]}>
+      {mapsLabel} <span class="text-blue-100/90">Multiple maps</span>
+    </p>
+  ) : singleMap ? (
+    <p class:list={[cn("min-w-0", className)]}>
+      {mapsLabel} <span class="text-blue-100/90">{singleMap.name}</span>
+      <span class="text-blue-100/50">
+        {" "}
+        · {singleMap.difficulty} · <MapStarRating stars={singleMap.stars} /> · {singleMap.points} pts
+      </span>
+    </p>
   ) : summary.kind === "category" ? (
-    <div class:list={[cn(className)]}>
+    <p class:list={[cn(className)]}>
       Category: <span class="text-blue-100/90">{summary.category}</span>
-    </div>
+    </p>
   ) : null
 }

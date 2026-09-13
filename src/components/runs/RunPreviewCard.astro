@@ -1,8 +1,8 @@
 ---
-import NicknameLink from "@/components/NicknameLink.astro";
 import RunMapsSummary from "@/components/runs/RunMapsSummary.astro";
+import RunOrganizerByline from "@/components/runs/RunOrganizerByline.astro";
 import { formatStart } from "@/lib/format-date";
-import { formatJoinMode, type ArchivedRunListItem, type RunListItem } from "@/lib/services/runs";
+import type { ArchivedRunListItem, RunListItem } from "@/lib/services/runs";
 
 interface Props {
   run: RunListItem | ArchivedRunListItem;
@@ -32,9 +32,7 @@ const showCompleted = Boolean(run.completedAt) && !isArchived;
           )
         }
       </h3>
-      <p class="text-sm text-blue-100/60">
-        by <NicknameLink userId={run.organizerId} nickname={run.organizerNickname} />
-      </p>
+      <RunOrganizerByline userId={run.organizerId} nickname={run.organizerNickname} class="mt-1" />
     </div>
     {showCompleted && <span class="shrink-0 text-sm font-medium text-emerald-200">Completed</span>}
     {
@@ -44,17 +42,8 @@ const showCompleted = Boolean(run.completedAt) && !isArchived;
     }
     {isArchived && <span class="shrink-0 text-sm font-medium text-blue-100/70">Archived</span>}
   </div>
-  <div class="mb-3 grid flex-1 grid-cols-2 gap-2 text-sm text-blue-100/60">
-    <div>
-      Filled:{" "}
-      <span class="text-blue-100/90">
-        {run.confirmedCount}/{run.maxParticipants}
-      </span>
-    </div>
-    <div>
-      Join: <span class="text-blue-100/90">{formatJoinMode(run.joinMode)}</span>
-    </div>
-    <RunMapsSummary maps={run.maps} fallbackMap={run.map} mapCategory={run.mapCategory} class="col-span-2" />
+  <div class="mb-3 min-w-0 flex-1 text-sm text-blue-100/60">
+    <RunMapsSummary maps={run.maps} fallbackMap={run.map} mapCategory={run.mapCategory} />
   </div>
   <time class="mt-auto border-t border-white/10 pt-3 text-xs text-blue-100/60" datetime={run.startsAt}>
     {formatStart(run.startsAt, Astro.locals.timeZone)}
