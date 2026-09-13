@@ -46,7 +46,7 @@ Both tracks must work; shipping only clans or only the run-loop extras is not do
 | S-28 | map-poll | create a map poll; confirmed participants vote; closing locks the winning map | shipped confirmed roster + map catalog | FR-010, US-01 | done |
 | S-29 | transfer-run-ownership | (owner) pass ownership to a confirmed participant | shipped confirmed roster | FR-011, US-01 | done |
 | S-30 | owner-delete-run | (owner) delete their run | shipped admin delete | FR-012, US-01 | done |
-| S-31 | changelog-page | open `/changelog` from a footer Changelog link and read release notes | — | FR-013, US-01 | ready |
+| S-31 | changelog-page | open `/changelog` from a footer Changelog link and read release notes | — | FR-013, US-01 | done |
 
 ## Streams
 
@@ -259,7 +259,7 @@ Shipped product (previous roadmap, all `done`): F-01 + S-01…S-17 — create/li
 - **Blockers:** —
 - **Unknowns:** —
 - **Risk:** smallest independent slice; do not block it on clans or lifecycle. Copy can track GitHub Release notes already produced at tag time.
-- **Status:** ready
+- **Status:** done
 
 ## Backlog Handoff
 
@@ -335,3 +335,4 @@ Previous full roadmap archived 2026-08-27 → `context/foundation/archive/2026-0
 - **S-28: organizer can create a map poll whose options are specific maps; confirmed participants vote; when the organizer closes the poll, the winning map becomes the run’s map.** — Archived 2026-09-10 → `context/archive/2026-09-10-map-poll/`. Lesson: —.
 - **S-30: run owner can delete the run (admin delete already exists).** — Archived 2026-09-11 → `context/archive/2026-09-11-owner-delete-run/`. Lesson: —.
 - **S-29: run owner can pass ownership to a confirmed participant.** — Archived 2026-09-11 → `context/archive/2026-09-11-transfer-run-ownership/`. Lesson: —.
+- **S-31: guest can open `/changelog` from a footer Changelog link and read release notes.** — Archived 2026-09-11 → `context/archive/2026-09-11-changelog-page/`. Lesson: —.
