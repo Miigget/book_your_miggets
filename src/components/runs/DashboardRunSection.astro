@@ -1,5 +1,5 @@
 ---
-import DashboardRunCard from "@/components/runs/DashboardRunCard.astro";
+import ActiveRunCard from "@/components/runs/ActiveRunCard.astro";
 import type { ArchivedRunListItem, OrganizerRunListItem, RunListItem } from "@/lib/services/runs";
 
 interface Props {
@@ -21,7 +21,7 @@ const { heading, empty, runs, showEdit = false } = Astro.props;
       <ul class="flex flex-col gap-3">
         {runs.map((run) => (
           <li>
-            <DashboardRunCard run={run} showEdit={showEdit} />
+            <ActiveRunCard run={run} showEdit={showEdit} />
           </li>
         ))}
       </ul>

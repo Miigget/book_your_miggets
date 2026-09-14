@@ -1,0 +1,153 @@
+---
+import Layout from "@/layouts/Layout.astro";
+import PageChrome from "@/components/PageChrome.astro";
+import ActiveRunCard from "@/components/runs/ActiveRunCard.astro";
+import { createClient } from "@/lib/supabase";
+import { getClanById, type ClanDetail } from "@/lib/services/clans";
+import {
+  canOpenClanShowcaseRun,
+  listClanRuns,
+  listConfirmedRunIdsForViewer,
+  type ArchivedRunListItem,
+} from "@/lib/services/runs";
+
+const { id } = Astro.params;
+const supabase = createClient(Astro.request.headers, Astro.cookies);
+const { user } = Astro.locals;
+const isAdmin = Astro.locals.profile?.role === "admin";
+
+let clan: ClanDetail | null = null;
+let pageError: "missing" | "config" | "load" | null = null;
+let archivedRuns: ArchivedRunListItem[] = [];
+let listError: string | null = null;
+let viewerConfirmedRunIds = new Set<string>();
+
+if (!id) {
+  pageError = "missing";
+} else if (!supabase) {
+  pageError = "config";
+} else {
+  try {
+    clan = await getClanById(supabase, id);
+    if (!clan) {
+      pageError = "missing";
+    }
+  } catch (err) {
+    console.error("getClanById failed on clan run history", err);
+    pageError = "load";
+  }
+}
+
+if (pageError === "missing") {
+  Astro.response.status = 404;
+} else if (pageError === "load" || pageError === "config") {
+  Astro.response.status = 500;
+}
+
+const viewerIsClanMember = Boolean(clan && user && clan.members.some((member) => member.id === user.id));
+
+if (clan && supabase) {
+  try {
+    const listed = await listClanRuns(supabase, clan.id);
+    archivedRuns = listed.archived;
+  } catch (err) {
+    console.error("listClanRuns failed on clan run history", err);
+    listError = "Could not load clan runs";
+  }
+
+  if (user && archivedRuns.length > 0) {
+    try {
+      viewerConfirmedRunIds = await listConfirmedRunIdsForViewer(
+        supabase,
+        user.id,
+        archivedRuns.map((run) => run.id),
+      );
+    } catch (err) {
+      console.error("listConfirmedRunIdsForViewer failed on clan run history", err);
+    }
+  }
+}
+
+const pageTitle = clan ? `${clan.name} run history — Book Your Miggets` : "Clan run history — Book Your Miggets";
+---
+
+<Layout title={pageTitle}>
+  <PageChrome>
+    <p class="mb-6">
+      {
+        clan ? (
+          <a
+            href={`/clans/${clan.id}`}
+            class="text-sm text-purple-300 transition-colors hover:text-purple-100 hover:underline"
+          >
+            ← {clan.name}
+          </a>
+        ) : (
+          <a href="/clans" class="text-sm text-purple-300 transition-colors hover:text-purple-100 hover:underline">
+            ← Clans
+          </a>
+        )
+      }
+    </p>
+
+    {
+      pageError === "missing" ? (
+        <div class="rounded-xl border border-white/10 bg-white/5 px-6 py-12 text-center backdrop-blur-xl">
+          <h1 class="text-2xl font-bold text-white">Clan not found</h1>
+          <p class="mt-2 text-sm text-blue-100/60">This clan is missing.</p>
+        </div>
+      ) : pageError ? (
+        <div class="rounded-xl border border-red-400/30 bg-red-500/10 px-6 py-12 text-center">
+          <h1 class="text-2xl font-bold text-white">Could not load clan</h1>
+          <p class="mt-2 text-sm text-red-100/80">
+            {pageError === "config" ? "Supabase is not configured." : "Please try again later."}
+          </p>
+        </div>
+      ) : (
+        clan && (
+          <>
+            <header class="mb-8">
+              <h1 class="bg-gradient-to-r from-blue-200 to-purple-200 bg-clip-text text-3xl font-bold text-transparent sm:text-4xl">
+                {clan.name} run history
+              </h1>
+              <p class="mt-2 text-sm text-blue-100/60">
+                Archived clan-only runs for this clan. Anyone can browse this list.
+              </p>
+            </header>
+
+            {listError ? (
+              <p class="rounded-lg border border-red-400/30 bg-red-500/10 px-4 py-3 text-sm text-red-100">
+                {listError}
+              </p>
+            ) : archivedRuns.length === 0 ? (
+              <div class="rounded-xl border border-white/10 bg-white/5 px-6 py-12 text-center backdrop-blur-xl">
+                <p class="text-lg font-medium text-white">No past clan runs</p>
+                <p class="mt-2 text-sm text-blue-100/60">Archived clan runs will show up here.</p>
+              </div>
+            ) : (
+              <ul class="flex flex-col gap-3">
+                {archivedRuns.map((run) => (
+                  <li>
+                    <ActiveRunCard
+                      run={run}
+                      href={
+                        canOpenClanShowcaseRun(run, {
+                          id: user?.id ?? null,
+                          isAdmin,
+                          isClanMember: viewerIsClanMember,
+                          confirmedRunIds: viewerConfirmedRunIds,
+                        })
+                          ? `/runs/${run.id}`
+                          : null
+                      }
+                    />
+                  </li>
+                ))}
+              </ul>
+            )}
+          </>
+        )
+      )
+    }
+  </PageChrome>
+</Layout>

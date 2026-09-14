@@ -22,7 +22,7 @@ import type { Database, Enums, Tables } from "@/types/database";
 export type AppSupabaseClient = SupabaseClient<Database>;
 
 /** Optional custom run title — keeps list/detail cards readable. */
-export const RUN_TITLE_MAX_LENGTH = 100;
+export const RUN_TITLE_MAX_LENGTH = 32;
 
 export type RunMap = Pick<
   Tables<"maps">,
@@ -596,7 +596,10 @@ export const PLAYER_PROFILE_RUN_PREVIEW_LIMIT = 3;
 
 type PlayerPublicRunRpcRow = Database["public"]["Functions"]["list_player_public_runs"]["Returns"][number];
 
-function runRowFromPublicRpc(row: PlayerPublicRunRpcRow): { row: RunRow; confirmedCount: number } {
+function runRowFromPublicRpc(row: PlayerPublicRunRpcRow & { completed_at?: string | null }): {
+  row: RunRow;
+  confirmedCount: number;
+} {
   const map: RunMap | null =
     row.map_id && row.map_name
       ? {
@@ -618,7 +621,7 @@ function runRowFromPublicRpc(row: PlayerPublicRunRpcRow): { row: RunRow; confirm
       starts_at: row.starts_at,
       archived_at: row.archived_at,
       extended_until: row.extended_until,
-      completed_at: null,
+      completed_at: row.completed_at ?? null,
       verified_at: null,
       max_participants: row.max_participants,
       min_points: row.min_points,
@@ -750,6 +753,68 @@ export function canOpenArchivedRunDetail(
   if (!viewer.id) return false;
   if (viewer.isAdmin) return true;
   return viewer.id === run.organizerId || viewer.confirmedRunIds.has(run.id);
+}
+
+export const CLAN_PROFILE_RUN_PREVIEW_LIMIT = PLAYER_PROFILE_RUN_PREVIEW_LIMIT;
+
+/**
+ * Clan-page showcase: `clan_only` runs whose organizer is a current member of `clanId`.
+ * Guests read via `list_clan_runs`. Does not widen comment ACL or archived `/runs/{id}`.
+ */
+export async function listClanRuns(
+  supabase: AppSupabaseClient,
+  clanId: string,
+): Promise<{ active: RunListItem[]; archived: ArchivedRunListItem[] }> {
+  if (!isUuid(clanId)) {
+    return { active: [], archived: [] };
+  }
+
+  const now = Date.now();
+  const { data, error } = await supabase.rpc("list_clan_runs", { p_clan_id: clanId });
+  if (error) {
+    throw new Error(`Failed to list clan runs: ${error.message}`);
+  }
+
+  const rows: RunRow[] = [];
+  const confirmedById = new Map<string, number>();
+  for (const rpcRow of data) {
+    const mapped = runRowFromPublicRpc(rpcRow);
+    rows.push(mapped.row);
+    confirmedById.set(mapped.row.id, mapped.confirmedCount);
+  }
+
+  await attachRunMapsFromJunction(supabase, rows);
+
+  const active = rows
+    .filter((row) => isRunActive(row.starts_at, row.archived_at, row.extended_until, now))
+    .sort((a, b) => Date.parse(a.starts_at) - Date.parse(b.starts_at))
+    .map((row) => mapRunRow(row, confirmedById.get(row.id) ?? 0, now))
+    .filter((run): run is RunDetail => run !== null);
+
+  const archived = rows
+    .filter((row) => !isRunActive(row.starts_at, row.archived_at, row.extended_until, now))
+    .sort((a, b) => Date.parse(b.starts_at) - Date.parse(a.starts_at))
+    .map((row) => mapArchivedRunRow(row, confirmedById.get(row.id) ?? 0, now))
+    .filter((run): run is ArchivedRunDetail => run !== null);
+
+  return { active, archived };
+}
+
+export function canOpenClanShowcaseRun(
+  run: Pick<RunListItem | ArchivedRunListItem, "id" | "organizerId" | "lifecyclePhase">,
+  viewer: {
+    id: string | null;
+    isAdmin: boolean;
+    isClanMember: boolean;
+    confirmedRunIds: ReadonlySet<string>;
+  },
+): boolean {
+  if (!viewer.id) return false;
+  if (viewer.isAdmin) return true;
+  if (run.lifecyclePhase === "archived") {
+    return viewer.id === run.organizerId || viewer.confirmedRunIds.has(run.id);
+  }
+  return viewer.isClanMember || viewer.id === run.organizerId;
 }
 
 /**
