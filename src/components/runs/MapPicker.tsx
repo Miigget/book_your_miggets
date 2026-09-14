@@ -177,12 +177,6 @@ export function MapPicker({
           ))}
         </NativeSelect>
       </div>
-      <p className="text-xs text-blue-100/40">
-        {includeCategoryField
-          ? "Filters the map list. Optional — with no maps, this is stored as the run category."
-          : "Filters the map list."}
-      </p>
-
       <ul
         className={cn(
           "max-h-56 overflow-y-auto rounded-lg border border-white/10 bg-black/20",
@@ -222,9 +216,6 @@ export function MapPicker({
           })
         )}
       </ul>
-      {filtered.length === 40 && (
-        <p className="text-xs text-blue-100/40">Showing first 40 matches — refine search to narrow results.</p>
-      )}
       {displayError && <p className="text-xs text-red-300">{displayError}</p>}
     </div>
   );

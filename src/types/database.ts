@@ -951,6 +951,34 @@ export type Database = {
         Returns: boolean
       }
       is_same_clan: { Args: { a: string; b: string }; Returns: boolean }
+      list_clan_runs: {
+        Args: { p_clan_id: string }
+        Returns: {
+          archived_at: string
+          completed_at: string
+          confirmed_count: number
+          created_at: string
+          extended_until: string
+          id: string
+          join_mode: Database["public"]["Enums"]["join_mode"]
+          map_category: string
+          map_creator: string
+          map_difficulty: string
+          map_id: string
+          map_length: string
+          map_name: string
+          map_points: number
+          map_released_on: string
+          map_stars: string
+          max_participants: number
+          min_points: number
+          organizer_id: string
+          organizer_nickname: string
+          starts_at: string
+          title: string
+          visibility: Database["public"]["Enums"]["run_visibility"]
+        }[]
+      }
       list_player_public_runs: {
         Args: { p_user_id: string }
         Returns: {
@@ -978,6 +1006,7 @@ export type Database = {
           visibility: Database["public"]["Enums"]["run_visibility"]
         }[]
       }
+      run_is_clan_only: { Args: { p_run_id: string }; Returns: boolean }
       run_is_public: { Args: { p_run_id: string }; Returns: boolean }
       set_run_visibility_and_invites: {
         Args: {

@@ -270,7 +270,6 @@ export default function CreateRunForm({
         }}
         placeholder="Leave blank to use map / nickname fallback"
         error={errors.title}
-        hint={<p className="mt-1 text-xs text-blue-100/40">Max {RUN_TITLE_MAX_LENGTH} characters</p>}
         maxLength={RUN_TITLE_MAX_LENGTH}
         icon={<Tag className="size-4" />}
       />
@@ -355,6 +354,89 @@ export default function CreateRunForm({
           </p>
         )}
       </div>
+
+      {canChooseVisibility ? (
+        <div>
+          <label htmlFor="visibility" className="mb-1 block text-sm text-blue-100/80">
+            Visibility
+          </label>
+          <NativeSelect
+            id="visibility"
+            name="visibility"
+            value={visibility}
+            onChange={(e) => {
+              setVisibility(e.target.value as CreateRunFormVisibility);
+              if (errors.invitee_ids) setErrors((prev) => ({ ...prev, invitee_ids: undefined }));
+            }}
+            className={selectClass}
+          >
+            <option value="public" className="bg-slate-900">
+              Public
+            </option>
+            <option value="friends_only" className="bg-slate-900">
+              Friends only
+            </option>
+            <option value="invite_only" className="bg-slate-900">
+              Invite only
+            </option>
+            {showClanOnlyOption && (
+              <option value="clan_only" className="bg-slate-900">
+                Clan only
+              </option>
+            )}
+          </NativeSelect>
+          <p className="mt-1 text-xs text-blue-100/50">
+            {visibility === "clan_only"
+              ? "Only current members of your clan can find this run."
+              : visibility === "friends_only"
+                ? "Only your current friends can find this run."
+                : visibility === "invite_only"
+                  ? "Only the friends you pick can find this run."
+                  : "Anyone can find this run on the public list."}
+          </p>
+        </div>
+      ) : (
+        <input type="hidden" name="visibility" value="public" />
+      )}
+
+      {showInvitePicker && (
+        <fieldset>
+          <legend className="mb-1 block text-sm text-blue-100/80">Invitees</legend>
+          {friends.length === 0 ? (
+            <p className="text-sm text-blue-100/50">Pick at least one friend. You have no friends to invite yet.</p>
+          ) : (
+            <ul className="space-y-2 rounded-lg border border-white/10 bg-white/5 px-3 py-2">
+              {friends.map((friend) => {
+                const checked = selectedInviteeIds.has(friend.id);
+                return (
+                  <li key={friend.id}>
+                    <label className="flex cursor-pointer items-center gap-2 text-sm text-white">
+                      <input
+                        type="checkbox"
+                        name="invitee_ids"
+                        value={friend.id}
+                        checked={checked}
+                        onChange={(e) => {
+                          setSelectedInviteeIds((prev) => {
+                            const next = new Set(prev);
+                            if (e.target.checked) next.add(friend.id);
+                            else next.delete(friend.id);
+                            return next;
+                          });
+                          if (errors.invitee_ids) setErrors((prev) => ({ ...prev, invitee_ids: undefined }));
+                        }}
+                        className="size-4 rounded border-white/30 bg-white/10 text-purple-400 focus:ring-purple-400"
+                      />
+                      <span>{friend.nickname ?? "Unknown player"}</span>
+                    </label>
+                  </li>
+                );
+              })}
+            </ul>
+          )}
+          {errors.invitee_ids && <p className="mt-1 text-xs text-red-300">{errors.invitee_ids}</p>}
+        </fieldset>
+      )}
 
       <details
         className="group rounded-xl border border-white/10 bg-white/5 px-4 py-3"
@@ -450,89 +532,6 @@ export default function CreateRunForm({
           </div>
         </div>
       </details>
-
-      {canChooseVisibility ? (
-        <div>
-          <label htmlFor="visibility" className="mb-1 block text-sm text-blue-100/80">
-            Visibility
-          </label>
-          <NativeSelect
-            id="visibility"
-            name="visibility"
-            value={visibility}
-            onChange={(e) => {
-              setVisibility(e.target.value as CreateRunFormVisibility);
-              if (errors.invitee_ids) setErrors((prev) => ({ ...prev, invitee_ids: undefined }));
-            }}
-            className={selectClass}
-          >
-            <option value="public" className="bg-slate-900">
-              Public
-            </option>
-            <option value="friends_only" className="bg-slate-900">
-              Friends only
-            </option>
-            <option value="invite_only" className="bg-slate-900">
-              Invite only
-            </option>
-            {showClanOnlyOption && (
-              <option value="clan_only" className="bg-slate-900">
-                Clan only
-              </option>
-            )}
-          </NativeSelect>
-          <p className="mt-1 text-xs text-blue-100/50">
-            {visibility === "clan_only"
-              ? "Only current members of your clan can find this run."
-              : visibility === "friends_only"
-                ? "Only your current friends can find this run."
-                : visibility === "invite_only"
-                  ? "Only the friends you pick can find this run."
-                  : "Anyone can find this run on the public list."}
-          </p>
-        </div>
-      ) : (
-        <input type="hidden" name="visibility" value="public" />
-      )}
-
-      {showInvitePicker && (
-        <fieldset>
-          <legend className="mb-1 block text-sm text-blue-100/80">Invitees</legend>
-          {friends.length === 0 ? (
-            <p className="text-sm text-blue-100/50">Pick at least one friend. You have no friends to invite yet.</p>
-          ) : (
-            <ul className="space-y-2 rounded-lg border border-white/10 bg-white/5 px-3 py-2">
-              {friends.map((friend) => {
-                const checked = selectedInviteeIds.has(friend.id);
-                return (
-                  <li key={friend.id}>
-                    <label className="flex cursor-pointer items-center gap-2 text-sm text-white">
-                      <input
-                        type="checkbox"
-                        name="invitee_ids"
-                        value={friend.id}
-                        checked={checked}
-                        onChange={(e) => {
-                          setSelectedInviteeIds((prev) => {
-                            const next = new Set(prev);
-                            if (e.target.checked) next.add(friend.id);
-                            else next.delete(friend.id);
-                            return next;
-                          });
-                          if (errors.invitee_ids) setErrors((prev) => ({ ...prev, invitee_ids: undefined }));
-                        }}
-                        className="size-4 rounded border-white/30 bg-white/10 text-purple-400 focus:ring-purple-400"
-                      />
-                      <span>{friend.nickname ?? "Unknown player"}</span>
-                    </label>
-                  </li>
-                );
-              })}
-            </ul>
-          )}
-          {errors.invitee_ids && <p className="mt-1 text-xs text-red-300">{errors.invitee_ids}</p>}
-        </fieldset>
-      )}
 
       <ServerError message={serverError} />
 
