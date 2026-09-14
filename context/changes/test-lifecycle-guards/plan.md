@@ -293,23 +293,23 @@ None. No schema, no data backfill. Existing CI secrets unchanged.
 
 #### Automated
 
-- [x] 2.1 countAudienceActiveRunsForOrganizer returns countActiveFromRows(data, now)
-- [x] 2.2 mapRunRow uses toActiveLifecyclePhaseOrNull for the null/phase gate
-- [x] 2.3 npm test exits 0 for A–E, equality clocks, 5-cap B-recent + F, list-gate B-recent
-- [x] 2.4 npm run lint passes on new/changed TS files
+- [x] 2.1 countAudienceActiveRunsForOrganizer returns countActiveFromRows(data, now) — 9eb0707
+- [x] 2.2 mapRunRow uses toActiveLifecyclePhaseOrNull for the null/phase gate — 9eb0707
+- [x] 2.3 npm test exits 0 for A–E, equality clocks, 5-cap B-recent + F, list-gate B-recent — 9eb0707
+- [x] 2.4 npm run lint passes on new/changed TS files — 9eb0707
 
 #### Manual
 
-- [x] 2.5 Sabotage isRunActive always-true fails Risk #1 tests; revert
+- [x] 2.5 Sabotage isRunActive always-true fails Risk #1 tests; revert — 9eb0707
 
 ### Phase 3: CI gate and agent docs
 
 #### Automated
 
-- [ ] 3.1 ci.yml runs npm test after lint and before build
-- [ ] 3.2 AGENTS.md Commands lists npm test; do-not-assume-Vitest sentence removed
-- [ ] 3.3 test-plan.md §6.1 documents co-locate, frozen now, and fixture-B-recent
+- [x] 3.1 ci.yml runs npm test after lint and before build
+- [x] 3.2 AGENTS.md Commands lists npm test; do-not-assume-Vitest sentence removed
+- [x] 3.3 test-plan.md §6.1 documents co-locate, frozen now, and fixture-B-recent
 
 #### Manual
 
-- [ ] 3.4 AGENTS + §6.1 are enough to add the next unit without this plan
+- [x] 3.4 AGENTS + §6.1 are enough to add the next unit without this plan
