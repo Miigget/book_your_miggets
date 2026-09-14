@@ -1,0 +1,19 @@
+{
+  "version": 1,
+  "hooks": {
+    "afterFileEdit": [
+      {
+        "command": ".cursor/hooks/eslint-fix.sh",
+        "timeout": 25
+      },
+      {
+        "command": ".cursor/hooks/typecheck.sh",
+        "timeout": 30
+      },
+      {
+        "command": ".cursor/hooks/vitest-related.sh",
+        "timeout": 30
+      }
+    ]
+  }
+}

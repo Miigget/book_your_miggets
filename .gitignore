@@ -27,13 +27,29 @@ pnpm-debug.log*
 # jetbrains setting folder
 .idea/
 
-# Cursor local state (keep durable workflow rule tracked)
+# Cursor local state (keep durable workflow rule + M3L3 agent hooks tracked)
 .cursor/*
 !.cursor/rules/
 !.cursor/rules/gh-workflow.mdc
+!.cursor/hooks.json
+!.cursor/hooks/
+!.cursor/hooks/**
+.cursor/hooks/claude-code.example.json
+.cursor/rules/10x-course.mdc
+
+# 10x lesson markdown dumps (local study copies; not product docs)
+10x-devs_lessons/
 
 # Local Wrangler/Astro secrets (incl. backups)
 .dev.vars.*
 
 # Supabase Studio local SQL scratch files
 supabase/snippets/
+
+# Playwright
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
+/playwright/.auth/
+.playwright-cli/
