@@ -69,11 +69,11 @@ const labelClass = "mb-1 block text-sm text-blue-100/80";
 
     <div
       id="run-list-filters-extra"
-      class="col-span-full grid grid-rows-[0fr] data-[open=true]:grid-rows-[1fr]"
+      class="group col-span-full grid grid-rows-[0fr] data-[open=true]:grid-rows-[1fr]"
       data-open={extraFiltersActive ? "true" : "false"}
       inert={!extraFiltersActive ? true : undefined}
     >
-      <div class="min-h-0 overflow-hidden">
+      <div class="min-h-0 overflow-hidden px-1 group-data-[open=true]:overflow-visible">
         <div class="grid grid-cols-1 gap-3 pt-3 sm:grid-cols-2">
           <div>
             <label for="filter-date" class:list={[labelClass]}>Date</label>

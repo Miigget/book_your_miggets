@@ -275,7 +275,12 @@ const pageTitle = profile ? `${displayNickname} — Admin — Book Your Miggets`
                             style={`background-color: ${label.color}`}
                             aria-hidden="true"
                           />
-                          <span class="text-sm text-white">{label.name}</span>
+                          <span class="min-w-0">
+                            <span class="block text-sm text-white">{label.name}</span>
+                            {label.description ? (
+                              <span class="mt-0.5 block text-xs text-blue-100/50">{label.description}</span>
+                            ) : null}
+                          </span>
                         </label>
                       </li>
                     ))}

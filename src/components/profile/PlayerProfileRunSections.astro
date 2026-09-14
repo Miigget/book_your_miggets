@@ -1,5 +1,6 @@
 ---
 import RunPreviewCard from "@/components/runs/RunPreviewCard.astro";
+import RunPreviewGrid from "@/components/runs/RunPreviewGrid.astro";
 import { canOpenArchivedRunDetail, type ArchivedRunListItem, type RunListItem } from "@/lib/services/runs";
 
 interface Props {
@@ -26,11 +27,11 @@ const { incoming, recent, loadError = null, viewerId, viewerIsAdmin, viewerConfi
         {incoming.length === 0 ? (
           <p class="text-sm text-blue-100/60">No incoming runs.</p>
         ) : (
-          <div class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+          <RunPreviewGrid>
             {incoming.map((run) => (
               <RunPreviewCard run={run} />
             ))}
-          </div>
+          </RunPreviewGrid>
         )}
       </section>
 
@@ -41,7 +42,7 @@ const { incoming, recent, loadError = null, viewerId, viewerIsAdmin, viewerConfi
         {recent.length === 0 ? (
           <p class="text-sm text-blue-100/60">No recent runs.</p>
         ) : (
-          <div class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+          <RunPreviewGrid>
             {recent.map((run) => (
               <RunPreviewCard
                 run={run}
@@ -56,7 +57,7 @@ const { incoming, recent, loadError = null, viewerId, viewerIsAdmin, viewerConfi
                 }
               />
             ))}
-          </div>
+          </RunPreviewGrid>
         )}
       </section>
     </>

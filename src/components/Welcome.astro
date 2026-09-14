@@ -1,6 +1,8 @@
 ---
 import PageChrome from "@/components/PageChrome.astro";
 import RunPreviewCard from "@/components/runs/RunPreviewCard.astro";
+import RunPreviewGrid from "@/components/runs/RunPreviewGrid.astro";
+import RunPreviewShell from "@/components/runs/RunPreviewShell.astro";
 import { createClient } from "@/lib/supabase";
 import { listActiveRuns } from "@/lib/services/runs";
 
@@ -202,7 +204,7 @@ if (supabase) {
   </section>
 
   <section class="px-4 py-16">
-    <div class="mx-auto max-w-6xl">
+    <RunPreviewShell>
       <div class="mb-8 flex items-center justify-between">
         <h2 class="text-2xl font-bold text-white">
           Recent <span class="text-purple-300">Runs</span>
@@ -213,13 +215,13 @@ if (supabase) {
         recentRuns.length === 0 ? (
           <p class="text-sm text-blue-100/60">No active runs yet. Be the first to post one.</p>
         ) : (
-          <div class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+          <RunPreviewGrid>
             {recentRuns.map((run) => (
               <RunPreviewCard run={run} />
             ))}
-          </div>
+          </RunPreviewGrid>
         )
       }
-    </div>
+    </RunPreviewShell>
   </section>
 </PageChrome>

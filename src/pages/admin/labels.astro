@@ -116,6 +116,20 @@ const swatchLabelClass = cn(
                   class:list={[fieldClass]}
                 />
               </div>
+              <div>
+                <label for="create-label-description" class:list={[labelClass]}>
+                  Note
+                </label>
+                <textarea
+                  id="create-label-description"
+                  name="description"
+                  maxlength="160"
+                  rows="2"
+                  placeholder="this player has been an active member of the community for more than 5 years"
+                  class:list={[fieldClass, "min-h-16 resize-y"]}
+                />
+                <p class="mt-1 text-xs text-blue-100/40">Optional. Shown as a tooltip on the public profile chip.</p>
+              </div>
               <fieldset>
                 <legend class:list={[labelClass]}>Color</legend>
                 <div class="mt-2 flex flex-wrap gap-2">
@@ -181,6 +195,16 @@ const swatchLabelClass = cn(
                           value={label.name}
                           class:list={[fieldClass]}
                         />
+                      </div>
+                      <div>
+                        <label for={`edit-description-${label.id}`} class:list={[labelClass]}>
+                          Note
+                        </label>
+                        {/* prettier-ignore */}
+                        <textarea id={`edit-description-${label.id}`} name="description" maxlength="160" rows="2" placeholder="this player has finished a map as the first in the whole world!" class:list={[fieldClass, "min-h-16 resize-y"]}>{label.description ?? ""}</textarea>
+                        <p class="mt-1 text-xs text-blue-100/40">
+                          Optional. Shown as a tooltip on the public profile chip.
+                        </p>
                       </div>
                       <fieldset>
                         <legend class:list={[labelClass]}>Color</legend>
