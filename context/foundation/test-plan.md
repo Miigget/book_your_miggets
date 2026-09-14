@@ -29,7 +29,7 @@ Tests follow three non-negotiable principles for this project:
 
 Hot-spot scope used for likelihood weighting: `src` (92 commits / 30d). Highest churn directories: `src/pages`, `src/components/runs`, `src/pages/api`, `src/pages/runs`, `src/lib/services`.
 
-The product has Vitest for unit tests (`npm test`). Phase 1 defends Risk #1. Later phases add join/create guards, restricted-run ACL, then a short e2e smoke — not an admin Playwright suite.
+The product has Vitest for unit tests (`npm test`). Phase 1 (archived) defends Risk #1. Later phases add join/create guards, restricted-run ACL, then a short e2e smoke — not an admin Playwright suite. M3L4 landed a guest Playwright smoke for #6 and #2 outside those phase folders.
 
 ## 2. Risk Map
 
@@ -66,7 +66,7 @@ orchestrator updates Status as artifacts appear on disk.
 
 | #   | Phase name             | Goal (one line)                                                                                         | Risks covered | Test types                                                        | Status        | Change folder         |
 | --- | ---------------------- | ------------------------------------------------------------------------------------------------------- | ------------- | ----------------------------------------------------------------- | ------------- | --------------------- |
-| 1   | Critical-path coverage | Install Vitest, prove Risk #1 (archived / expired-extend is not audience-active), wire `npm test` in CI | #1            | unit + CI gate                                                    | change opened | test-lifecycle-guards |
+| 1   | Critical-path coverage | Install Vitest, prove Risk #1 (archived / expired-extend is not audience-active), wire `npm test` in CI | #1            | unit + CI gate                                                    | archived      | test-lifecycle-guards |
 | 2   | Join and create guards | Prove auto-join band vs pending, and that create/edit API repeats capacity and schedule guards          | #3, #4        | unit + hermetic integration                                       | not started   | —                     |
 | 3   | Restricted-run ACL     | Prove guest/stranger gets not-found for friends/invite/clan runs, not a body or 403                     | #2            | HTTP integration (e2e only if research says the page is the seam) | not started   | —                     |
 | 4   | Session smoke          | Prove complete-freeze (#5) and unauthenticated dashboard/new-run redirect (#6). Short suite only        | #5, #6        | integration + thin e2e                                            | not started   | —                     |
@@ -78,22 +78,22 @@ Phase 1 is the Builder certificate bar (named risk ↔ real test). Phases 2–4 
 The classic test base for this project. AI-native tools (if any) carry a
 `checked:` date so future readers can see which lines need re-verification.
 
-| Layer              | Tool       | Version                                       | Notes                                                                                                           |
-| ------------------ | ---------- | --------------------------------------------- | --------------------------------------------------------------------------------------------------------------- |
-| unit + integration | Vitest     | `npm test` (`vitest run`, `vitest.config.ts`) | Astro 7 SSR; `getViteConfig()` from `astro/config`. Script is `vitest run` so CI does not hang in watch mode    |
-| API mocking        | none yet   | —                                             | Prefer hermetic fixtures over mocking internals. Add a network-edge mock only if Phase 2/3 research requires it |
-| e2e                | Playwright | none yet — see Phase 4                        | Optional after ACL. `webServer` on `astro dev`. No layout snapshots                                             |
-| accessibility      | none       | —                                             | Not in this rollout                                                                                             |
-| AI-native          | not in v1  | n/a                                           | Cursor browser MCP exists; do not put a vision model on lifecycle or ACL assertions                             |
+| Layer              | Tool       | Version                                       | Notes                                                                                                                                                |
+| ------------------ | ---------- | --------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
+| unit + integration | Vitest     | `npm test` (`vitest run`, `vitest.config.ts`) | Astro 7 SSR; `getViteConfig()` from `astro/config`. Script is `vitest run` so CI does not hang in watch mode                                         |
+| API mocking        | none yet   | —                                             | Prefer hermetic fixtures over mocking internals. Add a network-edge mock only if Phase 2/3 research requires it                                      |
+| e2e                | Playwright | `@playwright/test` + `playwright.config.ts`   | `npm run test:e2e` (chromium guests). `webServer` = `npm run dev` at :4321. `storageState` via `test:e2e:setup`. No layout snapshots, no admin suite |
+| accessibility      | none       | —                                             | Not in this rollout                                                                                                                                  |
+| AI-native          | not in v1  | n/a                                           | Cursor browser MCP exists; do not put a vision model on lifecycle or ACL assertions                                                                  |
 
 **Stack grounding tools (current session):**
 
-- Docs: Context7 (`/withastro/docs`, `/vitest-dev/vitest`) — confirmed Astro `getViteConfig()` + Vitest `test` script; checked: 2026-09-14
+- Docs: Context7 (`/withastro/docs`, `/vitest-dev/vitest`, `/microsoft/playwright.dev`) — Astro `getViteConfig()` + Vitest `test` script; Playwright `webServer` / `storageState` / `getByRole`; Astro `astro dev` default port **4321** (not lesson :3000); checked: 2026-09-14
 - Search: not available in current session; checked: 2026-09-14
 - Runtime/browser: Cursor IDE browser MCP — possible later verification of e2e flows; not used for Phase 1; checked: 2026-09-14
 - Provider/platform: Supabase MCP ready (not used for this plan); Cloudflare docs MCP ready; Cloudflare account MCP needsAuth; checked: 2026-09-14
 
-Test-base profile: **Vitest unit** (`vitest.config.ts`, co-located `*.test.ts`, `npm test` in CI after lint and before build). Playwright is not in this rollout until a `playwright.config.ts` exists.
+Test-base profile: **Vitest unit** (`vitest.config.ts`, co-located `*.test.ts`, `npm test` in CI after lint and before build) plus a **short Playwright guest suite** (`npm run test:e2e`, not wired to CI yet).
 
 ## 5. Quality Gates
 
@@ -104,11 +104,12 @@ phase lands; before that, the gate is `planned`.
 | Gate                               | Where                                   | Required?                 | Catches                                                                               |
 | ---------------------------------- | --------------------------------------- | ------------------------- | ------------------------------------------------------------------------------------- |
 | lint                               | local (Husky + lint-staged) + CI        | required now              | syntactic / lint drift                                                                |
+| per-edit lint + typecheck          | `.cursor/hooks.json` `afterFileEdit`    | required now (M3L3)       | lint/`--fix` on the edited file; `tsc` exit 2 only when that file has type errors     |
 | unit                               | local + CI                              | required after §3 Phase 1 | Risk #1 regressions; later phases add more unit/integration files to the same command |
 | HTTP integration / thin e2e on ACL | local + CI when the suite is short      | required after §3 Phase 3 | restricted-run leak (body or 403)                                                     |
 | thin e2e session smoke             | CI on PR when suite is short and stable | required after §3 Phase 4 | completed-run mutations; unauthenticated dashboard                                    |
 
-No visual-diff gate (interview Q5). No per-edit agent hooks in this rollout (existing pre-commit lint is enough for v1).
+No visual-diff gate (interview Q5). Per-edit hooks run ESLint `--fix` and a filtered `tsc --noEmit` after each agent edit; `vitest related` only on `run-lifecycle` / `run-limits`. Full-project `tsc` is not a pre-commit gate (the project still has unrelated type errors).
 
 ## 6. Cookbook Patterns
 
@@ -132,7 +133,13 @@ TBD — see §3 Phase 2 for join-band and create/edit API guard patterns.
 
 ### 6.3 Adding an e2e test
 
-TBD — see §3 Phase 4. Not for admin screens or layout snapshots.
+Put one spec per file under `e2e/<risk>.spec.ts`. Command: `npm run test:e2e` (`playwright test --project=chromium`). Do **not** add Playwright to `npm test` (that stays Vitest). Model new specs on `e2e/seed.spec.ts`: `getByRole`, `expect(page).toHaveURL` / `toBeVisible` (never `waitForTimeout`), unique ids (`Date.now()` / `crypto.randomUUID()`), cleanup, name = the risk from §2.
+
+`playwright.config.ts` `webServer` runs `npm run dev` and waits for `http://localhost:4321`. Guest chromium must **not** load `storageState` — that would hide Risk #6. Save a session with `npm run test:e2e:setup` (sign-in is `/auth/signin`, not `/login`) into `playwright/.auth/` (gitignored).
+
+Current guest specs: Risk #6 (`e2e/seed.spec.ts`) — unauthenticated `/dashboard` and `/runs/new` redirect to sign-in while `/runs` stays public. Risk #2 (`e2e/restricted-run-not-found.spec.ts`) — guest GET of a friends-only run is the same 404 + “Run not found” as a missing UUID, never 403 or the unique title. #2 inserts/deletes a local-Postgres fixture (`E2E_DATABASE_URL` defaults to local `54322`).
+
+Do not Playwright admin screens, layout snapshots, or Risks #1 / #3 / #4 / #5 (unit/integration). Do not add E2E to CI until this suite stays short and green.
 
 ### 6.4 Adding a test for a new API mutation
 
@@ -140,11 +147,13 @@ TBD — see §3 Phase 2. Prefer the shared guard or service boundary over a full
 
 ### 6.5 Adding a test for a visibility/ACL failure
 
-TBD — see §3 Phase 3 for the not-found-vs-body pattern.
+Guest hide for Risk #2 is the thin e2e in §6.3 (`e2e/restricted-run-not-found.spec.ts`): same 404 + “Run not found” as a missing id, never 403 or body. HTTP integration for §3 Phase 3 is still TBD.
 
 ### 6.6 Per-rollout-phase notes
 
 (Optional. After each phase lands, /10x-implement appends a 2–3 line note here.)
+
+- 2026-09-14 M3L4: Playwright guest suite for Risks #6 and #2 (`e2e/seed.spec.ts`, `e2e/restricted-run-not-found.spec.ts`). Rollout phases 2–4 in §3 stay unopened — this is lesson smoke, not Phase 3/4 change folders. Not in CI.
 
 ## 7. What We Deliberately Don't Test
 

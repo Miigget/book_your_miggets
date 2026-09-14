@@ -26,7 +26,9 @@ Book Your Miggets is a Team Finder / Run Scheduler for TeeWorlds gores. Stack: A
 - `npm run dev` — local server (Cloudflare workerd)
 - `npm run build` / `npm run preview` — production build and preview
 - `npm run lint` / `npm run lint:fix` — ESLint with type-checked rules
-- `npm test` — Vitest (`vitest.config.ts`), `vitest run` (not watch)
+- `npm test` — Vitest (`vitest.config.ts`), `vitest run` (not watch). Does **not** run Playwright.
+- `npm run test:e2e` — Playwright chromium guest suite (`playwright.config.ts`, `e2e/*.spec.ts`). `webServer` is `npm run dev` on **http://localhost:4321** (Astro default; lesson examples use :3000).
+- `npm run test:e2e:setup` — save cookie `storageState` from `/auth/signin` (not `/login`) to `playwright/.auth/user.json` (gitignored). Guest specs must not load it.
 - `npm run format` — Prettier (Astro + Tailwind plugins)
 - Use Node `22.14.0` (`@.nvmrc`). Pre-commit (husky + lint-staged in `@package.json`): `eslint --fix` on `*.{ts,tsx,astro}`; Prettier on `*.{json,css,md}`.
 
@@ -36,11 +38,22 @@ Book Your Miggets is a Team Finder / Run Scheduler for TeeWorlds gores. Stack: A
 - Path alias `@/*` → `./src/*` (`@tsconfig.json`).
 - Add shadcn components with `npx shadcn@latest add <name>` into `src/components/ui/`.
 
+## E2E Testing Rules
+
+- Use `getByRole`, `getByLabel`, `getByText` as primary locators. Fall back to `getByTestId` only when accessibility attributes are ambiguous.
+- Never use CSS selectors, XPath, or DOM structure for locating elements.
+- Each test must be independently runnable — no shared state between tests.
+- Never use `page.waitForTimeout()`. Wait for specific conditions: `toBeVisible()`, `toHaveURL()`, `waitForResponse()`.
+- Assert the business outcome, not implementation details. Name the test after the risk in `context/foundation/test-plan.md`.
+- Use unique identifiers (e.g. timestamp suffix) for test data. Clean up in the spec or `afterEach`.
+- Use `storageState` for authentication — never log in through the UI in individual tests. Guest risks (#6, #2) must run **without** `storageState`.
+- Do not add a Playwright suite for admin screens or layout snapshots.
+
 ## Commits & CI
 
 - Commit style is not established yet (history is scaffold-only); prefer short imperative subjects.
 - CI (`@.github/workflows/ci.yml`) runs `astro sync`, `npm run lint`, `npm test`, and `npm run build` on push/PR to `main`. Build requires repository secrets `SUPABASE_URL` and `SUPABASE_KEY`.
-- Tests: `npm test` runs Vitest (`vitest.config.ts`). Co-locate unit tests next to the module as `*.test.ts`. Do not add Playwright until a `playwright.config.ts` exists. CI runs `npm test` after lint and before build.
+- Tests: `npm test` runs Vitest (`vitest.config.ts`). Co-locate unit tests next to the module as `*.test.ts`. Playwright E2E is `npm run test:e2e` (`e2e/*.spec.ts`) — never replace `npm test`. Guest chromium does not load `storageState`. CI runs `npm test` after lint and before build; E2E is not a CI job yet.
 - Agent git/issues/release: rule `@.cursor/rules/gh-workflow.mdc` + personal skills `gh-issues` / `gh-ship` / `gh-release` / `gh-roadmap-sync` / `gh-change-sync`; board IDs in `@.github/agent-workflow.yml`. Issues in English; type + 10x roadmap labels; `change` label for `context/changes/<id>` (sync via `/gh-change-sync`). After `/10x-roadmap`, ask before syncing to Kanban (`/gh-roadmap-sync`). After `/10x-new` / plan / implement / archive milestones, run `gh-change-sync`. Production: `/gh-release` (tag `v*`). Do not patch `.cursor/skills/10x-*` for this — `10x get` overwrites them.
 
 ## Auth & Deploy

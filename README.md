@@ -2,6 +2,14 @@
 
 Team Finder / Run Scheduler for gores
 
+## Testing
+
+- `npm test` — Vitest (`vitest run`). Covers test-plan Risk #1 (archived / expired-extend is not audience-active) in `src/lib/run-lifecycle.test.ts`. CI runs this after lint and before build.
+- `npm run test:e2e` — Playwright chromium guests. Risk #6 (unauthenticated `/dashboard` and `/runs/new` redirect to sign-in; `/runs` stays public) and Risk #2 (guest GET of a friends-only run is the same 404 as a missing id). Not a CI job. `webServer` is `npm run dev` on http://localhost:4321. Risk #2 needs local Postgres (`E2E_DATABASE_URL`, default `postgresql://postgres:postgres@127.0.0.1:54322/postgres`).
+- `npm run test:e2e:setup` — optional cookie `storageState` from `/auth/signin` into `playwright/.auth/` (gitignored). Guest specs must not load it.
+
+See `context/foundation/test-plan.md` for risks, phases, and cookbook. Agent rules: `AGENTS.md`.
+
 ## Profile
 
 Signed-in members open **Profile** in the top bar (`/profile`) to manage nickname, email, password, and self-reported KoG points. The top bar shows nickname (or “Set nickname”), never email. Email stays off public pages.

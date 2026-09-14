@@ -70,7 +70,7 @@ interface AudienceActiveClockRow {
   extended_until: string | Date | null | undefined;
 }
 
-/** Count of audience-active rows; extra fields such as `completed_at` are ignored. */
+/** Count of audience-active rows. Extra fields such as `completed_at` are ignored. */
 export function countActiveFromRows(rows: readonly AudienceActiveClockRow[], now?: Date | number): number {
   return rows.filter((row) => isRunActive(row.starts_at, row.archived_at, row.extended_until, now)).length;
 }
