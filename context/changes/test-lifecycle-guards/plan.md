@@ -306,10 +306,10 @@ None. No schema, no data backfill. Existing CI secrets unchanged.
 
 #### Automated
 
-- [x] 3.1 ci.yml runs npm test after lint and before build
-- [x] 3.2 AGENTS.md Commands lists npm test; do-not-assume-Vitest sentence removed
-- [x] 3.3 test-plan.md §6.1 documents co-locate, frozen now, and fixture-B-recent
+- [x] 3.1 ci.yml runs npm test after lint and before build — 231d7a5
+- [x] 3.2 AGENTS.md Commands lists npm test; do-not-assume-Vitest sentence removed — 231d7a5
+- [x] 3.3 test-plan.md §6.1 documents co-locate, frozen now, and fixture-B-recent — 231d7a5
 
 #### Manual
 
-- [x] 3.4 AGENTS + §6.1 are enough to add the next unit without this plan
+- [x] 3.4 AGENTS + §6.1 are enough to add the next unit without this plan — 231d7a5

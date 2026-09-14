@@ -1,7 +1,7 @@
 ---
 change_id: test-lifecycle-guards
 title: Install Vitest and prove archived or expired-extend is not audience-active
-status: implementing
+status: implemented
 created: 2026-09-14
 updated: 2026-09-14
 archived_at: null
