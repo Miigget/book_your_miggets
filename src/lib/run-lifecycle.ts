@@ -63,3 +63,26 @@ export function getRunLifecyclePhase(
   if (t < start) return "upcoming";
   return "in_progress";
 }
+
+interface AudienceActiveClockRow {
+  starts_at: string | Date;
+  archived_at: string | Date | null | undefined;
+  extended_until: string | Date | null | undefined;
+}
+
+/** Count of audience-active rows; extra fields such as `completed_at` are ignored. */
+export function countActiveFromRows(rows: readonly AudienceActiveClockRow[], now?: Date | number): number {
+  return rows.filter((row) => isRunActive(row.starts_at, row.archived_at, row.extended_until, now)).length;
+}
+
+/** Active-list gate: `null` when not audience-active, otherwise upcoming or in_progress. */
+export function toActiveLifecyclePhaseOrNull(
+  startsAt: string | Date,
+  archivedAt: string | Date | null | undefined,
+  extendedUntil: string | Date | null | undefined,
+  now?: Date | number,
+): ActiveRunLifecyclePhase | null {
+  const phase = getRunLifecyclePhase(startsAt, archivedAt, extendedUntil, now);
+  if (phase === "archived") return null;
+  return phase;
+}

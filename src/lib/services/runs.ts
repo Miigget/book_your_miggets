@@ -1,8 +1,9 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import {
   audienceActiveOrFilter,
-  getRunLifecyclePhase,
+  countActiveFromRows,
   isRunActive,
+  toActiveLifecyclePhaseOrNull,
   type ActiveRunLifecyclePhase,
 } from "@/lib/run-lifecycle";
 import {
@@ -251,9 +252,8 @@ function runFieldsFromRow(row: RunRow, confirmedCount: number) {
 }
 
 function mapRunRow(row: RunRow, confirmedCount = 0, now = Date.now()): RunDetail | null {
-  if (!isRunActive(row.starts_at, row.archived_at, row.extended_until, now)) return null;
-  const phase = getRunLifecyclePhase(row.starts_at, row.archived_at, row.extended_until, now);
-  if (phase === "archived") return null;
+  const phase = toActiveLifecyclePhaseOrNull(row.starts_at, row.archived_at, row.extended_until, now);
+  if (phase === null) return null;
 
   return { ...runFieldsFromRow(row, confirmedCount), lifecyclePhase: phase };
 }
@@ -1427,7 +1427,7 @@ export async function countAudienceActiveRunsForOrganizer(
     throw new Error(`Failed to count active runs: ${error.message}`);
   }
 
-  return data.filter((row) => isRunActive(row.starts_at, row.archived_at, row.extended_until, now)).length;
+  return countActiveFromRows(data, now);
 }
 
 const BANNED_RUN_MUTATION_MESSAGE = "Your account is banned";

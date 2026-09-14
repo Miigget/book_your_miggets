@@ -281,26 +281,26 @@ None. No schema, no data backfill. Existing CI secrets unchanged.
 
 #### Automated
 
-- [x] 1.1 vitest.config.ts default-exports getViteConfig from astro/config
-- [x] 1.2 package.json test script is vitest run and vitest is a devDependency
-- [x] 1.3 package-lock.json includes vitest
+- [x] 1.1 vitest.config.ts default-exports getViteConfig from astro/config — f0bccf8
+- [x] 1.2 package.json test script is vitest run and vitest is a devDependency — f0bccf8
+- [x] 1.3 package-lock.json includes vitest — f0bccf8
 
 #### Manual
 
-- [x] 1.4 npx vitest run starts against this config (no-test-files exit OK until Phase 2)
+- [x] 1.4 npx vitest run starts against this config (no-test-files exit OK until Phase 2) — f0bccf8
 
 ### Phase 2: Extract seams and pin Risk #1
 
 #### Automated
 
-- [ ] 2.1 countAudienceActiveRunsForOrganizer returns countActiveFromRows(data, now)
-- [ ] 2.2 mapRunRow uses toActiveLifecyclePhaseOrNull for the null/phase gate
-- [ ] 2.3 npm test exits 0 for A–E, equality clocks, 5-cap B-recent + F, list-gate B-recent
-- [ ] 2.4 npm run lint passes on new/changed TS files
+- [x] 2.1 countAudienceActiveRunsForOrganizer returns countActiveFromRows(data, now)
+- [x] 2.2 mapRunRow uses toActiveLifecyclePhaseOrNull for the null/phase gate
+- [x] 2.3 npm test exits 0 for A–E, equality clocks, 5-cap B-recent + F, list-gate B-recent
+- [x] 2.4 npm run lint passes on new/changed TS files
 
 #### Manual
 
-- [ ] 2.5 Sabotage isRunActive always-true fails Risk #1 tests; revert
+- [x] 2.5 Sabotage isRunActive always-true fails Risk #1 tests; revert
 
 ### Phase 3: CI gate and agent docs
 
