@@ -9,14 +9,22 @@ const UNKNOWN_PLAYER = "Unknown player";
 const LABEL_MISSING = "Label not found";
 const BLANK_NAME = "Label name is required";
 const NAME_TOO_LONG = "Label name must be 24 characters or fewer";
+const DESCRIPTION_TOO_LONG = "Label note must be 160 characters or fewer";
 const INVALID_COLOR = "Pick a color from the palette";
 
 const MAX_NAME_LENGTH = 24;
+const MAX_DESCRIPTION_LENGTH = 160;
+const LABEL_COLUMNS = "id, name, color, description" as const;
 
 export interface PlayerLabel {
   id: string;
   name: string;
   color: string;
+  description: string | null;
+}
+
+function mapLabel(row: { id: string; name: string; color: string; description: string | null }): PlayerLabel {
+  return { id: row.id, name: row.name, color: row.color, description: row.description };
 }
 
 function isUniqueViolation(error: { code?: string }): boolean {
@@ -34,6 +42,13 @@ export function parseLabelName(raw: string): string {
   return name;
 }
 
+export function parseLabelDescription(raw: string): string | null {
+  const description = raw.trim();
+  if (!description) return null;
+  if (description.length > MAX_DESCRIPTION_LENGTH) throw new AdminError(DESCRIPTION_TOO_LONG);
+  return description;
+}
+
 function requirePaletteColor(raw: string): string {
   const hex = canonicalPaletteHex(raw);
   if (!hex) throw new AdminError(INVALID_COLOR);
@@ -41,17 +56,14 @@ function requirePaletteColor(raw: string): string {
 }
 
 export async function listDictionary(supabase: AppSupabaseClient): Promise<PlayerLabel[]> {
-  const { data, error } = await supabase
-    .from("player_labels")
-    .select("id, name, color")
-    .order("name", { ascending: true });
+  const { data, error } = await supabase.from("player_labels").select(LABEL_COLUMNS).order("name", { ascending: true });
 
   if (error) {
     console.error("listDictionary failed", error);
     throw new AdminError("Could not load labels");
   }
 
-  return data.map((row) => ({ id: row.id, name: row.name, color: row.color }));
+  return data.map(mapLabel);
 }
 
 /** One query over assignments; returns label_id → count for the admin dictionary page. */
@@ -75,7 +87,7 @@ export async function listAssignedLabels(supabase: AppSupabaseClient, profileId:
 
   const { data, error } = await supabase
     .from("player_label_assignments")
-    .select("player_labels!inner(id, name, color)")
+    .select("player_labels!inner(id, name, color, description)")
     .eq("profile_id", profileId);
 
   if (error) {
@@ -83,24 +95,26 @@ export async function listAssignedLabels(supabase: AppSupabaseClient, profileId:
     throw new AdminError("Could not load labels");
   }
 
-  const labels: PlayerLabel[] = data.map((row) => ({
-    id: row.player_labels.id,
-    name: row.player_labels.name,
-    color: row.player_labels.color,
-  }));
+  const labels: PlayerLabel[] = data.map((row) => mapLabel(row.player_labels));
 
   labels.sort((a, b) => a.name.localeCompare(b.name));
   return labels;
 }
 
-export async function createLabel(supabase: AppSupabaseClient, name: string, color: string): Promise<PlayerLabel> {
+export async function createLabel(
+  supabase: AppSupabaseClient,
+  name: string,
+  color: string,
+  description: string,
+): Promise<PlayerLabel> {
   const parsedName = parseLabelName(name);
   const parsedColor = requirePaletteColor(color);
+  const parsedDescription = parseLabelDescription(description);
 
   const { data, error } = await supabase
     .from("player_labels")
-    .insert({ name: parsedName, color: parsedColor })
-    .select("id, name, color")
+    .insert({ name: parsedName, color: parsedColor, description: parsedDescription })
+    .select(LABEL_COLUMNS)
     .single();
 
   if (error) {
@@ -109,7 +123,7 @@ export async function createLabel(supabase: AppSupabaseClient, name: string, col
     throw new AdminError("Could not create label");
   }
 
-  return { id: data.id, name: data.name, color: data.color };
+  return mapLabel(data);
 }
 
 export async function updateLabel(
@@ -117,17 +131,24 @@ export async function updateLabel(
   id: string,
   name: string,
   color: string,
+  description: string,
 ): Promise<PlayerLabel> {
   if (!isUuid(id)) throw new AdminError(LABEL_MISSING);
 
   const parsedName = parseLabelName(name);
   const parsedColor = requirePaletteColor(color);
+  const parsedDescription = parseLabelDescription(description);
 
   const { data, error } = await supabase
     .from("player_labels")
-    .update({ name: parsedName, color: parsedColor, updated_at: new Date().toISOString() })
+    .update({
+      name: parsedName,
+      color: parsedColor,
+      description: parsedDescription,
+      updated_at: new Date().toISOString(),
+    })
     .eq("id", id)
-    .select("id, name, color")
+    .select(LABEL_COLUMNS)
     .maybeSingle();
 
   if (error) {
@@ -138,7 +159,7 @@ export async function updateLabel(
 
   if (!data) throw new AdminError(LABEL_MISSING);
 
-  return { id: data.id, name: data.name, color: data.color };
+  return mapLabel(data);
 }
 
 export async function deleteLabel(

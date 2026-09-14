@@ -1,10 +1,12 @@
 ---
 const year = new Date().getFullYear();
+
+const linkClass = "text-sm text-blue-100/60 transition-colors hover:text-purple-200";
 ---
 
 <footer class="relative z-10 mt-auto border-t border-white/10 bg-black/20">
   <div class="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-    <div class="grid grid-cols-1 gap-8 md:grid-cols-3">
+    <div class="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-4">
       <div>
         <a href="/" class="mb-3 inline-flex items-center gap-2">
           <span class="text-lg font-extrabold tracking-tight">
@@ -19,32 +21,33 @@ const year = new Date().getFullYear();
         <h3 class="mb-3 text-sm font-bold tracking-wider text-blue-100/50 uppercase">Quick Links</h3>
         <ul class="space-y-2">
           <li>
-            <a href="/runs" class="text-sm text-blue-100/60 transition-colors hover:text-purple-200">Browse Runs</a>
+            <a href="/runs" class:list={[linkClass]}>Browse Runs</a>
           </li>
           <li>
-            <a href="/clans" class="text-sm text-blue-100/60 transition-colors hover:text-purple-200">Browse Clans</a>
+            <a href="/clans" class:list={[linkClass]}>Browse Clans</a>
           </li>
           <li>
-            <a href="/changelog" class="text-sm text-blue-100/60 transition-colors hover:text-purple-200">Changelog</a>
+            <a href="/runs/new" class:list={[linkClass]}>Create a Run</a>
           </li>
           <li>
-            <a href="/runs/new" class="text-sm text-blue-100/60 transition-colors hover:text-purple-200">Create a Run</a
+            <a href="/changelog" class:list={[linkClass]}>Changelog</a>
+          </li>
+        </ul>
+      </div>
+      <div>
+        <h3 class="mb-3 text-sm font-bold tracking-wider text-blue-100/50 uppercase">Elsewhere</h3>
+        <ul class="space-y-2">
+          <li>
+            <a href="https://teeworlds.com" target="_blank" rel="noopener noreferrer" class:list={[linkClass]}
+              >Teeworlds</a
             >
           </li>
           <li>
-            <a
-              href="https://kog.tw"
-              target="_blank"
-              rel="noopener noreferrer"
-              class="text-sm text-blue-100/60 transition-colors hover:text-purple-200">KoG Website</a
-            >
+            <a href="https://kog.tw" target="_blank" rel="noopener noreferrer" class:list={[linkClass]}>KoG Website</a>
           </li>
           <li>
-            <a
-              href="https://teeworlds.com"
-              target="_blank"
-              rel="noopener noreferrer"
-              class="text-sm text-blue-100/60 transition-colors hover:text-purple-200">Teeworlds</a
+            <a href="https://discord.gg/QpHvHcmBut" target="_blank" rel="noopener noreferrer" class:list={[linkClass]}
+              >KoG Discord</a
             >
           </li>
         </ul>

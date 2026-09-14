@@ -23,9 +23,10 @@ export const POST: APIRoute = async (context) => {
   const form = await context.request.formData();
   const name = (form.get("name") as string | null) ?? "";
   const color = (form.get("color") as string | null) ?? "";
+  const description = (form.get("description") as string | null) ?? "";
 
   try {
-    await createLabel(supabase, name, color);
+    await createLabel(supabase, name, color, description);
   } catch (err) {
     if (err instanceof AdminError) {
       return fail(err.message);

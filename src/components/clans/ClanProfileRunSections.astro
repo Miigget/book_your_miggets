@@ -1,5 +1,6 @@
 ---
 import RunPreviewCard from "@/components/runs/RunPreviewCard.astro";
+import RunPreviewGrid from "@/components/runs/RunPreviewGrid.astro";
 import { canOpenClanShowcaseRun, type ArchivedRunListItem, type RunListItem } from "@/lib/services/runs";
 
 interface Props {
@@ -48,11 +49,11 @@ function runHref(run: RunListItem | ArchivedRunListItem): string | null {
         {incoming.length === 0 ? (
           <p class="text-sm text-blue-100/60">No incoming clan runs.</p>
         ) : (
-          <div class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+          <RunPreviewGrid>
             {incoming.map((run) => (
               <RunPreviewCard run={run} href={runHref(run)} />
             ))}
-          </div>
+          </RunPreviewGrid>
         )}
       </section>
 
@@ -68,11 +69,11 @@ function runHref(run: RunListItem | ArchivedRunListItem): string | null {
         {recent.length === 0 ? (
           <p class="text-sm text-blue-100/60">No recent clan runs.</p>
         ) : (
-          <div class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+          <RunPreviewGrid>
             {recent.map((run) => (
               <RunPreviewCard run={run} href={runHref(run)} />
             ))}
-          </div>
+          </RunPreviewGrid>
         )}
       </section>
     </>
