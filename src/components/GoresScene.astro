@@ -2,7 +2,7 @@
 /**
  * Decorative KoG cave wallpaper: freeze ice, real TeeWorlds skins on hooks,
  * default hammer & pistol sprites. Cartoon SVG v1 is GoresScene.cartoon.astro.
- * CSS motion only; hidden from AT.
+ * CSS pendulum, JS pistol aim/shot on the landing CTA, occasional SMIL 360s; hidden from AT.
  */
 ---
 
@@ -139,10 +139,20 @@
 
     <rect width="1920" height="1080" fill="url(#vignette)"></rect>
 
-    <!-- LEFT TOP: brown teddy hammer + grey fox pistol -->
+    <!-- LEFT TOP: brown teddy hammer + pumpkin pistol shooter -->
     <g transform="translate(188 78)">
       <use href="#hook-head" filter="url(#hook-glow)"></use>
-      <g class="swing swing-a">
+      <g class="swing swing-a" transform="rotate(-10 0 0)">
+        <animateTransform
+          class="gores-pendulum"
+          attributeName="transform"
+          type="rotate"
+          values="-16 0 0; 14 0 0; -16 0 0"
+          keyTimes="0; 0.5; 1"
+          dur="5.4s"
+          repeatCount="indefinite"
+          calcMode="spline"
+          keySplines="0.42 0 0.58 1; 0.42 0 0.58 1"></animateTransform>
         <line
           class="hook-line"
           x1="0"
@@ -163,7 +173,17 @@
           stroke-width="3.4"
           stroke-linecap="round"></line>
         <g transform="translate(18 118)">
-          <g class="swing swing-nested">
+          <g class="swing swing-nested" transform="rotate(-4 0 0)">
+            <animateTransform
+              class="gores-pendulum"
+              attributeName="transform"
+              type="rotate"
+              values="-7 0 0; 7 0 0; -7 0 0"
+              keyTimes="0; 0.5; 1"
+              dur="2.4s"
+              repeatCount="indefinite"
+              calcMode="spline"
+              keySplines="0.42 0 0.58 1; 0.42 0 0.58 1"></animateTransform>
             <line
               class="hook-line"
               x1="0"
@@ -185,11 +205,11 @@
               stroke-linecap="round"></line>
             <g transform="translate(-16 108)">
               <g class="actor" transform="scale(1.38)">
-                <g class="pistol-fire">
+                <g class="pistol-shooter js-gores-shooter">
                   <use href="#w-pistol"></use>
-                  <ellipse class="muzzle" cx="62" cy="2" rx="7" ry="4" fill="#ffe08a"></ellipse>
+                  <ellipse class="muzzle js-gores-muzzle" cx="62" cy="2" rx="7" ry="4" fill="#ffe08a"></ellipse>
                 </g>
-                <image href="/gores-scene/tee-fox-grey.png" x="-35" y="-35" width="70" height="70" />
+                <image href="/gores-scene/tee-teddy-pumpkin.png" x="-40" y="-40" width="80" height="80" />
               </g>
             </g>
           </g>
@@ -212,10 +232,20 @@
       </g>
     </g>
 
-    <!-- LEFT BOTTOM: pumpkin teddy hammer saving frozen ice teddy -->
+    <!-- LEFT BOTTOM: olive Tee hammer saving a shivering stitched Tee -->
     <g transform="translate(96 628)">
       <use href="#hook-head" filter="url(#hook-glow)"></use>
-      <g class="swing swing-b">
+      <g class="swing swing-b" transform="rotate(8 0 0)">
+        <animateTransform
+          class="gores-pendulum"
+          attributeName="transform"
+          type="rotate"
+          values="10 0 0; -18 0 0; 10 0 0"
+          keyTimes="0; 0.5; 1"
+          dur="6.6s"
+          repeatCount="indefinite"
+          calcMode="spline"
+          keySplines="0.42 0 0.58 1; 0.42 0 0.58 1"></animateTransform>
         <line
           class="hook-line"
           x1="0"
@@ -236,7 +266,18 @@
           stroke-width="3.4"
           stroke-linecap="round"></line>
         <g transform="translate(28 126)">
-          <g class="swing swing-nested-slow">
+          <g class="swing swing-nested-slow" transform="rotate(4 0 0)">
+            <animateTransform
+              class="gores-pendulum"
+              attributeName="transform"
+              type="rotate"
+              values="-7 0 0; 7 0 0; -7 0 0"
+              keyTimes="0; 0.5; 1"
+              dur="3.1s"
+              begin="-1.55s"
+              repeatCount="indefinite"
+              calcMode="spline"
+              keySplines="0.42 0 0.58 1; 0.42 0 0.58 1"></animateTransform>
             <line
               class="hook-line"
               x1="0"
@@ -261,7 +302,7 @@
                 <g>
                   <use href="#w-pistol"></use>
                 </g>
-                <image href="/gores-scene/tee-teddy-ice.png" x="-35" y="-35" width="70" height="70" />
+                <image href="/gores-scene/tee-stitched.png" x="-40" y="-40" width="80" height="80" />
               </g>
             </g>
           </g>
@@ -279,16 +320,26 @@
                 <use href="#w-hammer"></use>
               </g>
             </g>
-            <image href="/gores-scene/tee-teddy-pumpkin.png" x="-35" y="-35" width="70" height="70" />
+            <image href="/gores-scene/tee-olive.png" x="-40" y="-40" width="80" height="80" />
           </g>
         </g>
       </g>
     </g>
 
-    <!-- RIGHT TOP: red fox pistol + red teddy hammer -->
+    <!-- RIGHT TOP: red fox pistol + grey fox hammer -->
     <g transform="translate(1768 86)">
       <use href="#hook-head" filter="url(#hook-glow)"></use>
-      <g class="swing swing-c">
+      <g class="swing swing-c" transform="rotate(10 0 0)">
+        <animateTransform
+          class="gores-pendulum"
+          attributeName="transform"
+          type="rotate"
+          values="12 0 0; -15 0 0; 12 0 0"
+          keyTimes="0; 0.5; 1"
+          dur="4.8s"
+          repeatCount="indefinite"
+          calcMode="spline"
+          keySplines="0.42 0 0.58 1; 0.42 0 0.58 1"></animateTransform>
         <line
           class="hook-line"
           x1="0"
@@ -309,7 +360,17 @@
           stroke-width="3.4"
           stroke-linecap="round"></line>
         <g transform="translate(-36 108)">
-          <g class="swing swing-nested">
+          <g class="swing swing-nested" transform="rotate(-4 0 0)">
+            <animateTransform
+              class="gores-pendulum"
+              attributeName="transform"
+              type="rotate"
+              values="-7 0 0; 7 0 0; -7 0 0"
+              keyTimes="0; 0.5; 1"
+              dur="2.4s"
+              repeatCount="indefinite"
+              calcMode="spline"
+              keySplines="0.42 0 0.58 1; 0.42 0 0.58 1"></animateTransform>
             <line
               class="hook-line"
               x1="0"
@@ -343,14 +404,24 @@
                     <use href="#w-hammer"></use>
                   </g>
                 </g>
-                <image href="/gores-scene/tee-teddy-red.png" x="-35" y="-35" width="70" height="70" />
+                <image href="/gores-scene/tee-fox-grey.png" x="-35" y="-35" width="70" height="70" />
               </g>
             </g>
           </g>
           <g class="actor" transform="scale(-1.38,1.38)">
-            <g class="pistol-fire pistol-fire-late">
-              <use href="#w-pistol"></use>
-              <ellipse class="muzzle" cx="62" cy="2" rx="7" ry="4" fill="#ffe08a"></ellipse>
+            <g class="weapon-360">
+              <animateTransform
+                attributeName="transform"
+                type="rotate"
+                values="0 0 0; 0 0 0; 360 0 0; 360 0 0"
+                keyTimes="0; 0.74; 0.82; 1"
+                dur="12s"
+                begin="-8s"
+                repeatCount="indefinite"></animateTransform>
+              <g class="pistol-fire pistol-fire-late">
+                <use href="#w-pistol"></use>
+                <ellipse class="muzzle" cx="62" cy="2" rx="7" ry="4" fill="#ffe08a"></ellipse>
+              </g>
             </g>
             <image href="/gores-scene/tee-fox-red.png" x="-35" y="-35" width="70" height="70" />
           </g>
@@ -358,10 +429,20 @@
       </g>
     </g>
 
-    <!-- RIGHT MID: white teddy pistol -->
+    <!-- RIGHT MID: pulsefire fox pistol -->
     <g transform="translate(1676 368)">
       <use href="#hook-head" filter="url(#hook-glow)"></use>
-      <g class="swing swing-d">
+      <g class="swing swing-d" transform="rotate(-6 0 0)">
+        <animateTransform
+          class="gores-pendulum"
+          attributeName="transform"
+          type="rotate"
+          values="-7 0 0; 9 0 0; -7 0 0"
+          keyTimes="0; 0.5; 1"
+          dur="7.2s"
+          repeatCount="indefinite"
+          calcMode="spline"
+          keySplines="0.42 0 0.58 1; 0.42 0 0.58 1"></animateTransform>
         <line
           class="hook-line"
           x1="0"
@@ -376,11 +457,21 @@
         ></line>
         <g transform="translate(8 92)">
           <g class="actor" transform="scale(-1.38,1.38)">
-            <g class="pistol-fire">
-              <use href="#w-pistol"></use>
-              <ellipse class="muzzle" cx="62" cy="2" rx="7" ry="4" fill="#ffe08a"></ellipse>
+            <g class="weapon-360">
+              <animateTransform
+                attributeName="transform"
+                type="rotate"
+                values="0 0 0; 0 0 0; 360 0 0; 360 0 0"
+                keyTimes="0; 0.78; 0.85; 1"
+                dur="14s"
+                begin="-3s"
+                repeatCount="indefinite"></animateTransform>
+              <g class="pistol-fire">
+                <use href="#w-pistol"></use>
+                <ellipse class="muzzle" cx="62" cy="2" rx="7" ry="4" fill="#ffe08a"></ellipse>
+              </g>
             </g>
-            <image href="/gores-scene/tee-teddy-white.png" x="-35" y="-35" width="70" height="70" />
+            <image href="/gores-scene/tee-fox-pulsefire.png" x="-35" y="-35" width="70" height="70" />
           </g>
         </g>
       </g>
@@ -389,7 +480,17 @@
     <!-- RIGHT LOW: pumpkin fox pistol + small pumpkin teddy hammer -->
     <g transform="translate(1738 718)">
       <use href="#hook-head" filter="url(#hook-glow)"></use>
-      <g class="swing swing-e">
+      <g class="swing swing-e" transform="rotate(7 0 0)">
+        <animateTransform
+          class="gores-pendulum"
+          attributeName="transform"
+          type="rotate"
+          values="8 0 0; -12 0 0; 8 0 0"
+          keyTimes="0; 0.5; 1"
+          dur="5.8s"
+          repeatCount="indefinite"
+          calcMode="spline"
+          keySplines="0.42 0 0.58 1; 0.42 0 0.58 1"></animateTransform>
         <line
           class="hook-line"
           x1="0"
@@ -410,7 +511,18 @@
           stroke-width="3.4"
           stroke-linecap="round"></line>
         <g transform="translate(-18 100)">
-          <g class="swing swing-nested-slow">
+          <g class="swing swing-nested-slow" transform="rotate(4 0 0)">
+            <animateTransform
+              class="gores-pendulum"
+              attributeName="transform"
+              type="rotate"
+              values="-7 0 0; 7 0 0; -7 0 0"
+              keyTimes="0; 0.5; 1"
+              dur="3.1s"
+              begin="-1.55s"
+              repeatCount="indefinite"
+              calcMode="spline"
+              keySplines="0.42 0 0.58 1; 0.42 0 0.58 1"></animateTransform>
             <line
               class="hook-line"
               x1="0"
@@ -450,9 +562,19 @@
             </g>
           </g>
           <g class="actor" transform="scale(-1.38,1.38)">
-            <g class="pistol-fire">
-              <use href="#w-pistol"></use>
-              <ellipse class="muzzle" cx="62" cy="2" rx="7" ry="4" fill="#ffe08a"></ellipse>
+            <g class="weapon-360">
+              <animateTransform
+                attributeName="transform"
+                type="rotate"
+                values="0 0 0; 0 0 0; 360 0 0; 360 0 0"
+                keyTimes="0; 0.72; 0.8; 1"
+                dur="10.5s"
+                begin="-1.6s"
+                repeatCount="indefinite"></animateTransform>
+              <g class="pistol-fire">
+                <use href="#w-pistol"></use>
+                <ellipse class="muzzle" cx="62" cy="2" rx="7" ry="4" fill="#ffe08a"></ellipse>
+              </g>
             </g>
             <image href="/gores-scene/tee-fox-pumpkin.png" x="-35" y="-35" width="70" height="70" />
           </g>
@@ -461,6 +583,12 @@
     </g>
   </svg>
 </div>
+<div class="gores-shots" data-gores-shots aria-hidden="true"></div>
+
+<script>
+  import { startGoresShots } from "@/lib/gores-shots";
+  startGoresShots();
+</script>
 
 <style>
   .gores-scene {
@@ -477,41 +605,42 @@
     height: 100%;
   }
 
-  .swing-a,
-  .swing-b,
-  .swing-c,
-  .swing-d,
-  .swing-e,
-  .swing-nested,
-  .swing-nested-slow {
-    transform-origin: 0 0;
-    transform-box: fill-box;
+  .gores-shots {
+    position: fixed;
+    inset: 0;
+    z-index: 15;
+    overflow: hidden;
+    pointer-events: none;
   }
 
-  .swing-a {
-    animation: pendulum-a 5.4s ease-in-out infinite;
+  .gores-shots :global(.gores-bullet) {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 36px;
+    height: 17px;
+    background: url("/gores-scene/bullet.png") center / contain no-repeat;
+    filter: drop-shadow(0 0 3px rgb(255 220 150 / 0.5));
+    will-change: transform;
   }
-  .swing-b {
-    animation: pendulum-b 6.6s ease-in-out infinite;
-  }
-  .swing-c {
-    animation: pendulum-c 4.8s ease-in-out infinite;
-  }
-  .swing-d {
-    animation: pendulum-d 7.2s ease-in-out infinite;
-  }
-  .swing-e {
-    animation: pendulum-e 5.8s ease-in-out infinite;
-  }
-  .swing-nested {
-    animation: nested 2.4s ease-in-out infinite;
-  }
-  .swing-nested-slow {
-    animation: nested 3.1s ease-in-out infinite reverse;
+
+  .gores-shots :global(.gores-impact) {
+    position: absolute;
+    width: 22px;
+    height: 22px;
+    margin: -11px 0 0 -11px;
+    border-radius: 50%;
+    background: radial-gradient(circle, #fff6c8 0%, #ff9a3c 45%, transparent 72%);
+    pointer-events: none;
+    animation: gores-impact 0.28s ease-out forwards;
   }
 
   .muzzle {
     opacity: 0;
+  }
+
+  .muzzle:global(.is-pop) {
+    opacity: 0.95;
   }
 
   .pistol-fire .muzzle {
@@ -539,60 +668,17 @@
     animation: drift-c 12s ease-in-out infinite;
   }
 
-  @keyframes pendulum-a {
-    0%,
-    100% {
-      transform: rotate(-16deg);
+  @keyframes gores-impact {
+    0% {
+      opacity: 1;
+      transform: scale(0.35);
     }
-    50% {
-      transform: rotate(14deg);
+    100% {
+      opacity: 0;
+      transform: scale(1.85);
     }
   }
-  @keyframes pendulum-b {
-    0%,
-    100% {
-      transform: rotate(10deg);
-    }
-    50% {
-      transform: rotate(-18deg);
-    }
-  }
-  @keyframes pendulum-c {
-    0%,
-    100% {
-      transform: rotate(12deg);
-    }
-    50% {
-      transform: rotate(-15deg);
-    }
-  }
-  @keyframes pendulum-d {
-    0%,
-    100% {
-      transform: rotate(-7deg);
-    }
-    50% {
-      transform: rotate(9deg);
-    }
-  }
-  @keyframes pendulum-e {
-    0%,
-    100% {
-      transform: rotate(8deg);
-    }
-    50% {
-      transform: rotate(-12deg);
-    }
-  }
-  @keyframes nested {
-    0%,
-    100% {
-      transform: rotate(-7deg);
-    }
-    50% {
-      transform: rotate(7deg);
-    }
-  }
+
   @keyframes muzzle {
     0%,
     88%,
@@ -654,13 +740,6 @@
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .swing-a,
-    .swing-b,
-    .swing-c,
-    .swing-d,
-    .swing-e,
-    .swing-nested,
-    .swing-nested-slow,
     .shiver,
     .ice-shimmer,
     .mote-a,
@@ -668,24 +747,14 @@
     .mote-c {
       animation: none;
     }
-    .swing-a {
-      transform: rotate(-10deg);
-    }
-    .swing-b {
-      transform: rotate(8deg);
-    }
-    .swing-c {
-      transform: rotate(10deg);
-    }
-    .swing-d {
-      transform: rotate(-6deg);
-    }
-    .swing-e {
-      transform: rotate(7deg);
-    }
-    .pistol-fire .muzzle {
+    .pistol-fire .muzzle,
+    .muzzle:global(.is-pop) {
       animation: none;
       opacity: 0;
+    }
+    .gores-shots :global(.gores-bullet),
+    .gores-shots :global(.gores-impact) {
+      display: none;
     }
   }
 </style>
