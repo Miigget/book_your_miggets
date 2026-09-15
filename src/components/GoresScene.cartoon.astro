@@ -1,0 +1,749 @@
+---
+/**
+ * Archived v1 of the KoG cave wallpaper (geometric SVG Tees).
+ * Kept as a side copy — the live scene is GoresScene.astro.
+ * Not imported anywhere.
+ */
+---
+
+<div class="gores-scene" aria-hidden="true">
+  <svg viewBox="0 0 1920 1080" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <linearGradient id="cave-fill" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#070b18"></stop>
+        <stop offset="45%" stop-color="#0a1228"></stop>
+        <stop offset="100%" stop-color="#050814"></stop>
+      </linearGradient>
+      <radialGradient id="cave-glow-l" cx="12%" cy="40%" r="38%">
+        <stop offset="0%" stop-color="#1a6ad4" stop-opacity="0.28"></stop>
+        <stop offset="100%" stop-color="#1a6ad4" stop-opacity="0"></stop>
+      </radialGradient>
+      <radialGradient id="cave-glow-r" cx="88%" cy="35%" r="42%">
+        <stop offset="0%" stop-color="#1a88e0" stop-opacity="0.3"></stop>
+        <stop offset="100%" stop-color="#1a88e0" stop-opacity="0"></stop>
+      </radialGradient>
+      <linearGradient id="ice-face" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0%" stop-color="#b8f3ff"></stop>
+        <stop offset="35%" stop-color="#5ad4ff"></stop>
+        <stop offset="100%" stop-color="#1d6cb8"></stop>
+      </linearGradient>
+      <linearGradient id="ice-face-deep" x1="1" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#7ee8ff"></stop>
+        <stop offset="100%" stop-color="#134a86"></stop>
+      </linearGradient>
+      <linearGradient id="ice-edge" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#e7fbff"></stop>
+        <stop offset="100%" stop-color="#4ec8f5"></stop>
+      </linearGradient>
+      <radialGradient id="vignette" cx="50%" cy="42%" r="54%">
+        <stop offset="0%" stop-color="#070b16" stop-opacity="0.78"></stop>
+        <stop offset="40%" stop-color="#070b16" stop-opacity="0.42"></stop>
+        <stop offset="70%" stop-color="#070b16" stop-opacity="0.12"></stop>
+        <stop offset="100%" stop-color="#070b16" stop-opacity="0"></stop>
+      </radialGradient>
+      <filter id="soft-glow" x="-40%" y="-40%" width="180%" height="180%">
+        <feGaussianBlur stdDeviation="10" result="b"></feGaussianBlur>
+        <feMerge>
+          <feMergeNode in="b"></feMergeNode>
+          <feMergeNode in="SourceGraphic"></feMergeNode>
+        </feMerge>
+      </filter>
+      <filter id="hook-glow" x="-80%" y="-80%" width="260%" height="260%">
+        <feGaussianBlur stdDeviation="3.5" result="b"></feGaussianBlur>
+        <feMerge>
+          <feMergeNode in="b"></feMergeNode>
+          <feMergeNode in="SourceGraphic"></feMergeNode>
+        </feMerge>
+      </filter>
+
+      <symbol id="tee" overflow="visible">
+        <ellipse cx="0" cy="22" rx="13" ry="4.2" fill="#000" opacity="0.28"></ellipse>
+        <ellipse cx="-9" cy="16" rx="7" ry="5" fill="#ececf0" stroke="#1b1d2e" stroke-width="1.7"></ellipse>
+        <ellipse cx="9" cy="16" rx="7" ry="5" fill="#ececf0" stroke="#1b1d2e" stroke-width="1.7"></ellipse>
+        <circle cx="0" cy="0" r="18" fill="#f4f5f8" stroke="#1b1d2e" stroke-width="2.1"></circle>
+        <ellipse cx="-5.2" cy="-1.5" rx="5" ry="6.2" fill="#fff" stroke="#1b1d2e" stroke-width="1.15"></ellipse>
+        <ellipse cx="5.6" cy="-1.5" rx="5" ry="6.2" fill="#fff" stroke="#1b1d2e" stroke-width="1.15"></ellipse>
+        <ellipse class="pupil" cx="-3.6" cy="-1.2" rx="2.15" ry="2.6" fill="#1b1d2e"></ellipse>
+        <ellipse class="pupil" cx="7" cy="-1.2" rx="2.15" ry="2.6" fill="#1b1d2e"></ellipse>
+      </symbol>
+      <symbol id="tee-frozen" overflow="visible">
+        <ellipse cx="0" cy="22" rx="13" ry="4.2" fill="#000" opacity="0.28"></ellipse>
+        <ellipse cx="-9" cy="16" rx="7" ry="5" fill="#d7f4ff" stroke="#3a7ea8" stroke-width="1.7"></ellipse>
+        <ellipse cx="9" cy="16" rx="7" ry="5" fill="#d7f4ff" stroke="#3a7ea8" stroke-width="1.7"></ellipse>
+        <circle cx="0" cy="0" r="18" fill="#c8eefc" stroke="#3a7ea8" stroke-width="2.1"></circle>
+        <ellipse cx="-5.2" cy="-1.5" rx="5" ry="6.2" fill="#eefbff" stroke="#3a7ea8" stroke-width="1.15"></ellipse>
+        <ellipse cx="5.6" cy="-1.5" rx="5" ry="6.2" fill="#eefbff" stroke="#3a7ea8" stroke-width="1.15"></ellipse>
+        <ellipse cx="-3.6" cy="-1.2" rx="2.15" ry="2.6" fill="#3a7ea8"></ellipse>
+        <ellipse cx="7" cy="-1.2" rx="2.15" ry="2.6" fill="#3a7ea8"></ellipse>
+        <path d="M -10 -10 L -6 -16 L -4 -9" fill="#9be8ff" opacity="0.85"></path>
+        <path d="M 8 -8 L 14 -4 L 8 -2" fill="#9be8ff" opacity="0.75"></path>
+      </symbol>
+      <symbol id="hat-cat" overflow="visible">
+        <path
+          d="M -16 -8 L -22 -34 L -2 -16 Z"
+          fill="currentColor"
+          stroke="#1b1d2e"
+          stroke-width="1.8"
+          stroke-linejoin="round"></path>
+        <path
+          d="M 16 -8 L 22 -34 L 2 -16 Z"
+          fill="currentColor"
+          stroke="#1b1d2e"
+          stroke-width="1.8"
+          stroke-linejoin="round"></path>
+        <path d="M -14 -12 L -18.5 -28 L -6 -16 Z" fill="#f4b8c6"></path>
+        <path d="M 14 -12 L 18.5 -28 L 6 -16 Z" fill="#f4b8c6"></path>
+      </symbol>
+      <symbol id="hat-beanie" overflow="visible">
+        <path
+          d="M -16.5 -4 Q -17 -24 0 -27 Q 17 -24 16.5 -4 Z"
+          fill="currentColor"
+          stroke="#1b1d2e"
+          stroke-width="1.7"
+          stroke-linejoin="round"></path>
+        <path d="M -17 -5 Q 0 0 17 -5" fill="none" stroke="#1b1d2e" stroke-width="1.5"></path>
+        <circle cx="0" cy="-26" r="3.4" fill="currentColor" stroke="#1b1d2e" stroke-width="1.3"></circle>
+      </symbol>
+      <symbol id="weapon-hammer" overflow="visible">
+        <g class="hammer-head">
+          <rect x="16" y="-3" width="20" height="5" rx="1.2" fill="#8a5a32" stroke="#2a1810" stroke-width="1.3"></rect>
+          <rect x="32" y="-10" width="10" height="19" rx="2" fill="#c9ced8" stroke="#2a1810" stroke-width="1.4"></rect>
+          <rect x="33.2" y="-8" width="7.6" height="6" rx="1" fill="#e8ecf2" opacity="0.7"></rect>
+        </g>
+      </symbol>
+      <symbol id="weapon-pistol" overflow="visible">
+        <rect x="16" y="-5" width="18" height="8" rx="1.4" fill="#6d7480" stroke="#1b1d2e" stroke-width="1.4"></rect>
+        <rect x="32" y="-3.2" width="11" height="5" rx="0.8" fill="#9aa3b0" stroke="#1b1d2e" stroke-width="1.2"></rect>
+        <path d="M 18 3 L 23 3 L 25 12 L 19 12 Z" fill="#4b5563" stroke="#1b1d2e" stroke-width="1.2"></path>
+        <rect x="20" y="-7.2" width="6" height="2.2" rx="0.6" fill="#4b5563"></rect>
+      </symbol>
+      <symbol id="hook-head" overflow="visible">
+        <circle cx="0" cy="0" r="8" fill="#7ee0ff" opacity="0.45"></circle>
+        <circle cx="0" cy="0" r="4.8" fill="#e9fbff" stroke="#7ee0ff" stroke-width="2.2"></circle>
+        <circle cx="0" cy="0" r="1.8" fill="#ffffff"></circle>
+      </symbol>
+    </defs>
+
+    <rect width="1920" height="1080" fill="url(#cave-fill)"></rect>
+    <rect width="1920" height="1080" fill="url(#cave-glow-l)"></rect>
+    <rect width="1920" height="1080" fill="url(#cave-glow-r)"></rect>
+
+    <!-- Distant cave silhouettes -->
+    <g fill="#0c1830" opacity="0.55">
+      <path d="M 520 1080 L 560 820 L 640 900 L 700 760 L 780 980 L 820 1080 Z"></path>
+      <path d="M 1100 1080 L 1140 900 L 1220 960 L 1280 820 L 1360 980 L 1400 1080 Z"></path>
+    </g>
+
+    <!-- LEFT ice wall -->
+    <g class="ice-glow">
+      <ellipse cx="90" cy="180" rx="210" ry="280" fill="#3db4ff" opacity="0.32"></ellipse>
+      <ellipse cx="70" cy="780" rx="190" ry="240" fill="#2a9ae8" opacity="0.26"></ellipse>
+    </g>
+    <g class="ice-shimmer" stroke="#e7fbff" stroke-width="1.6" stroke-linejoin="round">
+      <path
+        d="M 0 0 L 340 0 L 300 70 L 390 150 L 250 210 L 320 310 L 180 360 L 230 470 L 90 520 L 160 640 L 40 700 L 120 820 L 0 860 Z"
+        fill="url(#ice-face-deep)"
+        opacity="0.95"></path>
+      <polygon points="40,20 160,10 120,90 20,80" fill="url(#ice-face)"></polygon>
+      <polygon points="150,8 310,18 280,95 170,70" fill="url(#ice-edge)" opacity="0.9"></polygon>
+      <polygon points="220,90 390,150 300,230 200,180" fill="url(#ice-face)"></polygon>
+      <polygon points="80,200 250,210 180,310 40,280" fill="url(#ice-face-deep)"></polygon>
+      <polygon points="180,360 320,310 280,430 160,420" fill="url(#ice-face)"></polygon>
+      <polygon points="20,500 160,470 90,600 0,580" fill="url(#ice-face-deep)"></polygon>
+      <polygon points="40,700 160,640 120,790 10,780" fill="url(#ice-face)"></polygon>
+      <polygon points="0,820 120,820 70,980 0,1000" fill="url(#ice-face-deep)"></polygon>
+      <polygon points="90,40 150,20 140,70" fill="#e9fbff" opacity="0.55"></polygon>
+      <polygon points="260,130 340,145 290,190" fill="#e9fbff" opacity="0.4"></polygon>
+    </g>
+
+    <!-- RIGHT S-curve ice -->
+    <g class="ice-glow">
+      <ellipse cx="1780" cy="220" rx="240" ry="260" fill="#3db4ff" opacity="0.32"></ellipse>
+      <ellipse cx="1720" cy="720" rx="220" ry="280" fill="#2a9ae8" opacity="0.28"></ellipse>
+    </g>
+    <g class="ice-shimmer" stroke="#e7fbff" stroke-width="1.6" stroke-linejoin="round">
+      <path
+        d="M 1920 0 L 1580 0 L 1620 90 L 1500 170 L 1630 250 L 1480 330 L 1610 410 L 1520 500 L 1680 560 L 1540 650 L 1700 740 L 1580 840 L 1740 930 L 1620 1080 L 1920 1080 Z"
+        fill="url(#ice-face-deep)"
+        opacity="0.96"></path>
+      <polygon points="1680,0 1920,0 1920,80 1720,70" fill="url(#ice-edge)"></polygon>
+      <polygon points="1580,0 1680,90 1500,170 1540,70" fill="url(#ice-face)"></polygon>
+      <polygon points="1630,250 1760,210 1780,300 1610,310" fill="url(#ice-face)"></polygon>
+      <polygon points="1480,330 1630,310 1610,410 1470,400" fill="url(#ice-edge)" opacity="0.92"></polygon>
+      <polygon points="1610,410 1750,430 1680,560 1520,500" fill="url(#ice-face)"></polygon>
+      <polygon points="1680,560 1840,600 1700,740 1540,650" fill="url(#ice-face-deep)"></polygon>
+      <polygon points="1700,740 1860,780 1740,930 1580,840" fill="url(#ice-face)"></polygon>
+      <polygon points="1740,930 1920,900 1920,1080 1620,1080" fill="url(#ice-face-deep)"></polygon>
+      <polygon points="1760,40 1860,20 1840,90" fill="#e9fbff" opacity="0.5"></polygon>
+      <polygon points="1520,340 1600,325 1570,380" fill="#e9fbff" opacity="0.45"></polygon>
+    </g>
+
+    <!-- Dust / ice motes -->
+    <g class="motes" fill="#c8f4ff">
+      <circle class="mote mote-a" cx="430" cy="220" r="1.6" opacity="0.45"></circle>
+      <circle class="mote mote-b" cx="510" cy="640" r="1.2" opacity="0.35"></circle>
+      <circle class="mote mote-c" cx="390" cy="900" r="1.8" opacity="0.4"></circle>
+      <circle class="mote mote-a" cx="1480" cy="180" r="1.4" opacity="0.4"></circle>
+      <circle class="mote mote-b" cx="1410" cy="520" r="1.7" opacity="0.32"></circle>
+      <circle class="mote mote-c" cx="1500" cy="860" r="1.3" opacity="0.38"></circle>
+      <circle class="mote mote-b" cx="960" cy="140" r="1.1" opacity="0.22"></circle>
+      <circle class="mote mote-c" cx="880" cy="980" r="1.5" opacity="0.2"></circle>
+    </g>
+
+    <rect width="1920" height="1080" fill="url(#vignette)"></rect>
+
+    <!-- LEFT TOP: cat pair on one hook — hammer + pistol -->
+    <g transform="translate(188 78)">
+      <use href="#hook-head" filter="url(#hook-glow)"></use>
+      <g class="swing swing-a">
+        <line
+          class="hook-line"
+          x1="0"
+          y1="0"
+          x2="18"
+          y2="118"
+          stroke="#7ee0ff"
+          stroke-width="7"
+          stroke-linecap="round"
+          opacity="0.28"></line>
+        <line
+          class="hook-line"
+          x1="0"
+          y1="0"
+          x2="18"
+          y2="118"
+          stroke="#e9fbff"
+          stroke-width="3.4"
+          stroke-linecap="round"></line>
+        <g transform="translate(18 118)">
+          <g class="actor" transform="scale(1.45)">
+            <use href="#tee"></use>
+            <g style="color: #e4dcc8">
+              <use href="#hat-cat"></use>
+            </g>
+            <use href="#weapon-hammer" class="hammer-tap"></use>
+          </g>
+        </g>
+        <g transform="translate(18 118)">
+          <g class="swing swing-nested">
+            <line
+              class="hook-line"
+              x1="0"
+              y1="0"
+              x2="-16"
+              y2="108"
+              stroke="#7ee0ff"
+              stroke-width="7"
+              stroke-linecap="round"
+              opacity="0.28"></line>
+            <line
+              class="hook-line"
+              x1="0"
+              y1="0"
+              x2="-16"
+              y2="108"
+              stroke="#e9fbff"
+              stroke-width="3.4"
+              stroke-linecap="round"></line>
+            <g transform="translate(-16 108)">
+              <g class="actor" transform="scale(1.45)">
+                <use href="#tee"></use>
+                <g style="color: #8b8e9a">
+                  <use href="#hat-cat"></use>
+                </g>
+                <g class="pistol-fire">
+                  <use href="#weapon-pistol"></use>
+                  <ellipse class="muzzle" cx="44" cy="-0.6" rx="5" ry="3.2" fill="#ffe08a"></ellipse>
+                </g>
+              </g>
+            </g>
+          </g>
+        </g>
+      </g>
+    </g>
+
+    <!-- LEFT BOTTOM: beanie hammer saving a frozen tee -->
+    <g transform="translate(96 628)">
+      <use href="#hook-head" filter="url(#hook-glow)"></use>
+      <g class="swing swing-b">
+        <line
+          class="hook-line"
+          x1="0"
+          y1="0"
+          x2="28"
+          y2="126"
+          stroke="#7ee0ff"
+          stroke-width="7"
+          stroke-linecap="round"
+          opacity="0.28"></line>
+        <line
+          class="hook-line"
+          x1="0"
+          y1="0"
+          x2="28"
+          y2="126"
+          stroke="#e9fbff"
+          stroke-width="3.4"
+          stroke-linecap="round"></line>
+        <g transform="translate(28 126)">
+          <g class="actor" transform="scale(1.45)">
+            <use href="#tee"></use>
+            <g style="color: #5aa6e6">
+              <use href="#hat-beanie"></use>
+            </g>
+            <use href="#weapon-hammer" class="hammer-tap hammer-tap-late"></use>
+          </g>
+        </g>
+        <g transform="translate(28 126)">
+          <g class="swing swing-nested-slow">
+            <line
+              class="hook-line"
+              x1="0"
+              y1="0"
+              x2="-10"
+              y2="112"
+              stroke="#7ee0ff"
+              stroke-width="7"
+              stroke-linecap="round"
+              opacity="0.28"></line>
+            <line
+              class="hook-line"
+              x1="0"
+              y1="0"
+              x2="-10"
+              y2="112"
+              stroke="#e9fbff"
+              stroke-width="3.4"
+              stroke-linecap="round"></line>
+            <g transform="translate(-10 112) scale(1.45)">
+              <g class="actor shiver">
+                <use href="#tee-frozen"></use>
+                <g style="color: #7a8fa8">
+                  <use href="#hat-beanie"></use>
+                </g>
+              </g>
+            </g>
+          </g>
+        </g>
+      </g>
+    </g>
+
+    <!-- RIGHT TOP: S-curve pair — pistol + hammer -->
+    <g transform="translate(1768 86)">
+      <use href="#hook-head" filter="url(#hook-glow)"></use>
+      <g class="swing swing-c">
+        <line
+          class="hook-line"
+          x1="0"
+          y1="0"
+          x2="-36"
+          y2="108"
+          stroke="#7ee0ff"
+          stroke-width="7"
+          stroke-linecap="round"
+          opacity="0.28"></line>
+        <line
+          class="hook-line"
+          x1="0"
+          y1="0"
+          x2="-36"
+          y2="108"
+          stroke="#e9fbff"
+          stroke-width="3.4"
+          stroke-linecap="round"></line>
+        <g transform="translate(-36 108)">
+          <g class="actor" transform="scale(-1.45,1.45)">
+            <use href="#tee"></use>
+            <g style="color: #6d7380">
+              <use href="#hat-cat"></use>
+            </g>
+            <g class="pistol-fire pistol-fire-late">
+              <use href="#weapon-pistol"></use>
+              <ellipse class="muzzle" cx="44" cy="-0.6" rx="5" ry="3.2" fill="#ffe08a"></ellipse>
+            </g>
+          </g>
+        </g>
+        <g transform="translate(-36 108)">
+          <g class="swing swing-nested">
+            <line
+              class="hook-line"
+              x1="0"
+              y1="0"
+              x2="22"
+              y2="96"
+              stroke="#7ee0ff"
+              stroke-width="7"
+              stroke-linecap="round"
+              opacity="0.28"></line>
+            <line
+              class="hook-line"
+              x1="0"
+              y1="0"
+              x2="22"
+              y2="96"
+              stroke="#e9fbff"
+              stroke-width="3.4"
+              stroke-linecap="round"></line>
+            <g transform="translate(22 96)">
+              <g class="actor" transform="scale(-1.45,1.45)">
+                <use href="#tee"></use>
+                <g style="color: #8a6bb8">
+                  <use href="#hat-cat"></use>
+                </g>
+                <use href="#weapon-hammer" class="hammer-tap"></use>
+              </g>
+            </g>
+          </g>
+        </g>
+      </g>
+    </g>
+
+    <!-- RIGHT MID: hanging beanie -->
+    <g transform="translate(1676 368)">
+      <use href="#hook-head" filter="url(#hook-glow)"></use>
+      <g class="swing swing-d">
+        <line
+          class="hook-line"
+          x1="0"
+          y1="0"
+          x2="8"
+          y2="92"
+          stroke="#7ee0ff"
+          stroke-width="7"
+          stroke-linecap="round"
+          opacity="0.28"></line>
+        <line class="hook-line" x1="0" y1="0" x2="8" y2="92" stroke="#e9fbff" stroke-width="3.4" stroke-linecap="round"
+        ></line>
+        <g transform="translate(8 92)">
+          <g class="actor" transform="scale(-1.45,1.45)">
+            <use href="#tee"></use>
+            <g style="color: #9aa0ae">
+              <use href="#hat-beanie"></use>
+            </g>
+          </g>
+        </g>
+      </g>
+    </g>
+
+    <!-- RIGHT LOW: pistol beanie + small cat -->
+    <g transform="translate(1738 718)">
+      <use href="#hook-head" filter="url(#hook-glow)"></use>
+      <g class="swing swing-e">
+        <line
+          class="hook-line"
+          x1="0"
+          y1="0"
+          x2="-18"
+          y2="100"
+          stroke="#7ee0ff"
+          stroke-width="7"
+          stroke-linecap="round"
+          opacity="0.28"></line>
+        <line
+          class="hook-line"
+          x1="0"
+          y1="0"
+          x2="-18"
+          y2="100"
+          stroke="#e9fbff"
+          stroke-width="3.4"
+          stroke-linecap="round"></line>
+        <g transform="translate(-18 100)">
+          <g class="actor" transform="scale(-1.45,1.45)">
+            <use href="#tee"></use>
+            <g style="color: #e4dcc8">
+              <use href="#hat-cat"></use>
+            </g>
+            <g class="pistol-fire">
+              <use href="#weapon-pistol"></use>
+              <ellipse class="muzzle" cx="44" cy="-0.6" rx="5" ry="3.2" fill="#ffe08a"></ellipse>
+            </g>
+          </g>
+        </g>
+        <g transform="translate(-18 100)">
+          <g class="swing swing-nested-slow">
+            <line
+              class="hook-line"
+              x1="0"
+              y1="0"
+              x2="20"
+              y2="88"
+              stroke="#7ee0ff"
+              stroke-width="7"
+              stroke-linecap="round"
+              opacity="0.28"></line>
+            <line
+              class="hook-line"
+              x1="0"
+              y1="0"
+              x2="20"
+              y2="88"
+              stroke="#e9fbff"
+              stroke-width="3.4"
+              stroke-linecap="round"></line>
+            <g transform="translate(20 88) scale(0.82)">
+              <g class="actor" transform="scale(-1.45,1.45)">
+                <use href="#tee"></use>
+                <g style="color: #c07aad">
+                  <use href="#hat-cat"></use>
+                </g>
+                <use href="#weapon-hammer" class="hammer-tap hammer-tap-late"></use>
+              </g>
+            </g>
+          </g>
+        </g>
+      </g>
+    </g>
+  </svg>
+</div>
+
+<style>
+  .gores-scene {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    overflow: hidden;
+    pointer-events: none;
+  }
+
+  .gores-scene svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+
+  .swing-a,
+  .swing-b,
+  .swing-c,
+  .swing-d,
+  .swing-e,
+  .swing-nested,
+  .swing-nested-slow {
+    transform-origin: 0 0;
+    transform-box: fill-box;
+  }
+
+  .swing-a {
+    animation: pendulum-a 5.4s ease-in-out infinite;
+  }
+  .swing-b {
+    animation: pendulum-b 6.6s ease-in-out infinite;
+  }
+  .swing-c {
+    animation: pendulum-c 4.8s ease-in-out infinite;
+  }
+  .swing-d {
+    animation: pendulum-d 7.2s ease-in-out infinite;
+  }
+  .swing-e {
+    animation: pendulum-e 5.8s ease-in-out infinite;
+  }
+  .swing-nested {
+    animation: nested 2.4s ease-in-out infinite;
+  }
+  .swing-nested-slow {
+    animation: nested 3.1s ease-in-out infinite reverse;
+  }
+
+  .hammer-tap {
+    transform-origin: 18px 0;
+    transform-box: fill-box;
+    animation: hammer 3.6s ease-in-out infinite;
+  }
+  .hammer-tap-late {
+    animation-delay: 1.4s;
+  }
+
+  .muzzle {
+    opacity: 0;
+  }
+
+  .pistol-fire .muzzle {
+    animation: muzzle 5.2s ease-in-out infinite;
+  }
+  .pistol-fire-late .muzzle {
+    animation-delay: 2.4s;
+  }
+
+  .shiver {
+    animation: shiver 0.55s ease-in-out infinite;
+  }
+
+  .ice-shimmer {
+    animation: ice-pulse 7s ease-in-out infinite;
+  }
+
+  .mote-a {
+    animation: drift-a 11s ease-in-out infinite;
+  }
+  .mote-b {
+    animation: drift-b 14s ease-in-out infinite;
+  }
+  .mote-c {
+    animation: drift-c 12s ease-in-out infinite;
+  }
+
+  @keyframes pendulum-a {
+    0%,
+    100% {
+      transform: rotate(-16deg);
+    }
+    50% {
+      transform: rotate(14deg);
+    }
+  }
+  @keyframes pendulum-b {
+    0%,
+    100% {
+      transform: rotate(10deg);
+    }
+    50% {
+      transform: rotate(-18deg);
+    }
+  }
+  @keyframes pendulum-c {
+    0%,
+    100% {
+      transform: rotate(12deg);
+    }
+    50% {
+      transform: rotate(-15deg);
+    }
+  }
+  @keyframes pendulum-d {
+    0%,
+    100% {
+      transform: rotate(-7deg);
+    }
+    50% {
+      transform: rotate(9deg);
+    }
+  }
+  @keyframes pendulum-e {
+    0%,
+    100% {
+      transform: rotate(8deg);
+    }
+    50% {
+      transform: rotate(-12deg);
+    }
+  }
+  @keyframes nested {
+    0%,
+    100% {
+      transform: rotate(-7deg);
+    }
+    50% {
+      transform: rotate(7deg);
+    }
+  }
+  @keyframes hammer {
+    0%,
+    68%,
+    100% {
+      transform: rotate(-18deg);
+    }
+    76% {
+      transform: rotate(42deg);
+    }
+    84% {
+      transform: rotate(-22deg);
+    }
+  }
+  @keyframes muzzle {
+    0%,
+    88%,
+    94%,
+    100% {
+      opacity: 0;
+    }
+    90%,
+    91.5% {
+      opacity: 0.95;
+    }
+  }
+  @keyframes shiver {
+    0%,
+    100% {
+      transform: translateX(0);
+    }
+    50% {
+      transform: translateX(1.6px);
+    }
+  }
+  @keyframes ice-pulse {
+    0%,
+    100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.86;
+    }
+  }
+  @keyframes drift-a {
+    0%,
+    100% {
+      transform: translate(0, 0);
+      opacity: 0.2;
+    }
+    50% {
+      transform: translate(8px, -28px);
+      opacity: 0.55;
+    }
+  }
+  @keyframes drift-b {
+    0%,
+    100% {
+      transform: translate(0, 0);
+    }
+    50% {
+      transform: translate(-12px, -22px);
+    }
+  }
+  @keyframes drift-c {
+    0%,
+    100% {
+      transform: translate(0, 0);
+    }
+    50% {
+      transform: translate(6px, -34px);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .swing-a,
+    .swing-b,
+    .swing-c,
+    .swing-d,
+    .swing-e,
+    .swing-nested,
+    .swing-nested-slow,
+    .hammer-tap,
+    .shiver,
+    .ice-shimmer,
+    .mote-a,
+    .mote-b,
+    .mote-c {
+      animation: none;
+    }
+    .swing-a {
+      transform: rotate(-10deg);
+    }
+    .swing-b {
+      transform: rotate(8deg);
+    }
+    .swing-c {
+      transform: rotate(10deg);
+    }
+    .swing-d {
+      transform: rotate(-6deg);
+    }
+    .swing-e {
+      transform: rotate(7deg);
+    }
+    .pistol-fire .muzzle {
+      animation: none;
+      opacity: 0;
+    }
+  }
+</style>
